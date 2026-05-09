@@ -1,12 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Struct.API", "Struct.API\Struct.API.csproj", "{02CA3BC5-15D8-471E-BA34-4383EBF4B3FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Struct.API", "src\Struct.API\Struct.API.csproj", "{02CA3BC5-15D8-471E-BA34-4383EBF4B3FB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A36E12AE-22B5-4D6E-9345-7B2C29B56AEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Struct.DAL", "Struct.DAL\Struct.DAL.csproj", "{01CC846E-9E5B-48B2-A825-C07B9A045C32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Struct.DAL", "src\Struct.DAL\Struct.DAL.csproj", "{01CC846E-9E5B-48B2-A825-C07B9A045C32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Struct.BLL", "Struct.BLL\Struct.BLL.csproj", "{9F9AF739-5D31-4CEF-8047-17C5C8FA6444}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Struct.BLL", "src\Struct.BLL\Struct.BLL.csproj", "{9F9AF739-5D31-4CEF-8047-17C5C8FA6444}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
