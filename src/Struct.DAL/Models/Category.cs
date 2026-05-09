@@ -2,7 +2,7 @@ namespace Struct.DAL.Models;
 
 public enum Category
 {
-    Cpu, 
+    Cpu,
     Gpu,
     Ram,
     Psu,
