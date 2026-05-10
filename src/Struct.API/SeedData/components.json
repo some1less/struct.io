@@ -1,0 +1,2326 @@
+[
+  {
+    "Name": "AMD Ryzen 7 7800X3D",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "8",
+      "Threads": "16",
+      "BaseClock": "4.2 GHz",
+      "BoostClock": "5.0 GHz",
+      "TDP": "120W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "Intel Core i5-13600K",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "14",
+      "Threads": "20",
+      "TDP": "125W",
+      "IntegratedGraphics": "UHD Graphics 770"
+    }
+  },
+  {
+    "Name": "ASUS ROG STRIX B650E-F GAMING WIFI",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "ATX",
+      "Chipset": "B650E",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "PcieSlots": "1x PCIe 5.0 x16, 1x PCIe 4.0 x16",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "NVIDIA GeForce RTX 4070 SUPER",
+    "Category": "GPU",
+    "Brand": "NVIDIA",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4070 SUPER",
+      "VRAM": "12 GB",
+      "MemoryType": "GDDR6X",
+      "Length": "242 mm",
+      "RecommendedPSU": "650W",
+      "TDP": "220W",
+      "PowerConnector": "1x 16-pin (12VHPWR)"
+    }
+  },
+  {
+    "Name": "Corsair RM850x (2021)",
+    "Category": "PSU",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "Wattage": "850W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Gold",
+      "Modular": "Full",
+      "Length": "160 mm"
+    }
+  },
+  {
+    "Name": "Intel Core i3-12100F",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "4",
+      "Threads": "8",
+      "TDP": "58W",
+      "IntegratedGraphics": "None"
+    }
+  },
+  {
+    "Name": "Intel Core i5-12400F",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "6",
+      "Threads": "12",
+      "TDP": "65W",
+      "IntegratedGraphics": "None"
+    }
+  },
+  {
+    "Name": "Intel Core i5-12600K",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "10",
+      "Threads": "16",
+      "TDP": "125W",
+      "IntegratedGraphics": "UHD Graphics 770"
+    }
+  },
+  {
+    "Name": "Intel Core i7-12700K",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "12",
+      "Threads": "20",
+      "TDP": "125W",
+      "IntegratedGraphics": "UHD Graphics 770"
+    }
+  },
+  {
+    "Name": "Intel Core i9-12900K",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "16",
+      "Threads": "24",
+      "TDP": "125W",
+      "IntegratedGraphics": "UHD Graphics 770"
+    }
+  },
+  {
+    "Name": "Intel Core i3-13100F",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "4",
+      "Threads": "8",
+      "TDP": "58W",
+      "IntegratedGraphics": "None"
+    }
+  },
+  {
+    "Name": "Intel Core i5-13400F",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "10",
+      "Threads": "16",
+      "TDP": "65W",
+      "IntegratedGraphics": "None"
+    }
+  },
+  {
+    "Name": "Intel Core i7-13700K",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "16",
+      "Threads": "24",
+      "TDP": "125W",
+      "IntegratedGraphics": "UHD Graphics 770"
+    }
+  },
+  {
+    "Name": "Intel Core i9-13900K",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "24",
+      "Threads": "32",
+      "TDP": "125W",
+      "IntegratedGraphics": "UHD Graphics 770"
+    }
+  },
+  {
+    "Name": "Intel Core i5-14400F",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "10",
+      "Threads": "16",
+      "TDP": "65W",
+      "IntegratedGraphics": "None"
+    }
+  },
+  {
+    "Name": "Intel Core i5-14600K",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "14",
+      "Threads": "20",
+      "TDP": "125W",
+      "IntegratedGraphics": "UHD Graphics 770"
+    }
+  },
+  {
+    "Name": "Intel Core i7-14700K",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "20",
+      "Threads": "28",
+      "TDP": "125W",
+      "IntegratedGraphics": "UHD Graphics 770"
+    }
+  },
+  {
+    "Name": "Intel Core i9-14900K",
+    "Category": "CPU",
+    "Brand": "Intel",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "Cores": "24",
+      "Threads": "32",
+      "TDP": "125W",
+      "IntegratedGraphics": "UHD Graphics 770"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 5 5600",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "Cores": "6",
+      "Threads": "12",
+      "TDP": "65W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 5 5600X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "Cores": "6",
+      "Threads": "12",
+      "TDP": "65W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 7 5700X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "Cores": "8",
+      "Threads": "16",
+      "TDP": "65W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 7 5800X3D",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "Cores": "8",
+      "Threads": "16",
+      "TDP": "105W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 9 5900X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "Cores": "12",
+      "Threads": "24",
+      "TDP": "105W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 9 5950X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "Cores": "16",
+      "Threads": "32",
+      "TDP": "105W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 5 7600",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "6",
+      "Threads": "12",
+      "TDP": "65W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 5 7600X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "6",
+      "Threads": "12",
+      "TDP": "105W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 7 7700",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "8",
+      "Threads": "16",
+      "TDP": "65W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 7 7700X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "8",
+      "Threads": "16",
+      "TDP": "105W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 9 7900X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "12",
+      "Threads": "24",
+      "TDP": "170W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 9 7950X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "16",
+      "Threads": "32",
+      "TDP": "170W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 9 7950X3D",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "16",
+      "Threads": "32",
+      "TDP": "120W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 5 9600X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "6",
+      "Threads": "12",
+      "TDP": "65W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 7 9700X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "8",
+      "Threads": "16",
+      "TDP": "65W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 9 9900X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "12",
+      "Threads": "24",
+      "TDP": "120W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "AMD Ryzen 9 9950X",
+    "Category": "CPU",
+    "Brand": "AMD",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "Cores": "16",
+      "Threads": "32",
+      "TDP": "170W",
+      "Architecture": "Zen 4"
+    }
+  },
+  {
+    "Name": "MSI GeForce RTX 3060 Gaming",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 3060",
+      "VRAM": "12 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "170W",
+      "RecommendedPSU": "520W"
+    }
+  },
+  {
+    "Name": "Gigabyte GeForce RTX 3060 Ti Gaming",
+    "Category": "GPU",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 3060 Ti",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "200W",
+      "RecommendedPSU": "550W"
+    }
+  },
+  {
+    "Name": "MSI GeForce RTX 3060 Ti Gaming",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 3060 Ti",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "200W",
+      "RecommendedPSU": "550W"
+    }
+  },
+  {
+    "Name": "ZOTAC GeForce RTX 3070 Gaming",
+    "Category": "GPU",
+    "Brand": "ZOTAC",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 3070",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "220W",
+      "RecommendedPSU": "570W"
+    }
+  },
+  {
+    "Name": "ASUS GeForce RTX 3070 Gaming",
+    "Category": "GPU",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 3070",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "220W",
+      "RecommendedPSU": "570W"
+    }
+  },
+  {
+    "Name": "Palit GeForce RTX 3080 Gaming",
+    "Category": "GPU",
+    "Brand": "Palit",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 3080",
+      "VRAM": "10 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "320W",
+      "RecommendedPSU": "670W"
+    }
+  },
+  {
+    "Name": "ASUS GeForce RTX 3080 Gaming",
+    "Category": "GPU",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 3080",
+      "VRAM": "10 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "320W",
+      "RecommendedPSU": "670W"
+    }
+  },
+  {
+    "Name": "Palit GeForce RTX 4060 Gaming",
+    "Category": "GPU",
+    "Brand": "Palit",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4060",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "115W",
+      "RecommendedPSU": "465W"
+    }
+  },
+  {
+    "Name": "ZOTAC GeForce RTX 4060 Gaming",
+    "Category": "GPU",
+    "Brand": "ZOTAC",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4060",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "115W",
+      "RecommendedPSU": "465W"
+    }
+  },
+  {
+    "Name": "ZOTAC GeForce RTX 4060 Ti Gaming",
+    "Category": "GPU",
+    "Brand": "ZOTAC",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4060 Ti",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "160W",
+      "RecommendedPSU": "510W"
+    }
+  },
+  {
+    "Name": "ASUS GeForce RTX 4060 Ti Gaming",
+    "Category": "GPU",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4060 Ti",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "160W",
+      "RecommendedPSU": "510W"
+    }
+  },
+  {
+    "Name": "MSI GeForce RTX 4070 Gaming",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4070",
+      "VRAM": "12 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "200W",
+      "RecommendedPSU": "550W"
+    }
+  },
+  {
+    "Name": "ZOTAC GeForce RTX 4070 Gaming",
+    "Category": "GPU",
+    "Brand": "ZOTAC",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4070",
+      "VRAM": "12 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "200W",
+      "RecommendedPSU": "550W"
+    }
+  },
+  {
+    "Name": "MSI GeForce RTX 4070 Ti SUPER Gaming",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4070 Ti SUPER",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "285W",
+      "RecommendedPSU": "635W"
+    }
+  },
+  {
+    "Name": "MSI GeForce RTX 4070 Ti SUPER Gaming",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4070 Ti SUPER",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "285W",
+      "RecommendedPSU": "635W"
+    }
+  },
+  {
+    "Name": "Palit GeForce RTX 4080 Gaming",
+    "Category": "GPU",
+    "Brand": "Palit",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4080",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "320W",
+      "RecommendedPSU": "670W"
+    }
+  },
+  {
+    "Name": "Gigabyte GeForce RTX 4080 Gaming",
+    "Category": "GPU",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4080",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "320W",
+      "RecommendedPSU": "670W"
+    }
+  },
+  {
+    "Name": "MSI GeForce RTX 4080 SUPER Gaming",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4080 SUPER",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "320W",
+      "RecommendedPSU": "670W"
+    }
+  },
+  {
+    "Name": "MSI GeForce RTX 4080 SUPER Gaming",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4080 SUPER",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "320W",
+      "RecommendedPSU": "670W"
+    }
+  },
+  {
+    "Name": "MSI GeForce RTX 4090 Gaming",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4090",
+      "VRAM": "24 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "450W",
+      "RecommendedPSU": "800W"
+    }
+  },
+  {
+    "Name": "Gigabyte GeForce RTX 4090 Gaming",
+    "Category": "GPU",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Chipset": "RTX 4090",
+      "VRAM": "24 GB",
+      "MemoryType": "GDDR6X",
+      "TDP": "450W",
+      "RecommendedPSU": "800W"
+    }
+  },
+  {
+    "Name": "Sapphire Radeon RX 6600 OC",
+    "Category": "GPU",
+    "Brand": "Sapphire",
+    "TechnicalSpecs": {
+      "Chipset": "RX 6600",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "132W",
+      "RecommendedPSU": "482W"
+    }
+  },
+  {
+    "Name": "MSI Radeon RX 6600 OC",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RX 6600",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "132W",
+      "RecommendedPSU": "482W"
+    }
+  },
+  {
+    "Name": "PowerColor Radeon RX 6700 XT OC",
+    "Category": "GPU",
+    "Brand": "PowerColor",
+    "TechnicalSpecs": {
+      "Chipset": "RX 6700 XT",
+      "VRAM": "12 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "230W",
+      "RecommendedPSU": "580W"
+    }
+  },
+  {
+    "Name": "Gigabyte Radeon RX 6700 XT OC",
+    "Category": "GPU",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Chipset": "RX 6700 XT",
+      "VRAM": "12 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "230W",
+      "RecommendedPSU": "580W"
+    }
+  },
+  {
+    "Name": "Gigabyte Radeon RX 6800 XT OC",
+    "Category": "GPU",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Chipset": "RX 6800 XT",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "300W",
+      "RecommendedPSU": "650W"
+    }
+  },
+  {
+    "Name": "ASUS Radeon RX 6800 XT OC",
+    "Category": "GPU",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Chipset": "RX 6800 XT",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "300W",
+      "RecommendedPSU": "650W"
+    }
+  },
+  {
+    "Name": "Sapphire Radeon RX 7600 OC",
+    "Category": "GPU",
+    "Brand": "Sapphire",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7600",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "165W",
+      "RecommendedPSU": "515W"
+    }
+  },
+  {
+    "Name": "MSI Radeon RX 7600 OC",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7600",
+      "VRAM": "8 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "165W",
+      "RecommendedPSU": "515W"
+    }
+  },
+  {
+    "Name": "Gigabyte Radeon RX 7700 XT OC",
+    "Category": "GPU",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7700 XT",
+      "VRAM": "12 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "245W",
+      "RecommendedPSU": "595W"
+    }
+  },
+  {
+    "Name": "Gigabyte Radeon RX 7700 XT OC",
+    "Category": "GPU",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7700 XT",
+      "VRAM": "12 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "245W",
+      "RecommendedPSU": "595W"
+    }
+  },
+  {
+    "Name": "Gigabyte Radeon RX 7800 XT OC",
+    "Category": "GPU",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7800 XT",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "263W",
+      "RecommendedPSU": "613W"
+    }
+  },
+  {
+    "Name": "PowerColor Radeon RX 7800 XT OC",
+    "Category": "GPU",
+    "Brand": "PowerColor",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7800 XT",
+      "VRAM": "16 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "263W",
+      "RecommendedPSU": "613W"
+    }
+  },
+  {
+    "Name": "Gigabyte Radeon RX 7900 XT OC",
+    "Category": "GPU",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7900 XT",
+      "VRAM": "20 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "315W",
+      "RecommendedPSU": "665W"
+    }
+  },
+  {
+    "Name": "Sapphire Radeon RX 7900 XT OC",
+    "Category": "GPU",
+    "Brand": "Sapphire",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7900 XT",
+      "VRAM": "20 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "315W",
+      "RecommendedPSU": "665W"
+    }
+  },
+  {
+    "Name": "ASUS Radeon RX 7900 XTX OC",
+    "Category": "GPU",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7900 XTX",
+      "VRAM": "24 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "355W",
+      "RecommendedPSU": "705W"
+    }
+  },
+  {
+    "Name": "MSI Radeon RX 7900 XTX OC",
+    "Category": "GPU",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Chipset": "RX 7900 XTX",
+      "VRAM": "24 GB",
+      "MemoryType": "GDDR6",
+      "TDP": "355W",
+      "RecommendedPSU": "705W"
+    }
+  },
+  {
+    "Name": "ASUS B760 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "ATX",
+      "Chipset": "B760",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "ASUS B760 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "B760",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "ASRock B760 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASRock",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "B760",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "ASUS B760 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "B760",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "MSI Z790 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "ATX",
+      "Chipset": "Z790",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "ASRock Z790 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASRock",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "Z790",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "Gigabyte Z790 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "Z790",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "MSI Z790 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "Z790",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "ASUS Z690 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "ATX",
+      "Chipset": "Z690",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "ASRock Z690 MiniITX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASRock",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "Mini-ITX",
+      "Chipset": "Z690",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "ASRock Z690 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASRock",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "Z690",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "ASUS Z690 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Socket": "LGA1700",
+      "FormFactor": "ATX",
+      "Chipset": "Z690",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "ASRock B650 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASRock",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "ATX",
+      "Chipset": "B650",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "MSI B650 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "B650",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "Gigabyte B650 MiniITX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Mini-ITX",
+      "Chipset": "B650",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "ASRock B650 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASRock",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "ATX",
+      "Chipset": "B650",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "Gigabyte X670 MiniITX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Mini-ITX",
+      "Chipset": "X670",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "ASUS X670 MiniITX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Mini-ITX",
+      "Chipset": "X670",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "Gigabyte X670 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "ATX",
+      "Chipset": "X670",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "MSI X670 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "ATX",
+      "Chipset": "X670",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "Gigabyte X670E MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "X670E",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "Gigabyte X670E MiniITX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Mini-ITX",
+      "Chipset": "X670E",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "MSI X670E MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "X670E",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "Gigabyte X670E MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "X670E",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "Gigabyte B650E MiniITX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Mini-ITX",
+      "Chipset": "B650E",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "Gigabyte B650E ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "ATX",
+      "Chipset": "B650E",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "MSI B650E MiniITX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "Mini-ITX",
+      "Chipset": "B650E",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "ASUS B650E ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Socket": "AM5",
+      "FormFactor": "ATX",
+      "Chipset": "B650E",
+      "MemoryType": "DDR5",
+      "MaxMemory": "192 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "MSI B550 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "B550",
+      "MemoryType": "DDR4",
+      "MaxMemory": "128 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "Gigabyte B550 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "FormFactor": "ATX",
+      "Chipset": "B550",
+      "MemoryType": "DDR4",
+      "MaxMemory": "128 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "ASRock B550 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASRock",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "FormFactor": "ATX",
+      "Chipset": "B550",
+      "MemoryType": "DDR4",
+      "MaxMemory": "128 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "MSI B550 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "MSI",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "B550",
+      "MemoryType": "DDR4",
+      "MaxMemory": "128 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "ASRock X570 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASRock",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "FormFactor": "ATX",
+      "Chipset": "X570",
+      "MemoryType": "DDR4",
+      "MaxMemory": "128 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "Gigabyte X570 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "FormFactor": "ATX",
+      "Chipset": "X570",
+      "MemoryType": "DDR4",
+      "MaxMemory": "128 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "Gigabyte X570 ATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "Gigabyte",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "FormFactor": "ATX",
+      "Chipset": "X570",
+      "MemoryType": "DDR4",
+      "MaxMemory": "128 GB",
+      "M2Slots": "3"
+    }
+  },
+  {
+    "Name": "ASUS X570 MicroATX PRO",
+    "Category": "MOTHERBOARD",
+    "Brand": "ASUS",
+    "TechnicalSpecs": {
+      "Socket": "AM4",
+      "FormFactor": "Micro-ATX",
+      "Chipset": "X570",
+      "MemoryType": "DDR4",
+      "MaxMemory": "128 GB",
+      "M2Slots": "2"
+    }
+  },
+  {
+    "Name": "Kingston Vengeance DDR4 16 GB (2x8)",
+    "Category": "RAM",
+    "Brand": "Kingston",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR4",
+      "Speed": "3200 MHz",
+      "Capacity": "16 GB (2x8)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "TeamGroup Vengeance DDR4 16 GB (2x8)",
+    "Category": "RAM",
+    "Brand": "TeamGroup",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR4",
+      "Speed": "3200 MHz",
+      "Capacity": "16 GB (2x8)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "TeamGroup Vengeance DDR4 16 GB (2x8)",
+    "Category": "RAM",
+    "Brand": "TeamGroup",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR4",
+      "Speed": "3200 MHz",
+      "Capacity": "16 GB (2x8)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Kingston Vengeance DDR4 16 GB (2x8)",
+    "Category": "RAM",
+    "Brand": "Kingston",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR4",
+      "Speed": "3200 MHz",
+      "Capacity": "16 GB (2x8)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Crucial Vengeance DDR4 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "Crucial",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR4",
+      "Speed": "3600 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "G.Skill Vengeance DDR4 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "G.Skill",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR4",
+      "Speed": "3600 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Corsair Vengeance DDR4 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR4",
+      "Speed": "3600 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Kingston Vengeance DDR4 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "Kingston",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR4",
+      "Speed": "3600 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Kingston Vengeance DDR5 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "Kingston",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "5200 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "TeamGroup Vengeance DDR5 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "TeamGroup",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "5200 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Crucial Vengeance DDR5 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "Crucial",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "5200 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "TeamGroup Vengeance DDR5 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "TeamGroup",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "5200 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "G.Skill Vengeance DDR5 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "G.Skill",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "6000 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "G.Skill Vengeance DDR5 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "G.Skill",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "6000 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "TeamGroup Vengeance DDR5 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "TeamGroup",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "6000 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Corsair Vengeance DDR5 32 GB (2x16)",
+    "Category": "RAM",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "6000 MHz",
+      "Capacity": "32 GB (2x16)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Crucial Vengeance DDR5 64 GB (2x32)",
+    "Category": "RAM",
+    "Brand": "Crucial",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "6400 MHz",
+      "Capacity": "64 GB (2x32)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "TeamGroup Vengeance DDR5 64 GB (2x32)",
+    "Category": "RAM",
+    "Brand": "TeamGroup",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "6400 MHz",
+      "Capacity": "64 GB (2x32)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Crucial Vengeance DDR5 64 GB (2x32)",
+    "Category": "RAM",
+    "Brand": "Crucial",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "6400 MHz",
+      "Capacity": "64 GB (2x32)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "G.Skill Vengeance DDR5 64 GB (2x32)",
+    "Category": "RAM",
+    "Brand": "G.Skill",
+    "TechnicalSpecs": {
+      "MemoryType": "DDR5",
+      "Speed": "6400 MHz",
+      "Capacity": "64 GB (2x32)",
+      "Modules": "GB"
+    }
+  },
+  {
+    "Name": "Samsung 990 PRO 1 TB",
+    "Category": "SSD",
+    "Brand": "Samsung",
+    "TechnicalSpecs": {
+      "Capacity": "1 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 3.0",
+      "MaxReadSpeed": "3500 MB/s"
+    }
+  },
+  {
+    "Name": "Crucial Black 1 TB",
+    "Category": "SSD",
+    "Brand": "Crucial",
+    "TechnicalSpecs": {
+      "Capacity": "1 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 3.0",
+      "MaxReadSpeed": "3500 MB/s"
+    }
+  },
+  {
+    "Name": "Samsung 990 PRO 1 TB",
+    "Category": "SSD",
+    "Brand": "Samsung",
+    "TechnicalSpecs": {
+      "Capacity": "1 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 3.0",
+      "MaxReadSpeed": "3500 MB/s"
+    }
+  },
+  {
+    "Name": "Crucial Black 1 TB",
+    "Category": "SSD",
+    "Brand": "Crucial",
+    "TechnicalSpecs": {
+      "Capacity": "1 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 4.0",
+      "MaxReadSpeed": "7000 MB/s"
+    }
+  },
+  {
+    "Name": "Kingston Black 1 TB",
+    "Category": "SSD",
+    "Brand": "Kingston",
+    "TechnicalSpecs": {
+      "Capacity": "1 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 4.0",
+      "MaxReadSpeed": "7000 MB/s"
+    }
+  },
+  {
+    "Name": "Samsung 990 PRO 1 TB",
+    "Category": "SSD",
+    "Brand": "Samsung",
+    "TechnicalSpecs": {
+      "Capacity": "1 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 4.0",
+      "MaxReadSpeed": "7000 MB/s"
+    }
+  },
+  {
+    "Name": "Samsung 990 PRO 2 TB",
+    "Category": "SSD",
+    "Brand": "Samsung",
+    "TechnicalSpecs": {
+      "Capacity": "2 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 4.0",
+      "MaxReadSpeed": "7300 MB/s"
+    }
+  },
+  {
+    "Name": "Western Digital Black 2 TB",
+    "Category": "SSD",
+    "Brand": "Western Digital",
+    "TechnicalSpecs": {
+      "Capacity": "2 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 4.0",
+      "MaxReadSpeed": "7300 MB/s"
+    }
+  },
+  {
+    "Name": "Samsung 990 PRO 2 TB",
+    "Category": "SSD",
+    "Brand": "Samsung",
+    "TechnicalSpecs": {
+      "Capacity": "2 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 4.0",
+      "MaxReadSpeed": "7300 MB/s"
+    }
+  },
+  {
+    "Name": "Samsung 990 PRO 4 TB",
+    "Category": "SSD",
+    "Brand": "Samsung",
+    "TechnicalSpecs": {
+      "Capacity": "4 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 4.0",
+      "MaxReadSpeed": "7300 MB/s"
+    }
+  },
+  {
+    "Name": "Crucial Black 4 TB",
+    "Category": "SSD",
+    "Brand": "Crucial",
+    "TechnicalSpecs": {
+      "Capacity": "4 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 4.0",
+      "MaxReadSpeed": "7300 MB/s"
+    }
+  },
+  {
+    "Name": "Samsung 990 PRO 4 TB",
+    "Category": "SSD",
+    "Brand": "Samsung",
+    "TechnicalSpecs": {
+      "Capacity": "4 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 4.0",
+      "MaxReadSpeed": "7300 MB/s"
+    }
+  },
+  {
+    "Name": "Samsung 990 PRO 2 TB",
+    "Category": "SSD",
+    "Brand": "Samsung",
+    "TechnicalSpecs": {
+      "Capacity": "2 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 5.0",
+      "MaxReadSpeed": "12000 MB/s"
+    }
+  },
+  {
+    "Name": "Western Digital Black 2 TB",
+    "Category": "SSD",
+    "Brand": "Western Digital",
+    "TechnicalSpecs": {
+      "Capacity": "2 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 5.0",
+      "MaxReadSpeed": "12000 MB/s"
+    }
+  },
+  {
+    "Name": "Western Digital Black 2 TB",
+    "Category": "SSD",
+    "Brand": "Western Digital",
+    "TechnicalSpecs": {
+      "Capacity": "2 TB",
+      "FormFactor": "M.2 2280",
+      "Interface": "PCIe 5.0",
+      "MaxReadSpeed": "12000 MB/s"
+    }
+  },
+  {
+    "Name": "EVGA RM650x",
+    "Category": "PSU",
+    "Brand": "EVGA",
+    "TechnicalSpecs": {
+      "Wattage": "650W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Bronze",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "Seasonic RM650x",
+    "Category": "PSU",
+    "Brand": "Seasonic",
+    "TechnicalSpecs": {
+      "Wattage": "650W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Bronze",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "EVGA RM650x",
+    "Category": "PSU",
+    "Brand": "EVGA",
+    "TechnicalSpecs": {
+      "Wattage": "650W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Bronze",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "Seasonic RM750x",
+    "Category": "PSU",
+    "Brand": "Seasonic",
+    "TechnicalSpecs": {
+      "Wattage": "750W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Gold",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "be quiet! RM750x",
+    "Category": "PSU",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Wattage": "750W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Gold",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "Corsair RM750x",
+    "Category": "PSU",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "Wattage": "750W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Gold",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "be quiet! RM850x",
+    "Category": "PSU",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Wattage": "850W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Gold",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "Seasonic RM850x",
+    "Category": "PSU",
+    "Brand": "Seasonic",
+    "TechnicalSpecs": {
+      "Wattage": "850W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Gold",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "be quiet! RM850x",
+    "Category": "PSU",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Wattage": "850W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Gold",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "EVGA RM1000x",
+    "Category": "PSU",
+    "Brand": "EVGA",
+    "TechnicalSpecs": {
+      "Wattage": "1000W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Platinum",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "EVGA RM1000x",
+    "Category": "PSU",
+    "Brand": "EVGA",
+    "TechnicalSpecs": {
+      "Wattage": "1000W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Platinum",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "EVGA RM1000x",
+    "Category": "PSU",
+    "Brand": "EVGA",
+    "TechnicalSpecs": {
+      "Wattage": "1000W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Platinum",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "be quiet! RM1200x",
+    "Category": "PSU",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Wattage": "1200W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Platinum",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "EVGA RM1200x",
+    "Category": "PSU",
+    "Brand": "EVGA",
+    "TechnicalSpecs": {
+      "Wattage": "1200W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Platinum",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "Corsair RM1200x",
+    "Category": "PSU",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "Wattage": "1200W",
+      "FormFactor": "ATX",
+      "EfficiencyRating": "80+ Platinum",
+      "Modular": "Full"
+    }
+  },
+  {
+    "Name": "NZXT Tower Cooler",
+    "Category": "COOLER",
+    "Brand": "NZXT",
+    "TechnicalSpecs": {
+      "Type": "Air",
+      "FanSize": "120mm",
+      "MaxTDP": "220W"
+    }
+  },
+  {
+    "Name": "be quiet! Tower Cooler",
+    "Category": "COOLER",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Type": "Air",
+      "FanSize": "120mm",
+      "MaxTDP": "220W"
+    }
+  },
+  {
+    "Name": "NZXT Tower Cooler",
+    "Category": "COOLER",
+    "Brand": "NZXT",
+    "TechnicalSpecs": {
+      "Type": "Air",
+      "FanSize": "120mm",
+      "MaxTDP": "220W"
+    }
+  },
+  {
+    "Name": "be quiet! Tower Cooler",
+    "Category": "COOLER",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Type": "Air",
+      "FanSize": "120mm",
+      "MaxTDP": "220W"
+    }
+  },
+  {
+    "Name": "Noctua Tower Cooler",
+    "Category": "COOLER",
+    "Brand": "Noctua",
+    "TechnicalSpecs": {
+      "Type": "Air",
+      "FanSize": "120mm",
+      "MaxTDP": "220W"
+    }
+  },
+  {
+    "Name": "be quiet! Tower Cooler",
+    "Category": "COOLER",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Type": "Air",
+      "FanSize": "120mm",
+      "MaxTDP": "220W"
+    }
+  },
+  {
+    "Name": "be quiet! Tower Cooler",
+    "Category": "COOLER",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Type": "Air",
+      "FanSize": "120mm",
+      "MaxTDP": "220W"
+    }
+  },
+  {
+    "Name": "Noctua Tower Cooler",
+    "Category": "COOLER",
+    "Brand": "Noctua",
+    "TechnicalSpecs": {
+      "Type": "Air",
+      "FanSize": "120mm",
+      "MaxTDP": "220W"
+    }
+  },
+  {
+    "Name": "Corsair Liquid AIO",
+    "Category": "COOLER",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "Type": "Liquid",
+      "RadiatorSize": "280mm",
+      "Fans": "2-3"
+    }
+  },
+  {
+    "Name": "DeepCool Liquid AIO",
+    "Category": "COOLER",
+    "Brand": "DeepCool",
+    "TechnicalSpecs": {
+      "Type": "Liquid",
+      "RadiatorSize": "360mm",
+      "Fans": "2-3"
+    }
+  },
+  {
+    "Name": "be quiet! Liquid AIO",
+    "Category": "COOLER",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Type": "Liquid",
+      "RadiatorSize": "240mm",
+      "Fans": "2-3"
+    }
+  },
+  {
+    "Name": "Noctua Liquid AIO",
+    "Category": "COOLER",
+    "Brand": "Noctua",
+    "TechnicalSpecs": {
+      "Type": "Liquid",
+      "RadiatorSize": "240mm",
+      "Fans": "2-3"
+    }
+  },
+  {
+    "Name": "NZXT Liquid AIO",
+    "Category": "COOLER",
+    "Brand": "NZXT",
+    "TechnicalSpecs": {
+      "Type": "Liquid",
+      "RadiatorSize": "280mm",
+      "Fans": "2-3"
+    }
+  },
+  {
+    "Name": "be quiet! Liquid AIO",
+    "Category": "COOLER",
+    "Brand": "be quiet!",
+    "TechnicalSpecs": {
+      "Type": "Liquid",
+      "RadiatorSize": "360mm",
+      "Fans": "2-3"
+    }
+  },
+  {
+    "Name": "NZXT Liquid AIO",
+    "Category": "COOLER",
+    "Brand": "NZXT",
+    "TechnicalSpecs": {
+      "Type": "Liquid",
+      "RadiatorSize": "280mm",
+      "Fans": "2-3"
+    }
+  },
+  {
+    "Name": "Lian Li Mid Tower",
+    "Category": "CASE",
+    "Brand": "Lian Li",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Fractal Design Mid Tower",
+    "Category": "CASE",
+    "Brand": "Fractal Design",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Lian Li Mid Tower",
+    "Category": "CASE",
+    "Brand": "Lian Li",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Lian Li Mid Tower",
+    "Category": "CASE",
+    "Brand": "Lian Li",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Corsair Mid Tower",
+    "Category": "CASE",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Corsair Mid Tower",
+    "Category": "CASE",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "NZXT Mid Tower",
+    "Category": "CASE",
+    "Brand": "NZXT",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Lian Li Mid Tower",
+    "Category": "CASE",
+    "Brand": "Lian Li",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Fractal Design Mid Tower",
+    "Category": "CASE",
+    "Brand": "Fractal Design",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "NZXT Mid Tower",
+    "Category": "CASE",
+    "Brand": "NZXT",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Fractal Design Mid Tower",
+    "Category": "CASE",
+    "Brand": "Fractal Design",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Fractal Design Mid Tower",
+    "Category": "CASE",
+    "Brand": "Fractal Design",
+    "TechnicalSpecs": {
+      "FormFactor": "Mid Tower",
+      "MotherboardSupport": "ATX, Micro-ATX, Mini-ITX",
+      "MaxGpuLength": "360 mm",
+      "IncludedFans": "2"
+    }
+  },
+  {
+    "Name": "Lian Li 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Lian Li",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "Yes"
+    }
+  },
+  {
+    "Name": "Corsair 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "No"
+    }
+  },
+  {
+    "Name": "Noctua 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Noctua",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "Yes"
+    }
+  },
+  {
+    "Name": "Noctua 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Noctua",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "No"
+    }
+  },
+  {
+    "Name": "Noctua 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Noctua",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "No"
+    }
+  },
+  {
+    "Name": "Arctic 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Arctic",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "Yes"
+    }
+  },
+  {
+    "Name": "Arctic 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Arctic",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "No"
+    }
+  },
+  {
+    "Name": "Arctic 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Arctic",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "Yes"
+    }
+  },
+  {
+    "Name": "Corsair 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Corsair",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "No"
+    }
+  },
+  {
+    "Name": "Noctua 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Noctua",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "No"
+    }
+  },
+  {
+    "Name": "Noctua 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Noctua",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "No"
+    }
+  },
+  {
+    "Name": "Arctic 120mm PWM",
+    "Category": "FAN",
+    "Brand": "Arctic",
+    "TechnicalSpecs": {
+      "Size": "120mm",
+      "BearingType": "Fluid Dynamic",
+      "MaxRPM": "1800 RPM",
+      "RGB": "Yes"
+    }
+  },
+  {
+    "Name": "Western Digital Barracuda 2 TB",
+    "Category": "HDD",
+    "Brand": "Western Digital",
+    "TechnicalSpecs": {
+      "Capacity": "2 TB",
+      "FormFactor": "3.5 inch",
+      "Interface": "SATA III",
+      "RPM": "7200"
+    }
+  },
+  {
+    "Name": "Western Digital Barracuda 4 TB",
+    "Category": "HDD",
+    "Brand": "Western Digital",
+    "TechnicalSpecs": {
+      "Capacity": "4 TB",
+      "FormFactor": "3.5 inch",
+      "Interface": "SATA III",
+      "RPM": "7200"
+    }
+  }
+]

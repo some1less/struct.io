@@ -39,5 +39,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Component>()
             .Property(c => c.Category)
             .HasConversion<string>();
+        
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }
