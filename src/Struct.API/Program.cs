@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Struct.API.Extensions.Seeding;
+using Struct.API.Extensions.Seeding.Parsers;
 using Struct.DAL.Context;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,20 +17,36 @@ var dataSource = dataSourceBuilder.Build();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(dataSource));
 
+/* DATA SEEDING - ONES AND FORALL*/
+builder.Services.AddTransient<IComponentParser, CpuParser>();
+builder.Services.AddTransient<IComponentParser, GpuParser>();
+builder.Services.AddTransient<IComponentParser, MotherboardParser>();
+builder.Services.AddTransient<IComponentParser, RamParser>();
+builder.Services.AddTransient<IComponentParser, PsuParser>();
+builder.Services.AddTransient<IComponentParser, CaseParser>();
+builder.Services.AddTransient<IComponentParser, StorageParser>();
+
+builder.Services.AddTransient<BuildCoresSeeder>();
+
 var app = builder.Build();
 
-/* DATABASE SEEDING */
+/* ACTUAL DATABASE SEEDING */
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    
     var logger = services.GetRequiredService<ILogger<Program>>();
-    
+
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
         await context.Database.MigrateAsync();
-        await Struct.API.Extensions.DatabaseSeeder.SeedAsync(context, logger);
+        
+        var buildCoresSeeder = services.GetRequiredService<BuildCoresSeeder>();
+        
+        string pathToOpenDb = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "open-db");
+        await buildCoresSeeder.SeedFromDirectoryAsync(pathToOpenDb);
+        
+        logger.LogInformation("Database seeded successfully.");
     }
     catch (Exception ex)
     {

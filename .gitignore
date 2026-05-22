@@ -164,6 +164,10 @@ UpgradeLog*.htm
 *.png
 *.jpg
 
+src/Struct.API/Extensions/Seeding/open-db
+
+.env
+
 #LightSwitch generated files
 GeneratedArtifacts/
 _Pvt_Extensions/
