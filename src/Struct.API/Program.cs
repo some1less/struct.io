@@ -17,6 +17,13 @@ var dataSource = dataSourceBuilder.Build();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(dataSource));
 
+/* CRUD */
+// DAL Registration
+builder.Services.AddScoped<Struct.DAL.Repositories.IComponentRepository, Struct.DAL.Repositories.ComponentRepository>();
+
+// BLL Registration
+builder.Services.AddScoped<Struct.BLL.Services.IComponentService, Struct.BLL.Services.ComponentService>();
+
 /* DATA SEEDING - ONES AND FORALL*/
 builder.Services.AddTransient<IComponentParser, CpuParser>();
 builder.Services.AddTransient<IComponentParser, GpuParser>();

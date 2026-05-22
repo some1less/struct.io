@@ -13,7 +13,7 @@ using Struct.DAL.Context;
 namespace Struct.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260509163032_InitialCreate")]
+    [Migration("20260522203616_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -141,6 +141,18 @@ namespace Struct.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Privacies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Private"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Public"
+                        });
                 });
 
             modelBuilder.Entity("Struct.DAL.Models.Profile", b =>
@@ -182,6 +194,23 @@ namespace Struct.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "User"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Moderator"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("Struct.DAL.Models.SavedBuild", b =>

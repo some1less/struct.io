@@ -46,7 +46,7 @@ public class BuildCoresSeeder
 
                 var actualCategory = parser.DetermineCategory(root);
                 var specs = parser.ParseSpecs(root);
-
+                
                 componentsToAdd.Add(new Component
                 {
                     Name = name,

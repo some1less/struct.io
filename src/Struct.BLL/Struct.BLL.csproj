@@ -10,4 +10,8 @@
         <ProjectReference Include="..\Struct.DAL\Struct.DAL.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Mapster" Version="10.0.7" />
+    </ItemGroup>
+
 </Project>
