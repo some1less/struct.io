@@ -14,6 +14,8 @@ public class Component
 
     public required Dictionary<string, string> TechnicalSpecs { get; set; } = [];
 
+    public decimal Price { get; set; }
+
     /* reversed connection */
     public ICollection<BuildComponent> BuildComponents { get; set; } = new List<BuildComponent>();
 }

@@ -16,7 +16,8 @@ public class PsuParser : IComponentParser
         {
             { "Wattage", root["wattage"]?.ToString() ?? "0" },
             { "FormFactor", root["form_factor"]?.ToString() ?? "Unknown" },
-            { "Efficiency", root["efficiency_rating"]?.ToString() ?? "Unknown" }
+            { "Efficiency", root["efficiency_rating"]?.ToString() ?? "Unknown" },
+            { "Modular", root["modular"]?.ToString() ?? "Unknown" }
         };
     }
 }

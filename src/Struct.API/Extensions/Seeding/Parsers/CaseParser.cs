@@ -20,7 +20,8 @@ public class CaseParser : IComponentParser
         {
             { "FormFactor", root["form_factor"]?.ToString() ?? "Unknown" },
             { "MaxGpuLength", root["max_video_card_length"]?.ToString() ?? "0" },
-            { "SupportedMotherboards", supportedMobo }
+            { "SupportedMotherboards", supportedMobo },
+            { "SidePanel", root["side_panel"]?.ToString() ?? "None" }
         };
     }
 }

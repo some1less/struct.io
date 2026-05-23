@@ -8,11 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,6 +24,20 @@
       <Content Include="..\..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\06351667-b638-46e4-88d9-5829230a9fcc.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\158477d6-25c0-4ee2-920c-ac8816a37e71.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\1ec8227b-e045-4b75-aedd-492f51f22e4e.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\1fab27b8-12a8-4f16-aa04-8db160c0167e.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\572f43d9-c427-464c-b8b4-c342498db749.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\68ca2a80-7855-4f71-b441-b3fd0a3cd9f6.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\6eed4a07-b417-46f8-b9ff-f2299f31e965.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\7a2b159b-8234-48c7-adb8-fc54db814c57.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\830fd1e5-e407-48ff-b94f-b94825a0ece1.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\e27bea98-0a54-4b0d-817c-9279a302e8b5.json" />
+      <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\ec3c4a4a-bc49-4e83-b56c-9a08b2e82d4f.json" />
     </ItemGroup>
 
 </Project>

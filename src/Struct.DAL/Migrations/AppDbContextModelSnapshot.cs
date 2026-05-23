@@ -111,6 +111,9 @@ namespace Struct.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
                     b.Property<Dictionary<string, string>>("TechnicalSpecs")
                         .IsRequired()
                         .HasColumnType("jsonb");

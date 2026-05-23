@@ -13,7 +13,7 @@ using Struct.DAL.Context;
 namespace Struct.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260522203616_InitialCreate")]
+    [Migration("20260523170546_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -113,6 +113,9 @@ namespace Struct.DAL.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
 
                     b.Property<Dictionary<string, string>>("TechnicalSpecs")
                         .IsRequired()

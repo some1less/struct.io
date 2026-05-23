@@ -11,9 +11,9 @@ public class CpuParser : IComponentParser
 
     public Dictionary<string, string> ParseSpecs(JsonNode root)
     {
-        var memoryType = 
+        var memoryType =
             root["specifications"]?["memory"]?["types"]?.AsArray()?.FirstOrDefault()?.ToString() ?? "Unknown";
-        
+
         return new Dictionary<string, string>
         {
             { "Cores", root["cores"]?["total"]?.ToString() ?? "0" },

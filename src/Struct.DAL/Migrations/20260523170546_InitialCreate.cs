@@ -24,7 +24,8 @@ namespace Struct.DAL.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Category = table.Column<string>(type: "text", nullable: false),
                     Brand = table.Column<string>(type: "text", nullable: false),
-                    TechnicalSpecs = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: false)
+                    TechnicalSpecs = table.Column<Dictionary<string, string>>(type: "jsonb", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
