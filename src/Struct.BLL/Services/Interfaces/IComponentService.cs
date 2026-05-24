@@ -1,6 +1,6 @@
 using Struct.BLL.DTOs;
 
-namespace Struct.BLL.Services;
+namespace Struct.BLL.Services.Interfaces;
 
 public interface IComponentService
 {

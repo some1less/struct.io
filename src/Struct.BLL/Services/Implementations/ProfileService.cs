@@ -1,9 +1,10 @@
 using Mapster;
 using Struct.BLL.DTOs;
+using Struct.BLL.Services.Interfaces;
 using Struct.DAL.Models;
 using Struct.DAL.Repositories;
 
-namespace Struct.BLL.Services;
+namespace Struct.BLL.Services.Implementations;
 
 public class ProfileService : IProfileService
 {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Struct.BLL.DTOs;
-using Struct.BLL.Services;
+using Struct.BLL.Services.Interfaces;
 
 namespace Struct.API.Controllers;
 
