@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Struct.API.Extensions.Seeding;
 using Struct.API.Extensions.Seeding.Parsers;
+using Struct.BLL.Core.Compatibility;
+using Struct.BLL.Core.Recommendation;
+using Struct.BLL.Core.Scoring;
 using Struct.BLL.Services;
 using Struct.DAL.Context;
 using Struct.DAL.Repositories;
@@ -40,6 +43,12 @@ builder.Services.AddScoped<IPrivacyService, PrivacyService>();
 builder.Services.AddScoped<IComponentService, ComponentService>();
 builder.Services.AddScoped<ISavedBuildService, SavedBuildService>();
 builder.Services.AddScoped<IBuildComponentService, BuildComponentService>();
+
+/* BLL CORE LOGIC */
+builder.Services.AddScoped<ICompatibilityEngine, CompatibilityEngine>();
+builder.Services.AddScoped<IPerformanceScorer, PerformanceScorer>();
+builder.Services.AddScoped<IRecommendationEngine, RecommendationEngine>();
+
 
 /* DATA SEEDING - ONES AND FORALL*/
 builder.Services.AddTransient<IComponentParser, CpuParser>();
