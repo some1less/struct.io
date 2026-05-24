@@ -40,7 +40,10 @@ public static class ComponentPriceCalculator
                     return CalculateHddPrice(specs);
 
                 case "CASE":
-                    return CalculateCasePrice(lowerName, lowerBrand, specs);
+                    return CalculateCasePrice(lowerBrand, specs);
+
+                case "COOLER":
+                    return CalculateCoolerPrice(lowerName, lowerBrand, specs);
 
                 default:
                     return 200m;
@@ -52,6 +55,8 @@ public static class ComponentPriceCalculator
             return 250m;
         }
     }
+
+
 
     private static decimal CalculateCpuPrice(string lowerName, Dictionary<string, string> specs, string socket)
     {
@@ -96,7 +101,7 @@ public static class ComponentPriceCalculator
     private static decimal CalculateGpuPrice(string lowerName, Dictionary<string, string> specs)
     {
         // Tier base by performance segment
-        // IMPORTANT: order matters — check more specific substrings first ("7900 xtx" before "7900")
+        // IMPORTANT: order matters - check more specific substrings first ("7900 xtx" before "7900")
         decimal tierBase = 300;
         if (lowerName.Contains("4090") || lowerName.Contains("3090") ||
             lowerName.Contains("5090") || lowerName.Contains("7900 xtx") ||
@@ -281,7 +286,7 @@ public static class ComponentPriceCalculator
         return Math.Max(60 + (hddCap * 0.04m), 100m);
     }
 
-    private static decimal CalculateCasePrice(string lowerName, string lowerBrand, Dictionary<string, string> specs)
+    private static decimal CalculateCasePrice(string lowerBrand, Dictionary<string, string> specs)
     {
         decimal casePrice = 200;
 
@@ -310,5 +315,83 @@ public static class ComponentPriceCalculator
         }
 
         return Math.Max(casePrice, 80m);
+    }
+
+    private static decimal CalculateCoolerPrice(string lowerName, string lowerBrand, Dictionary<string, string> specs)
+    {
+        bool isWaterCooled = specs.TryGetValue("WaterCooled", out var wc) &&
+                             wc.Equals("True", StringComparison.OrdinalIgnoreCase);
+        decimal coolerPrice;
+
+        if (isWaterCooled)
+        {
+            // ---- AIO LIQUID COOLERS ----
+            int radSize = specs.TryGetValue("RadiatorSize", out var radStr) &&
+                          int.TryParse(radStr, out var rs) ? rs : 120;
+
+            // Base price by radiator size
+            if (radSize >= 360) coolerPrice = 620m;
+            else if (radSize >= 280) coolerPrice = 430m;
+            else if (radSize >= 240) coolerPrice = 410m;
+            else coolerPrice = 340m;
+
+            // LCD screen/premium ecosystem
+            if (lowerName.Contains("lcd") || lowerName.Contains("z53") ||
+                lowerName.Contains("z63") || lowerName.Contains("z73") ||
+                lowerName.Contains("ryujin") || lowerName.Contains("mjolnir") ||
+                lowerName.Contains("vision"))
+                coolerPrice += 550m;
+
+            // iCUE LINK is a separate, more expensive ecosystem
+            if (lowerName.Contains("icue link") || lowerName.Contains("link titan"))
+                coolerPrice += 600m;
+
+            // Brand premium (AIO)
+            if (lowerBrand.Contains("nzxt") || lowerBrand.Contains("corsair") ||
+                lowerBrand.Contains("lian li") || lowerBrand.Contains("asus"))
+                coolerPrice += 100m;
+            else if (lowerBrand.Contains("cooler master") || lowerBrand.Contains("msi") ||
+                     lowerBrand.Contains("be quiet") || lowerBrand.Contains("alphacool") ||
+                     lowerBrand.Contains("thermaltake") || lowerBrand.Contains("thermalright") ||
+                     lowerBrand.Contains("enermax"))
+                coolerPrice += 50m;
+        }
+        else
+        {
+            // ---- AIR COOLERS ----
+            int height = specs.TryGetValue("Height", out var hStr) &&
+                         int.TryParse(hStr, out var h) ? h : 120;
+
+            // Stock-level cooler override
+            if (lowerName.Contains("alpine") || lowerName.Contains("juno"))
+                return 50m;
+
+            // Height-based tiers
+            if (height <= 80) coolerPrice = 80m;            // ultra low-profile
+            else if (height <= 100) coolerPrice = 90m;       // low-profile ITX
+            else if (height <= 149) coolerPrice = 110m;      // standard single tower
+            else coolerPrice = 130m;                          // tall towers (150mm+)
+
+            // Performance-class detection by name
+            if (lowerName.Contains("fanless") || lowerName.Contains("passive"))
+                coolerPrice += 230m;
+            else if (lowerName.Contains("dark rock"))
+                coolerPrice += 120m;
+            else if (lowerName.Contains("assassin") || lowerName.Contains("nh-d15") ||
+                     lowerName.Contains("cr-3000"))
+                coolerPrice += 80m;
+
+            if (lowerName.Contains("duo") || lowerName.Contains("dual"))
+                coolerPrice += 50m;
+            if (lowerName.Contains("digital") || lowerName.Contains("display"))
+                coolerPrice += 50m;
+
+            // Brand premium
+            if (lowerBrand.Contains("noctua")) coolerPrice += 120m;
+            else if (lowerBrand.Contains("be quiet")) coolerPrice += 80m;
+            else if (lowerBrand.Contains("nzxt")) coolerPrice += 70m;
+        }
+
+        return Math.Max(coolerPrice, 40m);
     }
 }

@@ -23,7 +23,7 @@ public class BuildCoresSeeder
 
         var componentsToAdd = new List<Component>();
         var parsersByFolder = _parsers.ToDictionary(p => p.TargetFolderName);
-        var foldersToParse = new[] { "CPU", "GPU", "Motherboard", "RAM", "PSU", "PCCase", "Storage" };
+        var foldersToParse = new[] { "CPU", "GPU", "Motherboard", "RAM", "PSU", "PCCase", "Storage", "CPUCooler" };
 
         foreach (var folder in foldersToParse)
         {

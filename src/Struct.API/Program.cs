@@ -49,6 +49,7 @@ builder.Services.AddTransient<IComponentParser, RamParser>();
 builder.Services.AddTransient<IComponentParser, PsuParser>();
 builder.Services.AddTransient<IComponentParser, CaseParser>();
 builder.Services.AddTransient<IComponentParser, StorageParser>();
+builder.Services.AddTransient<IComponentParser, CoolerParser>();
 
 builder.Services.AddTransient<BuildCoresSeeder>();
 
