@@ -15,7 +15,7 @@ public class PerformanceScorer : IPerformanceScorer
         return component.Category switch
         {
             Category.Cpu => ScoreCpu(component.TechnicalSpecs, lowerName, isWork),
-            Category.Gpu => ScoreGpu(component.TechnicalSpecs, lowerName),
+            Category.Gpu => ScoreGpu(component.TechnicalSpecs, lowerName, isWork),
             Category.Motherboard => ScoreMotherboard(component.TechnicalSpecs, lowerName),
             Category.Ram => ScoreRam(component.TechnicalSpecs, lowerName),
             Category.Psu => ScorePsu(component.TechnicalSpecs, lowerName),
@@ -34,23 +34,32 @@ public class PerformanceScorer : IPerformanceScorer
         double baseClock = ParseDouble(specs, "BaseClock", 3.0);
         double boostClock = ParseDouble(specs, "BoostClock", 4.0);
 
+        double effectiveCores = isWork ? cores : Math.Min(cores, 8);
+        double effectiveThreads = isWork ? threads : Math.Min(threads, 16);
+
         double coreWeight = isWork ? 20 : 10;
         double threadWeight = isWork ? 6 : 3;
         double clockWeight = isWork ? 30 : 60;
 
-        double rawScore = (cores * coreWeight) + (threads * threadWeight) + 
+        double rawScore = (effectiveCores * coreWeight) + (effectiveThreads * threadWeight) + 
                           (baseClock * clockWeight) + (boostClock * clockWeight * 1.5);
         
         if (name.Contains("x3d")) rawScore += 300; 
-        if (name.Contains("threadripper") || name.Contains("xeon w")) rawScore += 500;
+
+        if (!isWork && (name.Contains("threadripper") || name.Contains("xeon") || name.Contains("epyc")))
+            rawScore *= 0.2;
+        else if (isWork && (name.Contains("threadripper") || name.Contains("xeon w")))
+            rawScore += 500;
 
         return Normalize(rawScore, 150, 3500);
     }
 
-    private double ScoreGpu(Dictionary<string, string> specs, string name)
+    private double ScoreGpu(Dictionary<string, string> specs, string name, bool isWork)
     {
         double vram = ParseDouble(specs, "VRAM", 4);
-        double coreClock = ParseDouble(specs, "CoreClock", 1000); // MHz
+        double coreClock = ParseDouble(specs, "CoreClock", 1000);
+
+        double effectiveVram = isWork ? vram : Math.Min(vram, 24);
 
         double tierBonus = 0;
         if (name.Contains("4090") || name.Contains("7900 xtx") || name.Contains("5090")) tierBonus = 1200;
@@ -58,7 +67,11 @@ public class PerformanceScorer : IPerformanceScorer
         else if (name.Contains("4070") || name.Contains("7800") || name.Contains("7700")) tierBonus = 500;
         else if (name.Contains("4060") || name.Contains("7600") || name.Contains("3060")) tierBonus = 250;
 
-        double rawScore = (vram * 40) + (coreClock * 0.1) + tierBonus;
+        double rawScore = (effectiveVram * 40) + (coreClock * 0.1) + tierBonus;
+
+        if (!isWork && (name.Contains("pro w") || name.Contains("quadro") || name.Contains("rtx a") || name.Contains("ai top")))
+            rawScore *= 0.2;
+
         return Normalize(rawScore, 200, 2500);
     }
 

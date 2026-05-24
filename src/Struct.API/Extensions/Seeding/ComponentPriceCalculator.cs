@@ -6,8 +6,8 @@ public static class ComponentPriceCalculator
     {
         try
         {
-            string lowerName = name.ToLowerInvariant();
-            string lowerBrand = brand.ToLowerInvariant();
+            string lowerName = name.Replace("\u2122", "").Replace("\u00AE", "").ToLowerInvariant();
+            string lowerBrand = brand.Replace("\u2122", "").Replace("\u00AE", "").ToLowerInvariant();
             string socket = specs.TryGetValue("Socket", out var s) ? s.Replace(" ", "").ToUpperInvariant() : "";
 
             string memType = specs.TryGetValue("Type", out var mt) ? mt.ToUpperInvariant() : "";
@@ -82,6 +82,7 @@ public static class ComponentPriceCalculator
         if (socket.Contains("AM5") || socket.Contains("1851") || socket.Contains("STR5")) ageMultiplier = 1.0m;
         else if (socket.Contains("1700")) ageMultiplier = 0.85m;
         else if (socket.Contains("AM4") || socket.Contains("1200")) ageMultiplier = 0.55m;
+        else if (socket.Contains("STRX4") || socket.Contains("TR4") || socket.Contains("SWRX8") || socket.Contains("SP3")) ageMultiplier = 0.55m;
         else if (socket.Contains("1151") || socket.Contains("2066")) ageMultiplier = 0.30m;
         else if (socket.Contains("2011-3")) ageMultiplier = 0.20m;
         else if (socket.Contains("1150") || socket.Contains("FM2")) ageMultiplier = 0.15m;
