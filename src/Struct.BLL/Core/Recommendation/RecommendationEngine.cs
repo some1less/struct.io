@@ -3,7 +3,7 @@ using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation.Models;
 using Struct.BLL.Core.Scoring;
 using Struct.DAL.Models;
-using Struct.DAL.Repositories;
+using Struct.DAL.Repositories.Interfaces;
 
 namespace Struct.BLL.Core.Recommendation;
 

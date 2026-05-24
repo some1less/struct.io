@@ -5,10 +5,11 @@ using Struct.API.Extensions.Seeding.Parsers;
 using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation;
 using Struct.BLL.Core.Scoring;
-using Struct.BLL.Services;
+using Struct.BLL.Services.Implementations;
+using Struct.BLL.Services.Interfaces;
 using Struct.DAL.Context;
-using Struct.DAL.Repositories;
 using Struct.DAL.Repositories.Implementations;
+using Struct.DAL.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

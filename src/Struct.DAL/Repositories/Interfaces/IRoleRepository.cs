@@ -1,6 +1,6 @@
 using Struct.DAL.Models;
 
-namespace Struct.DAL.Repositories;
+namespace Struct.DAL.Repositories.Interfaces;
 
 public interface IRoleRepository
 {

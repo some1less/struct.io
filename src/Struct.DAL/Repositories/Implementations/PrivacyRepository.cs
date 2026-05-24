@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Struct.DAL.Context;
 using Struct.DAL.Models;
+using Struct.DAL.Repositories.Interfaces;
 
 namespace Struct.DAL.Repositories.Implementations;
 
