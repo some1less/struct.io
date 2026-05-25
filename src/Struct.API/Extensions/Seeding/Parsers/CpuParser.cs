@@ -11,17 +11,17 @@ public class CpuParser : IComponentParser
 
     public Dictionary<string, string> ParseSpecs(JsonNode root)
     {
-        var memoryType =
-            root["specifications"]?["memory"]?["types"]?.AsArray()?.FirstOrDefault()?.ToString() ?? "Unknown";
+        var ts = root["TechnicalSpecs"];
+        var memoryType = ts?["MemoryType"]?.ToString() ?? "Unknown";
 
         return new Dictionary<string, string>
         {
-            { "Cores", root["cores"]?["total"]?.ToString() ?? "0" },
-            { "Threads", root["cores"]?["threads"]?.ToString() ?? "0" },
-            { "BaseClock", root["clocks"]?["performance"]?["base"]?.ToString() ?? "0" },
-            { "BoostClock", root["clocks"]?["performance"]?["boost"]?.ToString() ?? "0" },
-            { "TDP", root["specifications"]?["tdp"]?.ToString() ?? "0" },
-            { "Socket", root["socket"]?.ToString() ?? "Unknown" },
+            { "Cores", ts?["Cores"]?.ToString() ?? "0" },
+            { "Threads", ts?["Threads"]?.ToString() ?? "0" },
+            { "BaseClock", ts?["BaseClock"]?.ToString() ?? "0" },
+            { "BoostClock", ts?["BoostClock"]?.ToString() ?? "0" },
+            { "TDP", ts?["TDP"]?.ToString() ?? "0" },
+            { "Socket", ts?["Socket"]?.ToString() ?? "Unknown" },
             { "MemoryType", memoryType }
         };
     }

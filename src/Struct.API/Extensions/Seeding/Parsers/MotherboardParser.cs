@@ -12,13 +12,14 @@ public class MotherboardParser : IComponentParser
 
     public Dictionary<string, string> ParseSpecs(JsonNode root)
     {
+        var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "Socket", root["socket"]?.ToString() ?? "Unknown" },
-            { "FormFactor", root["form_factor"]?.ToString() ?? "Unknown" },
-            { "RamType", root["memory"]?["ram_type"]?.ToString() ?? "Unknown" },
-            { "MaxRam", root["memory"]?["max"]?.ToString() ?? "0" },
-            { "RamSlots", root["memory"]?["slots"]?.ToString() ?? "0" }
+            { "Socket", ts?["Socket"]?.ToString() ?? "Unknown" },
+            { "FormFactor", ts?["FormFactor"]?.ToString() ?? "Unknown" },
+            { "RamType", ts?["RamType"]?.ToString() ?? "Unknown" },
+            { "MaxRam", ts?["MaxRam"]?.ToString() ?? "0" },
+            { "RamSlots", ts?["RamSlots"]?.ToString() ?? "0" }
         };
     }
 }

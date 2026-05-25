@@ -5,13 +5,13 @@ using Struct.DAL.Models;
 
 namespace Struct.API.Extensions.Seeding;
 
-public class BuildCoresSeeder
+public class DatabaseSeeder
 {
     private readonly AppDbContext _context;
     private readonly IEnumerable<IComponentParser> _parsers;
     private const int BatchSize = 1000;
 
-    public BuildCoresSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers)
+    public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers)
     {
         _context = context;
         _parsers = parsers;
@@ -19,40 +19,57 @@ public class BuildCoresSeeder
 
     public async Task SeedFromDirectoryAsync(string baseDirectoryPath)
     {
-        if (_context.Components.Any()) return;
+        if (_context.Components.Any())
+        {
+            _context.Components.RemoveRange(_context.Components);
+            await _context.SaveChangesAsync();
+        }
 
         var componentsToAdd = new List<Component>();
-        var parsersByFolder = _parsers.ToDictionary(p => p.TargetFolderName);
-        var foldersToParse = new[] { "CPU", "GPU", "Motherboard", "RAM", "PSU", "PCCase", "Storage", "CPUCooler" };
+        var parsersByCategory = _parsers.ToDictionary(p => p.TargetFolderName, StringComparer.OrdinalIgnoreCase);
+        int filteredCount = 0;
 
-        foreach (var folder in foldersToParse)
+        if (!File.Exists(baseDirectoryPath)) return;
+
+        try
         {
-            var fullPath = Path.Combine(baseDirectoryPath, folder);
-            if (!Directory.Exists(fullPath)) continue;
-            if (!parsersByFolder.TryGetValue(folder, out var parser)) continue;
+            var jsonString = await File.ReadAllTextAsync(baseDirectoryPath);
+            var rootArray = JsonNode.Parse(jsonString)?.AsArray();
+            if (rootArray == null) return;
 
-            var files = Directory.GetFiles(fullPath, "*.json");
-
-            foreach (var file in files)
+            foreach (var root in rootArray)
             {
-                try
-                {
-                    var jsonString = await File.ReadAllTextAsync(file);
-                    var root = JsonNode.Parse(jsonString);
-                    if (root == null) continue;
+                if (root == null) continue;
 
-                    var component = ParseComponent(root, parser);
-                    if (component != null)
-                    {
-                        componentsToAdd.Add(component);
-                    }
-                }
-                catch (Exception ex)
+                var categoryStr = root["Category"]?.ToString();
+                if (categoryStr == null) continue;
+
+                // Map "Cpu" to "CPU", "Gpu" to "GPU", "Psu" to "PSU" to match TargetFolderName
+                if (categoryStr.Equals("Cpu", StringComparison.OrdinalIgnoreCase)) categoryStr = "CPU";
+                else if (categoryStr.Equals("Gpu", StringComparison.OrdinalIgnoreCase)) categoryStr = "GPU";
+                else if (categoryStr.Equals("Psu", StringComparison.OrdinalIgnoreCase)) categoryStr = "PSU";
+                else if (categoryStr.Equals("Case", StringComparison.OrdinalIgnoreCase)) categoryStr = "PCCase";
+                else if (categoryStr.Equals("Cooler", StringComparison.OrdinalIgnoreCase)) categoryStr = "CPUCooler";
+                else if (categoryStr.Equals("Ssd", StringComparison.OrdinalIgnoreCase)) categoryStr = "Storage";
+                else if (categoryStr.Equals("Hdd", StringComparison.OrdinalIgnoreCase)) categoryStr = "Storage";
+
+                if (!parsersByCategory.TryGetValue(categoryStr, out var parser)) continue;
+
+                var component = ParseComponent(root, parser);
+                if (component != null)
                 {
-                    Console.WriteLine($"[WARN] Skipping {Path.GetFileName(file)}: {ex.Message}");
-                    continue;
+                    componentsToAdd.Add(component);
+                }
+                else
+                {
+                    filteredCount++;
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] Failed to read database: {ex.Message}");
+            return;
         }
 
         /* filter duplicates */
@@ -68,13 +85,13 @@ public class BuildCoresSeeder
             await _context.SaveChangesAsync();
         }
 
-        Console.WriteLine($"[INFO] Seeded {uniqueComponents.Count} components in batches of {BatchSize}.");
+        Console.WriteLine($"[INFO] Seeded {uniqueComponents.Count} components (filtered {filteredCount} obsolete).");
     }
 
     private static Component? ParseComponent(JsonNode root, IComponentParser parser)
     {
-        var name = root["metadata"]?["name"]?.ToString() ?? "Unknown";
-        var brand = root["metadata"]?["manufacturer"]?.ToString() ?? "Unknown";
+        var name = root["Name"]?.ToString() ?? "Unknown";
+        var brand = root["Brand"]?.ToString() ?? "Unknown";
 
         if (brand.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
         {
@@ -89,7 +106,21 @@ public class BuildCoresSeeder
             InferCpuMemoryType(specs);
         }
 
-        var pricePln = ComponentPriceCalculator.CalculatePricePLN(actualCategory.ToString(), brand, name, specs);
+        decimal rawPriceUsd = 0;
+        if (root["Price"]?.ToString() is string priceStr && decimal.TryParse(priceStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var parsedPrice))
+        {
+            rawPriceUsd = parsedPrice;
+        }
+
+        decimal pricePln = rawPriceUsd * 4.0m;
+
+        decimal calculatedPrice = ComponentPriceCalculator.CalculatePricePLN(actualCategory.ToString(), brand, name, specs);
+        
+        // If PCPartPicker price is missing, or is an obvious outlier (e.g. scalper price for out of stock old hardware)
+        if (pricePln <= 0 || pricePln > calculatedPrice * 1.5m || pricePln < calculatedPrice * 0.5m)
+        {
+            pricePln = calculatedPrice;
+        }
 
         return new Component
         {

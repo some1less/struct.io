@@ -12,12 +12,13 @@ public class RamParser : IComponentParser
 
     public Dictionary<string, string> ParseSpecs(JsonNode root)
     {
+        var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "Type", root["ram_type"]?.ToString() ?? "Unknown" },
-            { "Capacity", root["capacity"]?.ToString() ?? "0" },
-            { "Speed", root["speed"]?.ToString() ?? "0" },
-            { "Modules", root["modules"]?["quantity"]?.ToString() ?? "1" }
+            { "Type", ts?["Type"]?.ToString() ?? "Unknown" },
+            { "Capacity", ts?["Capacity"]?.ToString() ?? "0" },
+            { "Speed", ts?["Speed"]?.ToString() ?? "0" },
+            { "Modules", ts?["Modules"]?.ToString() ?? "1" }
         };
     }
 }

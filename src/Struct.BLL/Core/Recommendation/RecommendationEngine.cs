@@ -2,6 +2,7 @@ using Mapster;
 using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation.Models;
 using Struct.BLL.Core.Scoring;
+using Struct.BLL.DTOs;
 using Struct.DAL.Models;
 using Struct.DAL.Repositories.Interfaces;
 
@@ -88,8 +89,13 @@ public class RecommendationEngine : IRecommendationEngine
               */
             var candidates = await _repository.GetByCategoryAsync(category, 1, 5000);
 
-            // 1. money filter
-            var affordable = candidates.Where(c => c.Price <= slotBudget).ToList();
+            // 1. money filter (with 10% tolerance, but strictly capped by remaining global budget)
+            decimal maxAllowedPrice = slotBudget * 1.10m;
+            decimal remainingGlobalBudget = request.Budget - actualTotal;
+            if (maxAllowedPrice > remainingGlobalBudget) maxAllowedPrice = remainingGlobalBudget;
+            if (maxAllowedPrice < 0) maxAllowedPrice = 0;
+
+            var affordable = candidates.Where(c => c.Price <= maxAllowedPrice).ToList();
 
             // 2. compatibility filter
             var compatible = affordable
@@ -100,14 +106,14 @@ public class RecommendationEngine : IRecommendationEngine
             {
                 result.IsSuccess = false;
                 result.Message = $"Could not find a compatible {category} within {slotBudget:F2} PLN.";
-                break; // Зупиняємо підбір, бо збірка неможлива
+                continue; // Do not break, try to fill the rest of the build
             }
 
             // 3. scoring and sorting 
             var ranked = compatible
                 .Select(c => new { Component = c, Score = _scorer.CalculateScore(c, purpose) })
                 .OrderByDescending(x => x.Score)
-                .Take(2) // Беремо ТОП-2
+                .Take(2) // Take TOP-2
                 .ToList();
 
             var bestComponent = ranked.First().Component;
@@ -120,11 +126,11 @@ public class RecommendationEngine : IRecommendationEngine
             var slotRec = new SlotRecommendation
             {
                 Category = category.ToString(),
-                AllocatedBudget = slotBudget,
+                AllocatedBudget = Math.Round(slotBudget, 2, MidpointRounding.AwayFromZero),
                 Recommendations = ranked.Select((r, index) => new RankedComponent
                 {
                     Rank = index + 1,
-                    Component = r.Component.Adapt<Struct.BLL.DTOs.ComponentDto>(), // Використовуємо Mapster!
+                    Component = r.Component.Adapt<ComponentDto>(),
                     PerformanceScore = Math.Round(r.Score, 3)
                 }).ToList()
             };
@@ -134,14 +140,17 @@ public class RecommendationEngine : IRecommendationEngine
             decimal savings = slotBudget - bestComponent.Price;
             var remainingCategories = sequence.Skip(sequence.IndexOf(category) + 1).ToList();
 
-            if (savings > 0 && remainingCategories.Any())
+            if (savings != 0 && remainingCategories.Any())
             {
                 double remainingWeightSum = remainingCategories.Sum(c => weights[c]);
-                foreach (var remCat in remainingCategories)
+                if (remainingWeightSum > 0)
                 {
-                    // giving rest money to others 
-                    decimal addedBudget = savings * (decimal)(weights[remCat] / remainingWeightSum);
-                    allocatedBudgets[remCat] += addedBudget;
+                    foreach (var remCat in remainingCategories)
+                    {
+                        // giving rest money to others (or taking away if overspent!)
+                        decimal addedBudget = savings * (decimal)(weights[remCat] / remainingWeightSum);
+                        allocatedBudgets[remCat] += addedBudget;
+                    }
                 }
             }
         }

@@ -72,8 +72,6 @@ public static class ComponentPriceCalculator
         else if (lowerName.Contains("ryzen 7") || lowerName.Contains("i7")) tierPremium = 800;
         else if (lowerName.Contains("ryzen 5") || lowerName.Contains("i5")) tierPremium = 350;
         else if (lowerName.Contains("ryzen 3") || lowerName.Contains("i3")) tierPremium = 100;
-        else if (lowerName.Contains("xeon e5") || lowerName.Contains("xeon e3")) tierPremium = 200;
-        else if (lowerName.Contains("pentium") || lowerName.Contains("celeron") || lowerName.Contains("athlon")) tierPremium = 0;
 
         decimal basePrice = 100 + (cores * 40) + (baseClock * 30) + tierPremium;
 
@@ -82,12 +80,7 @@ public static class ComponentPriceCalculator
         if (socket.Contains("AM5") || socket.Contains("1851") || socket.Contains("STR5")) ageMultiplier = 1.0m;
         else if (socket.Contains("1700")) ageMultiplier = 0.85m;
         else if (socket.Contains("AM4") || socket.Contains("1200")) ageMultiplier = 0.55m;
-        else if (socket.Contains("STRX4") || socket.Contains("TR4") || socket.Contains("SWRX8") || socket.Contains("SP3")) ageMultiplier = 0.55m;
-        else if (socket.Contains("1151") || socket.Contains("2066")) ageMultiplier = 0.30m;
-        else if (socket.Contains("2011-3")) ageMultiplier = 0.20m;
-        else if (socket.Contains("1150") || socket.Contains("FM2")) ageMultiplier = 0.15m;
-        else if (socket.Contains("2011")) ageMultiplier = 0.12m;
-        else if (socket.Contains("1155") || socket.Contains("AM3")) ageMultiplier = 0.10m;
+        else if (socket.Contains("1151")) ageMultiplier = 0.30m;
 
         decimal cpuPrice = basePrice * ageMultiplier;
 
@@ -118,15 +111,11 @@ public static class ComponentPriceCalculator
         else if (lowerName.Contains("4060") || lowerName.Contains("3060") ||
                  lowerName.Contains("5060") || lowerName.Contains("2070") ||
                  lowerName.Contains("7600") || lowerName.Contains("6650") ||
-                 lowerName.Contains("6600") || lowerName.Contains("1080") ||
-                 lowerName.Contains("9060")) tierBase = 1200;
+                 lowerName.Contains("6600") || lowerName.Contains("5700")) tierBase = 1200;
         else if (lowerName.Contains("3050") || lowerName.Contains("4050") ||
                  lowerName.Contains("2060") || lowerName.Contains("6500") ||
-                 lowerName.Contains("5500") || lowerName.Contains("1660") ||
-                 lowerName.Contains("1650") || lowerName.Contains("1070") ||
-                 lowerName.Contains("1060") || lowerName.Contains("rx 580") ||
-                 lowerName.Contains("rx 570") || lowerName.Contains("rx 560") ||
-                 lowerName.Contains("rx 550")) tierBase = 700;
+                 lowerName.Contains("5600") || lowerName.Contains("5500") ||
+                 lowerName.Contains("1660") || lowerName.Contains("1650")) tierBase = 700;
 
         // Workstation cards override
         if (lowerName.Contains("ada generation") || lowerName.Contains("quadro rtx") ||
@@ -149,11 +138,8 @@ public static class ComponentPriceCalculator
         else if (lowerName.Contains("rtx 30")) genMultiplier = 0.40m;
         else if (lowerName.Contains("rx 6")) genMultiplier = 0.35m;
         else if (lowerName.Contains("rtx 20") || lowerName.Contains("gtx 16") ||
-                 lowerName.Contains("rx 5") || lowerName.Contains("vega")) genMultiplier = 0.30m;
-        else if (lowerName.Contains("gtx 10") || lowerName.Contains("rx 4") ||
-                 lowerName.Contains("rx 58") || lowerName.Contains("rx 57")) genMultiplier = 0.20m;
-        else if (lowerName.Contains("gtx 9") || lowerName.Contains("gtx 7") ||
-                 lowerName.Contains("r9")) genMultiplier = 0.12m;
+                 lowerName.Contains("rx 5000") || lowerName.Contains("rx 5700") || 
+                 lowerName.Contains("rx 5600") || lowerName.Contains("rx 5500")) genMultiplier = 0.30m;
 
         int vram = specs.TryGetValue("VRAM", out var vrStr) && int.TryParse(vrStr.Replace("GB", "").Trim(), out var vr) ? vr : 4;
         decimal gpuPrice = (tierBase * genMultiplier) + (vram * 25) + tiSuperBonus;
@@ -173,8 +159,6 @@ public static class ComponentPriceCalculator
         else if (lowerName.Contains("b550") || lowerName.Contains("b460") || lowerName.Contains("b660")) mbPrice = 300;
         else if (lowerName.Contains("h610") || lowerName.Contains("a620") || lowerName.Contains("h510") ||
                  lowerName.Contains("a520") || lowerName.Contains("a320") || lowerName.Contains("h410")) mbPrice = 200;
-        else if (lowerName.Contains("h61") || lowerName.Contains("h81") || lowerName.Contains("b85") ||
-                 lowerName.Contains("g41")) mbPrice = 100;
 
         // Brand tier premium
         if (lowerName.Contains("maximus") || lowerName.Contains("crosshair") ||
@@ -187,15 +171,12 @@ public static class ComponentPriceCalculator
                  lowerName.Contains("mag ")) mbPrice += 150;
 
         // Socket age multiplier
-        if (socket.Contains("1851") || socket.Contains("AM5") || socket.Contains("1700") ||
-            socket.Contains("TRX") || lowerName.Contains("trx") || lowerName.Contains("threadripper"))
+        if (socket.Contains("1851") || socket.Contains("AM5") || socket.Contains("1700"))
             mbPrice *= 1.0m;
         else if (socket.Contains("AM4") || socket.Contains("1200"))
             mbPrice *= 0.6m;
-        else if (socket.Contains("1151") || socket.Contains("2066") || socket.Contains("2011"))
-            mbPrice *= 0.4m;
         else
-            mbPrice *= 0.25m;
+            mbPrice *= 0.4m;
 
         // Mini ITX premium
         if (specs.TryGetValue("FormFactor", out var mbFf))

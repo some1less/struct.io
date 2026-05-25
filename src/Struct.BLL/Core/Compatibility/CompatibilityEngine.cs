@@ -72,9 +72,33 @@ public class CompatibilityEngine : ICompatibilityEngine
         // RAM vs CPU (CPU memory controllers dictate supported RAM)
         if (ramType != null && cpuMemType != null && cpuMemType != "UNKNOWN")
         {
-            if (!cpuMemType.Replace(" ", "").ToUpperInvariant().Contains(ramType.Replace(" ", "").ToUpperInvariant()))
+            string? cpuSocket = GetSpec(build.Cpu, "Socket");
+            bool isLga1700 = cpuSocket != null && cpuSocket.Contains("1700");
+            
+            string cleanCpuMem = cpuMemType.Replace(" ", "").ToUpperInvariant();
+            string cleanRamType = ramType.Replace(" ", "").ToUpperInvariant();
+
+            if (!cleanCpuMem.Contains(cleanRamType))
             {
-                result.Violations.Add($"Memory mismatch: CPU supports {cpuMemType}, but selected RAM is {ramType}.");
+                // Special exception: LGA1700 supports both DDR4 and DDR5 memory controllers
+                if (!(isLga1700 && (cleanRamType == "DDR4" || cleanRamType == "DDR5")))
+                {
+                    result.Violations.Add($"Memory mismatch: CPU supports {cpuMemType}, but selected RAM is {ramType}.");
+                }
+            }
+        }
+
+        // SODIMM vs Desktop Motherboard
+        if (build.Ram != null && build.Motherboard != null)
+        {
+            string ramName = build.Ram.Name.ToLowerInvariant();
+            string? moboForm = GetSpec(build.Motherboard, "FormFactor");
+
+            if (ramName.Contains("sodimm") && moboForm != null &&
+                !moboForm.Contains("Thin Mini-ITX", StringComparison.OrdinalIgnoreCase) && 
+                !moboForm.Contains("Mini-STX", StringComparison.OrdinalIgnoreCase))
+            {
+                result.Violations.Add("Form factor mismatch: SODIMM RAM is not compatible with standard desktop motherboards.");
             }
         }
     }
@@ -85,7 +109,7 @@ public class CompatibilityEngine : ICompatibilityEngine
 
         int psuWattage = ParseInt(GetSpec(build.Psu, "Wattage"), 0);
         int cpuTdp = ParseInt(GetSpec(build.Cpu, "TDP"), 65); // default if unknown
-        int gpuTdp = ParseInt(GetSpec(build.Gpu, "TDP"), 0);
+        int gpuTdp = ParseInt(GetSpec(build.Gpu, "TDP"), build.Gpu != null ? 200 : 0);
 
         // formula: (CPU + GPU + 50W on mb/ram) * 1.3 (30% bonus place)
         double requiredWattage = (cpuTdp + gpuTdp + 50) * 1.3;
@@ -105,6 +129,8 @@ public class CompatibilityEngine : ICompatibilityEngine
         {
             int gpuLength = ParseInt(GetSpec(build.Gpu, "Length"), 0);
             int caseMaxGpu = ParseInt(GetSpec(build.Case, "MaxGpuLength"), 999);
+            
+            if (caseMaxGpu == 0) caseMaxGpu = 999;
 
             if (gpuLength > caseMaxGpu)
             {
@@ -148,9 +174,15 @@ public class CompatibilityEngine : ICompatibilityEngine
     private int ParseInt(string? value, int fallback)
     {
         if (string.IsNullOrWhiteSpace(value)) return fallback;
-        // Забираємо букви типу "mm", "W"
-        var cleanValue = new string(value.Where(char.IsDigit).ToArray());
-        return int.TryParse(cleanValue, out int result) ? result : fallback;
+        
+        var cleanValue = new string(value.Where(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
+        cleanValue = cleanValue.Replace(',', '.');
+
+        if (double.TryParse(cleanValue, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double result))
+        {
+            return (int)Math.Round(result);
+        }
+        return fallback;
     }
 
     private BuildContext CloneContext(BuildContext original)

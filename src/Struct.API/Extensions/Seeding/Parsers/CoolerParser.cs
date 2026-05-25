@@ -11,17 +11,13 @@ public class CoolerParser : IComponentParser
 
     public Dictionary<string, string> ParseSpecs(JsonNode root)
     {
-        var socketsNode = root["cpu_sockets"]?.AsArray();
-        var sockets = socketsNode != null
-            ? string.Join(",", socketsNode.Select(x => x?.ToString()))
-            : "Unknown";
-
+        var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "CpuSockets", sockets },
-            { "Height", root["height"]?.ToString() ?? "0" },
-            { "WaterCooled", root["water_cooled"]?.ToString() ?? "False" },
-            { "RadiatorSize", root["radiator_size"]?.ToString() ?? "0" }
+            { "CpuSockets", ts?["CpuSockets"]?.ToString() ?? "Unknown" },
+            { "Height", ts?["Height"]?.ToString() ?? "0" },
+            { "WaterCooled", ts?["WaterCooled"]?.ToString() ?? "False" },
+            { "RadiatorSize", ts?["RadiatorSize"]?.ToString() ?? "0" }
         };
     }
 }

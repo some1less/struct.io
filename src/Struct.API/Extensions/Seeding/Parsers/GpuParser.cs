@@ -12,13 +12,14 @@ public class GpuParser : IComponentParser
 
     public Dictionary<string, string> ParseSpecs(JsonNode root)
     {
+        var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "VRAM", root["memory"]?.ToString() ?? "0" },
-            { "CoreClock", root["core_base_clock"]?.ToString() ?? "0" },
-            { "Length", root["length"]?.ToString() ?? "0" },
-            { "TDP", root["tdp"]?.ToString() ?? "0" },
-            { "Interface", root["interface"]?.ToString() ?? "Unknown" }
+            { "VRAM", ts?["VRAM"]?.ToString() ?? "0" },
+            { "CoreClock", ts?["CoreClock"]?.ToString() ?? "0" },
+            { "Length", ts?["Length"]?.ToString() ?? "0" },
+            { "TDP", ts?["TDP"]?.ToString() ?? "0" },
+            { "Interface", ts?["Interface"]?.ToString() ?? "Unknown" }
         };
     }
 }

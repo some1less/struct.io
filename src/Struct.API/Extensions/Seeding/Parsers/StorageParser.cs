@@ -10,7 +10,8 @@ public class StorageParser : IComponentParser
     /* check storage_type = IMPORTANT */
     public Category DetermineCategory(JsonNode root)
     {
-        var type = root["storage_type"]?.ToString() ?? root["type"]?.ToString();
+        var ts = root["TechnicalSpecs"];
+        var type = ts?["Type"]?.ToString();
 
         if (type == "HDD")
         {
@@ -22,12 +23,13 @@ public class StorageParser : IComponentParser
 
     public Dictionary<string, string> ParseSpecs(JsonNode root)
     {
+        var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "Capacity", root["capacity"]?.ToString() ?? "0" },
-            { "FormFactor", root["form_factor"]?.ToString() ?? "Unknown" },
-            { "Interface", root["interface"]?.ToString() ?? "Unknown" },
-            { "Type", root["type"]?.ToString() ?? "Unknown" }
+            { "Capacity", ts?["Capacity"]?.ToString() ?? "0" },
+            { "FormFactor", ts?["FormFactor"]?.ToString() ?? "Unknown" },
+            { "Interface", ts?["Interface"]?.ToString() ?? "Unknown" },
+            { "Type", ts?["Type"]?.ToString() ?? "Unknown" }
         };
     }
 }

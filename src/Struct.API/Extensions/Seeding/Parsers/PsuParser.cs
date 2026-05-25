@@ -12,12 +12,13 @@ public class PsuParser : IComponentParser
 
     public Dictionary<string, string> ParseSpecs(JsonNode root)
     {
+        var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "Wattage", root["wattage"]?.ToString() ?? "0" },
-            { "FormFactor", root["form_factor"]?.ToString() ?? "Unknown" },
-            { "Efficiency", root["efficiency_rating"]?.ToString() ?? "Unknown" },
-            { "Modular", root["modular"]?.ToString() ?? "Unknown" }
+            { "Wattage", ts?["Wattage"]?.ToString() ?? "0" },
+            { "FormFactor", ts?["FormFactor"]?.ToString() ?? "Unknown" },
+            { "Efficiency", ts?["Efficiency"]?.ToString() ?? "Unknown" },
+            { "Modular", ts?["Modular"]?.ToString() ?? "Unknown" }
         };
     }
 }

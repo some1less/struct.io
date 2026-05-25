@@ -61,7 +61,7 @@ builder.Services.AddTransient<IComponentParser, CaseParser>();
 builder.Services.AddTransient<IComponentParser, StorageParser>();
 builder.Services.AddTransient<IComponentParser, CoolerParser>();
 
-builder.Services.AddTransient<BuildCoresSeeder>();
+builder.Services.AddTransient<DatabaseSeeder>();
 
 var app = builder.Build();
 
@@ -76,10 +76,10 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<AppDbContext>();
         await context.Database.MigrateAsync();
 
-        var buildCoresSeeder = services.GetRequiredService<BuildCoresSeeder>();
+        var buildCoresSeeder = services.GetRequiredService<DatabaseSeeder>();
 
-        string pathToOpenDb = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "open-db");
-        await buildCoresSeeder.SeedFromDirectoryAsync(pathToOpenDb);
+        string pathToCleanDb = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "clean-db", "clean_database.json");
+        await buildCoresSeeder.SeedFromDirectoryAsync(pathToCleanDb);
 
         logger.LogInformation("Database seeded successfully.");
     }

@@ -28,9 +28,10 @@ public class AlgorithmsController : ControllerBase
     [HttpPost("recommend")]
     public async Task<IActionResult> Recommend([FromBody] RecommendationRequest request)
     {
-        if (request.Budget < 1000)
+        if (request.Budget < 2400)
         {
-            return BadRequest(new { Message = "Budget is too low. Minimum budget for a valid PC build is 1000 PLN." });
+            return BadRequest(
+                new { Message = "Budget is too low. Minimum budget for a valid PC build is 2400 PLN." });
         }
 
         var result = await _recommendationEngine.GenerateRecommendationAsync(request);
