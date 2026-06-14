@@ -105,13 +105,26 @@ public class RecommendationEngine : IRecommendationEngine
             if (!compatible.Any())
             {
                 result.IsSuccess = false;
-                result.Message = $"Could not find a compatible {category} within {slotBudget:F2} PLN.";
+                result.FailedSlots.Add(new FailedSlot
+                {
+                    Category = category.ToString(),
+                    Reason = $"Could not find a compatible {category} within {slotBudget:F2} PLN."
+                });
                 continue; // Do not break, try to fill the rest of the build
             }
 
             // 3. scoring and sorting 
             var ranked = compatible
-                .Select(c => new { Component = c, Score = _scorer.CalculateScore(c, purpose) })
+                .Select(c => {
+                    double baseScore = _scorer.CalculateScore(c, purpose);
+                    // Add a slight bonus (up to 5%) for components that better utilize the slot budget
+                    // This creates variety: higher budgets will prefer more premium/expensive variants
+                    double budgetUtilization = (double)(c.Price / slotBudget);
+                    if (budgetUtilization > 1.0) budgetUtilization = 1.0;
+                    double finalScore = baseScore * (1.0 + (budgetUtilization * 0.05));
+                    
+                    return new { Component = c, Score = finalScore, BaseScore = baseScore };
+                })
                 .OrderByDescending(x => x.Score)
                 .Take(2) // Take TOP-2
                 .ToList();
@@ -131,7 +144,9 @@ public class RecommendationEngine : IRecommendationEngine
                 {
                     Rank = index + 1,
                     Component = r.Component.Adapt<ComponentDto>(),
-                    PerformanceScore = Math.Round(r.Score, 3)
+                    // Display the normalized 0..1 base score. The budget-utilization multiplier in
+                    // r.Score is used only for ranking and must not leak into the public 0..1 contract.
+                    PerformanceScore = Math.Round(r.BaseScore, 3)
                 }).ToList()
             };
             result.Slots.Add(slotRec);
@@ -155,11 +170,12 @@ public class RecommendationEngine : IRecommendationEngine
             }
         }
 
-        if (result.IsSuccess)
-        {
-            result.ActualTotalPrice = actualTotal;
-            result.Message = "Build generated successfully.";
-        }
+        // Always report what was actually picked, even on partial (failed) builds.
+        result.ActualTotalPrice = actualTotal;
+
+        result.Message = result.IsSuccess
+            ? "Build generated successfully."
+            : $"Incomplete build: could not fill {string.Join(", ", result.FailedSlots.Select(f => f.Category))}.";
 
         return result;
     }

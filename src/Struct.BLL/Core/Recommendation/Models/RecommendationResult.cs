@@ -8,4 +8,5 @@ public class RecommendationResult
     public bool IsSuccess { get; set; }
     public string Message { get; set; } = string.Empty;
     public List<SlotRecommendation> Slots { get; set; } = new();
+    public List<FailedSlot> FailedSlots { get; set; } = new();
 }

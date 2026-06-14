@@ -95,10 +95,31 @@ public class CompatibilityEngine : ICompatibilityEngine
             string? moboForm = GetSpec(build.Motherboard, "FormFactor");
 
             if (ramName.Contains("sodimm") && moboForm != null &&
-                !moboForm.Contains("Thin Mini-ITX", StringComparison.OrdinalIgnoreCase) && 
+                !moboForm.Contains("Thin Mini-ITX", StringComparison.OrdinalIgnoreCase) &&
                 !moboForm.Contains("Mini-STX", StringComparison.OrdinalIgnoreCase))
             {
                 result.Violations.Add("Form factor mismatch: SODIMM RAM is not compatible with standard desktop motherboards.");
+            }
+        }
+
+        // RAM module count vs Motherboard slots (skipped when either spec is missing/zero)
+        if (build.Ram != null && build.Motherboard != null)
+        {
+            int modules = ParseInt(GetSpec(build.Ram, "Modules"), 0);
+            int moboSlots = ParseInt(GetSpec(build.Motherboard, "RamSlots"), 0);
+
+            if (modules > 0 && moboSlots > 0 && modules > moboSlots)
+            {
+                result.Violations.Add($"Memory slots mismatch: RAM kit has {modules} modules, but Motherboard has only {moboSlots} slots.");
+            }
+
+            // RAM total capacity vs Motherboard maximum
+            int capacity = ParseInt(GetSpec(build.Ram, "Capacity"), 0);
+            int moboMaxRam = ParseInt(GetSpec(build.Motherboard, "MaxRam"), 0);
+
+            if (capacity > 0 && moboMaxRam > 0 && capacity > moboMaxRam)
+            {
+                result.Violations.Add($"Memory capacity mismatch: RAM is {capacity}GB, but Motherboard supports at most {moboMaxRam}GB.");
             }
         }
     }
@@ -129,12 +150,24 @@ public class CompatibilityEngine : ICompatibilityEngine
         {
             int gpuLength = ParseInt(GetSpec(build.Gpu, "Length"), 0);
             int caseMaxGpu = ParseInt(GetSpec(build.Case, "MaxGpuLength"), 999);
-            
+
             if (caseMaxGpu == 0) caseMaxGpu = 999;
 
             if (gpuLength > caseMaxGpu)
             {
                 result.Violations.Add($"Clearance issue: GPU is {gpuLength}mm long, but Case only supports up to {caseMaxGpu}mm.");
+            }
+        }
+
+        // Cooler height vs Case clearance (skipped when either spec is missing)
+        if (build.Cooler != null)
+        {
+            int coolerHeight = ParseInt(GetSpec(build.Cooler, "Height"), 0);
+            int caseMaxCooler = ParseInt(GetSpec(build.Case, "MaxCoolerHeight"), 0);
+
+            if (coolerHeight > 0 && caseMaxCooler > 0 && coolerHeight > caseMaxCooler)
+            {
+                result.Violations.Add($"Cooler height issue: Cooler is {coolerHeight}mm tall, but Case only supports up to {caseMaxCooler}mm.");
             }
         }
 
@@ -154,7 +187,16 @@ public class CompatibilityEngine : ICompatibilityEngine
                 
                 if (!supported.Contains(cleanMoboForm) && !caseSupported.Replace(" ", "").ToUpperInvariant().Contains(cleanMoboForm))
                 {
-                    result.Violations.Add($"Form Factor mismatch: Case does not support {moboForm} motherboards.");
+                    // Special case for EATX: database doesn't explicitly mark cases with EATX support, 
+                    // so we allow EATX boards to fit in any ATX case to avoid bricking high-end builds.
+                    if (cleanMoboForm == "EATX" && caseSupported.ToUpperInvariant().Contains("ATX"))
+                    {
+                        // Allow
+                    }
+                    else
+                    {
+                        result.Violations.Add($"Form Factor mismatch: Case does not support {moboForm} motherboards.");
+                    }
                 }
             }
         }
