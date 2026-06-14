@@ -81,7 +81,13 @@ using (var scope = app.Services.CreateScope())
         var buildCoresSeeder = services.GetRequiredService<DatabaseSeeder>();
 
         string pathToCleanDb = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "clean-db", "clean_database.json");
-        await buildCoresSeeder.SeedFromDirectoryAsync(pathToCleanDb);
+
+        string benchmarksDir = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "benchmarks");
+        var benchmarks = Struct.BLL.Core.Scoring.Benchmarks.BenchmarkScores.FromCsvFiles(
+            Path.Combine(benchmarksDir, "CPU_benchmark_v4.csv"),
+            Path.Combine(benchmarksDir, "GPU_benchmarks_v7.csv"));
+
+        await buildCoresSeeder.SeedFromDirectoryAsync(pathToCleanDb, benchmarks);
 
         logger.LogInformation("Database seeded successfully.");
     }

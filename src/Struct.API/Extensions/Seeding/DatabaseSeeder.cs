@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using Struct.API.Extensions.Seeding.Parsers;
+using Struct.BLL.Core.Scoring.Benchmarks;
 using Struct.DAL.Context;
 using Struct.DAL.Models;
 
@@ -17,7 +18,7 @@ public class DatabaseSeeder
         _parsers = parsers;
     }
 
-    public async Task SeedFromDirectoryAsync(string baseDirectoryPath)
+    public async Task SeedFromDirectoryAsync(string baseDirectoryPath, BenchmarkScores? benchmarks = null)
     {
         // Seed only when the catalog is empty. The previous wipe-and-reseed ran on every
         // startup and, because BuildComponent → Component is DeleteBehavior.Cascade, it
@@ -75,6 +76,9 @@ public class DatabaseSeeder
         var uniqueComponents = componentsToAdd
             .DistinctBy(c => c.Name)
             .ToList();
+
+        /* enrich CPU/GPU with real PassMark scores (heuristic stays as fallback for unmatched parts) */
+        benchmarks?.Enrich(uniqueComponents);
 
         /* save in batches to prevent database lockups */
         for (int i = 0; i < uniqueComponents.Count; i += BatchSize)

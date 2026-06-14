@@ -40,4 +40,10 @@
       <_ContentIncludedByDefault Remove="Extensions\Seeding\open-db\OS\ec3c4a4a-bc49-4e83-b56c-9a08b2e82d4f.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="Extensions\Seeding\benchmarks\*.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>
