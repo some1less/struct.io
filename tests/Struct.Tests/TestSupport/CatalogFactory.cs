@@ -73,4 +73,29 @@ public static class CatalogFactory
             .Spec("VRAM", "24").Spec("CoreClock", "2235").Spec("TDP", "450").Spec("Length", "304"));
         return catalog;
     }
+
+    /// <summary>
+    /// A catalog with two CPUs and two GPUs plus a 1000W PSU, where the greedy GPU-first pick can be
+    /// led toward a lopsided combination, while a different mix yields a better overall objective.
+    /// Used to show the exact solver is at least as good as greedy+local-search.
+    /// </summary>
+    public static List<Component> GreedyTrapCatalog()
+    {
+        var catalog = FullCoherentCatalog()
+            .Where(c => c.Category != Category.Gpu && c.Category != Category.Cpu && c.Category != Category.Psu)
+            .ToList();
+        catalog.Add(ComponentBuilder.New(Category.Psu, "Corsair RM1000e").Brand("Corsair").Price(700)
+            .Spec("Wattage", "1000").Spec("Efficiency", "Gold").Spec("Modular", "Full"));
+        catalog.Add(ComponentBuilder.New(Category.Cpu, "AMD Ryzen 5 budget").Brand("AMD").Price(900)
+            .Spec("Socket", "AM5").Spec("MemoryType", "DDR5").Spec("TDP", "65")
+            .Spec("Cores", "6").Spec("Threads", "12").Spec("BaseClock", "3.8").Spec("BoostClock", "4.6"));
+        catalog.Add(ComponentBuilder.New(Category.Cpu, "AMD Ryzen 9 strong").Brand("AMD").Price(2600)
+            .Spec("Socket", "AM5").Spec("MemoryType", "DDR5").Spec("TDP", "120")
+            .Spec("Cores", "12").Spec("Threads", "24").Spec("BaseClock", "4.4").Spec("BoostClock", "5.6"));
+        catalog.Add(ComponentBuilder.New(Category.Gpu, "NVIDIA RTX 4070").Brand("NVIDIA").Price(2600)
+            .Spec("VRAM", "12").Spec("CoreClock", "1920").Spec("TDP", "200").Spec("Length", "240"));
+        catalog.Add(ComponentBuilder.New(Category.Gpu, "NVIDIA RTX 4090").Brand("NVIDIA").Price(5200)
+            .Spec("VRAM", "24").Spec("CoreClock", "2235").Spec("TDP", "450").Spec("Length", "304"));
+        return catalog;
+    }
 }
