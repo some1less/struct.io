@@ -112,4 +112,52 @@ public class RecommendationEngineTests
 
         Assert.Equal("Gaming", result.Purpose);
     }
+
+    [Fact]
+    public async Task UpgradePass_SpendsLeftoverBudget_ToUpgradeTheGpu()
+    {
+        // At 9000, greedy can't afford the 4090 in the GPU slot and picks the 4060.
+        // The upgrade pass should swap up to the 4090 using leftover budget.
+        var engine = EngineFor(CatalogFactory.UpgradableCatalog());
+
+        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 9000, Purpose = "Gaming" });
+
+        Assert.True(result.IsSuccess, result.Message);
+        var gpuSlot = result.Slots.Single(s => s.Category == "Gpu");
+        Assert.Contains("4090", gpuSlot.Recommendations.First().Component.Name);
+        Assert.True(result.ActualTotalPrice <= 9000m);
+    }
+
+    [Fact]
+    public async Task UpgradePass_NeverExceedsBudget_NorBreaksCompatibility()
+    {
+        var compat = new CompatibilityEngine();
+        var engine = new RecommendationEngine(
+            new StubComponentRepository(CatalogFactory.UpgradableCatalog()),
+            compat, new PerformanceScorer(),
+            new BuildObjective(new PerformanceScorer(), new ObjectiveSettings()));
+
+        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 9000, Purpose = "Gaming" });
+
+        Assert.True(result.ActualTotalPrice <= 9000m);
+        // Re-validate every chosen component against the others in the final build.
+        var ctx = new BuildContext();
+        foreach (var slot in result.Slots)
+        {
+            var comp = CatalogFactory.UpgradableCatalog()
+                .First(c => c.Name == slot.Recommendations.First().Component.Name);
+            Assert.True(compat.CheckCompatibility(ctx, comp).IsCompatible, $"{slot.Category} incompatible");
+            switch (comp.Category)
+            {
+                case Category.Cpu: ctx.Cpu = comp; break;
+                case Category.Gpu: ctx.Gpu = comp; break;
+                case Category.Motherboard: ctx.Motherboard = comp; break;
+                case Category.Ram: ctx.Ram = comp; break;
+                case Category.Psu: ctx.Psu = comp; break;
+                case Category.Case: ctx.Case = comp; break;
+                case Category.Cooler: ctx.Cooler = comp; break;
+                case Category.Ssd: case Category.Hdd: ctx.Storage = comp; break;
+            }
+        }
+    }
 }

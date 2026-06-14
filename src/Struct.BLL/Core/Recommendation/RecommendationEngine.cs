@@ -168,7 +168,53 @@ public class RecommendationEngine : IRecommendationEngine
         decimal budget,
         ref decimal actualTotal)
     {
-        // Implemented in Task 3.
+        bool improved = true;
+        while (improved)
+        {
+            improved = false;
+            double currentObjective = _objective.Evaluate(build, weights, purpose);
+            double bestDelta = 0;
+            Category bestCategory = default;
+            Component? bestSwap = null;
+
+            foreach (var category in sequence)
+            {
+                var chosen = GetComponent(build, category);
+                if (chosen == null) continue; // failed slot — nothing to upgrade
+                if (!candidatesByCategory.TryGetValue(category, out var pool)) continue;
+
+                foreach (var candidate in pool)
+                {
+                    if (candidate.Id == chosen.Id) continue;
+
+                    decimal newTotal = actualTotal - chosen.Price + candidate.Price;
+                    if (newTotal > budget) continue; // must stay within total budget
+
+                    // Compatibility against the full build (CheckCompatibility clones then overwrites
+                    // this category with the candidate, so the rest of the build is held fixed).
+                    if (!_compatibilityEngine.CheckCompatibility(build, candidate).IsCompatible) continue;
+
+                    var trial = CloneBuild(build);
+                    AssignToContext(trial, candidate);
+                    double delta = _objective.Evaluate(trial, weights, purpose) - currentObjective;
+
+                    if (delta > bestDelta)
+                    {
+                        bestDelta = delta;
+                        bestCategory = category;
+                        bestSwap = candidate;
+                    }
+                }
+            }
+
+            if (bestSwap != null)
+            {
+                var old = GetComponent(build, bestCategory)!;
+                actualTotal = actualTotal - old.Price + bestSwap.Price;
+                AssignToContext(build, bestSwap);
+                improved = true; // objective strictly increased; loop is bounded ⇒ terminates
+            }
+        }
     }
 
     private static BuildContext CloneBuild(BuildContext b) => new()

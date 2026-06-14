@@ -50,4 +50,27 @@ public static class CatalogFactory
     /// <summary>Same catalog with every component of <paramref name="missing"/> removed.</summary>
     public static List<Component> WithoutCategory(Category missing) =>
         FullCoherentCatalog().Where(c => c.Category != missing).ToList();
+
+    /// <summary>
+    /// Coherent AM5 build whose GPU slot has a cheap option (RTX 4060) and a premium one (RTX 4090).
+    /// At a 9000 budget the GPU slot budget (0.35·9000 = 3150) cannot afford the 4090, so greedy picks
+    /// the 4060; the upgrade pass should then swap up to the 4090 using the leftover budget.
+    /// </summary>
+    public static List<Component> UpgradableCatalog()
+    {
+        // Drop the GPU and the stock 750W PSU; add a 1000W PSU so the premium 4090 is power-feasible.
+        var catalog = FullCoherentCatalog()
+            .Where(c => c.Category != Category.Gpu && c.Category != Category.Psu)
+            .ToList();
+        catalog.Add(ComponentBuilder.New(Category.Psu, "Corsair RM1000e")
+            .Brand("Corsair").Price(700)
+            .Spec("Wattage", "1000").Spec("Efficiency", "Gold").Spec("Modular", "Full"));
+        catalog.Add(ComponentBuilder.New(Category.Gpu, "NVIDIA RTX 4060")
+            .Brand("NVIDIA").Price(1200)
+            .Spec("VRAM", "8").Spec("CoreClock", "1830").Spec("TDP", "115").Spec("Length", "200"));
+        catalog.Add(ComponentBuilder.New(Category.Gpu, "NVIDIA RTX 4090")
+            .Brand("NVIDIA").Price(4000)
+            .Spec("VRAM", "24").Spec("CoreClock", "2235").Spec("TDP", "450").Spec("Length", "304"));
+        return catalog;
+    }
 }
