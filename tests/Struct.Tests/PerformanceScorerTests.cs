@@ -85,4 +85,28 @@ public class PerformanceScorerTests
 
         Assert.Equal(0.0, _scorer.CalculateScore(gt1030, "Gaming"), precision: 6);
     }
+
+    // ---- Benchmark-backed scoring (Phase 3a part 2) ----
+
+    [Fact]
+    public void Cpu_WithBenchmarkScore_UsesIt_OverHeuristic()
+    {
+        // BenchmarkScore is a pre-normalized 0..1 ratio; the scorer applies the √ curve for UX parity.
+        Component c = ComponentBuilder.New(Category.Cpu, "anything").Spec("BenchmarkScore", "0.25");
+        Assert.Equal(0.5, _scorer.CalculateScore(c, "Gaming"), precision: 6); // sqrt(0.25)
+    }
+
+    [Fact]
+    public void Gpu_WithBenchmarkScore_UsesIt_OverHeuristic()
+    {
+        Component c = ComponentBuilder.New(Category.Gpu, "anything").Spec("BenchmarkScore", "1");
+        Assert.Equal(1.0, _scorer.CalculateScore(c, "Gaming"), precision: 6); // sqrt(1)
+    }
+
+    [Fact]
+    public void Cpu_WithoutBenchmarkScore_FallsBackToHeuristic()
+    {
+        // No BenchmarkScore spec ⇒ heuristic path still runs (purpose-aware, non-zero).
+        Assert.True(_scorer.CalculateScore(X3dCpu(), "Gaming") > 0);
+    }
 }
