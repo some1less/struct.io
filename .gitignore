@@ -120,6 +120,10 @@ ClientBin/
 ~$*
 *~
 *.dbmdl
+# SQLite leftovers (project uses Postgres)
+*.db
+*.db-shm
+*.db-wal
 *.[Pp]ublish.xml
 *.pfx
 *.publishsettings
@@ -226,6 +230,8 @@ project.lock.json
 
 # UWP Projects
 AppPackages/
+
+scraper/venv
 
 #####
 # End of core ignore list, below put you custom 'per project' settings (patterns or path)

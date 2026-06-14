@@ -40,6 +40,14 @@ public class AppDbContext : DbContext
             .Property(c => c.Category)
             .HasConversion<string>();
 
+        /* Restrict (not Cascade): deleting a Component referenced by any saved build must
+           fail loudly rather than cascade-delete the user's BuildComponents. */
+        modelBuilder.Entity<BuildComponent>()
+            .HasOne(bc => bc.Component)
+            .WithMany(c => c.BuildComponents)
+            .HasForeignKey(bc => bc.ComponentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }

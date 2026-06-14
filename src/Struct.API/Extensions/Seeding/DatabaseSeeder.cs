@@ -19,11 +19,10 @@ public class DatabaseSeeder
 
     public async Task SeedFromDirectoryAsync(string baseDirectoryPath)
     {
-        if (_context.Components.Any())
-        {
-            _context.Components.RemoveRange(_context.Components);
-            await _context.SaveChangesAsync();
-        }
+        // Seed only when the catalog is empty. The previous wipe-and-reseed ran on every
+        // startup and, because BuildComponent → Component is DeleteBehavior.Cascade, it
+        // silently gutted every user's SavedBuild on each restart. Never delete here.
+        if (_context.Components.Any()) return;
 
         var componentsToAdd = new List<Component>();
         var parsersByCategory = _parsers.ToDictionary(p => p.TargetFolderName, StringComparer.OrdinalIgnoreCase);
