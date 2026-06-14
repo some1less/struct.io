@@ -25,7 +25,7 @@ public class BuildObjective
         double sum = 0;
         foreach (var (category, weight) in weights)
         {
-            var component = GetComponent(build, category);
+            var component = BuildContextOps.Get(build, category);
             if (component != null)
                 sum += weight * _scorer.CalculateScore(component, purpose);
         }
@@ -40,17 +40,4 @@ public class BuildObjective
         double gap = Math.Abs(cpu - gpu);
         return Math.Max(0, gap - _settings.BottleneckThreshold);
     }
-
-    private static Component? GetComponent(BuildContext b, Category c) => c switch
-    {
-        Category.Cpu => b.Cpu,
-        Category.Gpu => b.Gpu,
-        Category.Motherboard => b.Motherboard,
-        Category.Ram => b.Ram,
-        Category.Psu => b.Psu,
-        Category.Case => b.Case,
-        Category.Cooler => b.Cooler,
-        Category.Ssd or Category.Hdd => b.Storage,
-        _ => null
-    };
 }

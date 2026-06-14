@@ -15,50 +15,6 @@ public class RecommendationEngine : IRecommendationEngine
     private readonly IPerformanceScorer _scorer;
     private readonly BuildObjective _objective;
 
-    // division matrix
-    /* GAMING: GPU(35%) CPU(22%) Motherboard(12%) ...
-       WORK: CPU(35%) GPU(15%) RAM(18%) ...
-       OFFICE: CPU(25%) Motherboard(15%) RAM(15%) ... gpu minimum
-     
-     */
-    private static readonly Dictionary<string, Dictionary<Category, double>> BaseWeights = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["Gaming"] = new()
-        {
-            { Category.Gpu, 0.35 }, { Category.Cpu, 0.22 }, { Category.Motherboard, 0.12 },
-            { Category.Ram, 0.10 }, { Category.Ssd, 0.07 }, { Category.Psu, 0.06 },
-            { Category.Case, 0.05 }, { Category.Cooler, 0.03 }
-        },
-        ["Work"] = new()
-        {
-            { Category.Cpu, 0.35 }, { Category.Gpu, 0.15 }, { Category.Ram, 0.18 },
-            { Category.Motherboard, 0.12 }, { Category.Ssd, 0.08 }, { Category.Psu, 0.05 },
-            { Category.Case, 0.04 }, { Category.Cooler, 0.03 }
-        },
-        ["Office"] = new()
-        {
-            { Category.Cpu, 0.25 }, { Category.Motherboard, 0.15 }, { Category.Ram, 0.15 },
-            { Category.Ssd, 0.15 }, { Category.Gpu, 0.10 }, { Category.Psu, 0.08 },
-            { Category.Case, 0.07 }, { Category.Cooler, 0.05 }
-        }
-    };
-
-    // order of placing
-    private static readonly Dictionary<string, List<Category>> Sequences = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["Gaming"] = new() { Category.Gpu, Category.Cpu, Category.Motherboard, 
-            Category.Ram, Category.Psu, Category.Ssd, 
-            Category.Case, Category.Cooler },
-        
-        ["Work"] = new() { Category.Cpu, Category.Gpu, Category.Motherboard, 
-            Category.Ram, Category.Psu, Category.Ssd, 
-            Category.Case, Category.Cooler },
-        
-        ["Office"] = new() { Category.Cpu, Category.Motherboard, Category.Ram, 
-            Category.Ssd, Category.Psu, Category.Case, 
-            Category.Cooler, Category.Gpu }
-    };
-
     public RecommendationEngine(IComponentRepository repository,
         ICompatibilityEngine compatibilityEngine, IPerformanceScorer scorer, BuildObjective objective)
     {
@@ -70,9 +26,9 @@ public class RecommendationEngine : IRecommendationEngine
 
     public async Task<RecommendationResult> GenerateRecommendationAsync(RecommendationRequest request)
     {
-        var purpose = BaseWeights.ContainsKey(request.Purpose) ? request.Purpose : "Gaming";
-        var sequence = Sequences[purpose];
-        var weights = new Dictionary<Category, double>(BaseWeights[purpose]);
+        var purpose = RecommendationProfiles.Weights.ContainsKey(request.Purpose) ? request.Purpose : "Gaming";
+        var sequence = RecommendationProfiles.Sequences[purpose];
+        var weights = new Dictionary<Category, double>(RecommendationProfiles.Weights[purpose]);
 
         var allocatedBudgets = weights.ToDictionary(k => k.Key, v => request.Budget * (decimal)v.Value);
 
@@ -112,7 +68,7 @@ public class RecommendationEngine : IRecommendationEngine
 
             var best = compatible.OrderByDescending(c => _scorer.CalculateScore(c, purpose)).First();
 
-            AssignToContext(currentBuild, best);
+            BuildContextOps.Assign(currentBuild, best);
             actualTotal += best.Price;
 
             decimal savings = slotBudget - best.Price;
@@ -132,7 +88,7 @@ public class RecommendationEngine : IRecommendationEngine
         // ---- Build result slots from the final build (rank-1 only) ----
         foreach (var category in sequence)
         {
-            var chosen = GetComponent(currentBuild, category);
+            var chosen = BuildContextOps.Get(currentBuild, category);
             if (chosen == null) continue;
 
             result.Slots.Add(new SlotRecommendation
@@ -179,7 +135,7 @@ public class RecommendationEngine : IRecommendationEngine
 
             foreach (var category in sequence)
             {
-                var chosen = GetComponent(build, category);
+                var chosen = BuildContextOps.Get(build, category);
                 if (chosen == null) continue; // failed slot — nothing to upgrade
                 if (!candidatesByCategory.TryGetValue(category, out var pool)) continue;
 
@@ -194,8 +150,8 @@ public class RecommendationEngine : IRecommendationEngine
                     // this category with the candidate, so the rest of the build is held fixed).
                     if (!_compatibilityEngine.CheckCompatibility(build, candidate).IsCompatible) continue;
 
-                    var trial = CloneBuild(build);
-                    AssignToContext(trial, candidate);
+                    var trial = BuildContextOps.Clone(build);
+                    BuildContextOps.Assign(trial, candidate);
                     double delta = _objective.Evaluate(trial, weights, purpose) - currentObjective;
 
                     if (delta > bestDelta)
@@ -209,46 +165,12 @@ public class RecommendationEngine : IRecommendationEngine
 
             if (bestSwap != null)
             {
-                var old = GetComponent(build, bestCategory)!;
+                var old = BuildContextOps.Get(build, bestCategory)!;
                 actualTotal = actualTotal - old.Price + bestSwap.Price;
-                AssignToContext(build, bestSwap);
+                BuildContextOps.Assign(build, bestSwap);
                 improved = true; // objective strictly increased; loop is bounded ⇒ terminates
             }
         }
     }
 
-    private static BuildContext CloneBuild(BuildContext b) => new()
-    {
-        Cpu = b.Cpu, Gpu = b.Gpu, Motherboard = b.Motherboard, Ram = b.Ram,
-        Psu = b.Psu, Case = b.Case, Cooler = b.Cooler, Storage = b.Storage
-    };
-
-    private static Component? GetComponent(BuildContext b, Category c) => c switch
-    {
-        Category.Cpu => b.Cpu,
-        Category.Gpu => b.Gpu,
-        Category.Motherboard => b.Motherboard,
-        Category.Ram => b.Ram,
-        Category.Psu => b.Psu,
-        Category.Case => b.Case,
-        Category.Cooler => b.Cooler,
-        Category.Ssd or Category.Hdd => b.Storage,
-        _ => null
-    };
-
-    private void AssignToContext(BuildContext context, Component candidate)
-    {
-        switch (candidate.Category)
-        {
-            case Category.Cpu: context.Cpu = candidate; break;
-            case Category.Gpu: context.Gpu = candidate; break;
-            case Category.Motherboard: context.Motherboard = candidate; break;
-            case Category.Ram: context.Ram = candidate; break;
-            case Category.Psu: context.Psu = candidate; break;
-            case Category.Case: context.Case = candidate; break;
-            case Category.Cooler: context.Cooler = candidate; break;
-            case Category.Ssd:
-            case Category.Hdd: context.Storage = candidate; break;
-        }
-    }
 }
