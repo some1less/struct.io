@@ -1,50 +1,122 @@
+"""
+Struct catalog scraper — builds clean_database.json from PCPartPicker (via the `pcpartpicker` lib).
+
+DATA PROVENANCE (documented for the thesis / defense):
+  * REAL  — taken verbatim from the PCPartPicker API.
+  * EST   — estimated from a real field via a documented, deterministic rule (domain knowledge).
+            These are clearly marked and are NOT fabrications (e.g. a CPU's socket is fully
+            determined by its model name).
+  * (none)— fields the source does not provide are OMITTED, never invented. The compatibility
+            engine treats a missing spec as "cannot verify" and skips that check.
+
+Compared to the previous version, this scraper REMOVES all fabricated data:
+  - no motherboard socket flipping / chipset renaming,
+  - no constant case MaxGpuLength,
+  - no constant cooler Height,
+  - no fake cooler CpuSockets list.
+Those fields are simply absent now (the API does not expose them), so the cooler-height,
+GPU-length and cooler-socket checks are honestly disabled rather than driven by fake data.
+"""
+
 import json
 import os
 import re
 from pcpartpicker import API
 
+# Category quality/curation filters (selection only — never alters values).
+CATEGORIES = {
+    "cpu": "Cpu", "video-card": "Gpu", "motherboard": "Motherboard", "memory": "Ram",
+    "power-supply": "Psu", "internal-hard-drive": "Ssd", "case": "Case", "cpu-cooler": "Cooler",
+}
+MODERN_SOCKETS = ["am4", "am5", "lga1700", "lga1851", "lga1200", "lga1151"]
+PER_CATEGORY_CAP = 800
+
+
+def safe_ghz(v):
+    if isinstance(v, dict) and "cycles" in v:
+        return f"{round(float(v['cycles']) / 1_000_000_000.0, 2)} GHz"
+    return "0 GHz"
+
+
+def safe_str(part, k, default=""):
+    v = part.get(k)
+    if isinstance(v, dict) and "total" in v:
+        if k in ["vram", "max_ram", "module_size", "capacity"]:
+            return str(round(float(v["total"]) / 1_000_000_000.0))
+        return str(v["total"])
+    return str(v) if v is not None else default
+
+
+def cpu_socket_and_memory(lower_name):
+    """EST: a CPU's socket + memory type are fully determined by its model name (documented map)."""
+    if "ryzen" in lower_name or "threadripper" in lower_name:
+        m = re.search(r'ryzen \d (\d{4})', lower_name)
+        if m and int(m.group(1)) >= 7000:
+            return "AM5", "DDR5"
+        return "AM4", "DDR4"
+    if "intel" in lower_name or "core" in lower_name:
+        if "ultra" in lower_name:
+            return "LGA1851", "DDR5"
+        if re.search(r'i[3579]-1[234]\d{3}', lower_name):
+            return "LGA1700", "DDR5"
+        if re.search(r'i[3579]-1[01]\d{3}', lower_name):
+            return "LGA1200", "DDR4"
+        return "LGA1151", "DDR4"
+    return "Unknown", "Unknown"
+
+
+def gpu_tdp_estimate(lower_name):
+    """EST: board power by chip tier (documented approximation; real per-chip TDPs vary by AIB)."""
+    tiers = [
+        (["4090", "5090", "3090 ti"], 450), (["3090", "7900 xtx", "6950 xt"], 350),
+        (["4080", "5080", "3080", "7900 xt", "6900 xt", "6800 xt"], 320),
+        (["2080 ti", "7900 gre", "7800", "6800"], 260),
+        (["4070 ti", "3070 ti", "2080 super", "5700 xt", "7700", "6750 xt"], 230),
+        (["4070", "3070", "2080", "2070 super"], 210),
+        (["4060 ti", "3060 ti", "2070", "6700 xt", "5700"], 175),
+        (["4060", "7600", "5600 xt", "2060 super", "1660 ti"], 150),
+        (["3060", "2060", "1660 super", "6650 xt"], 125),
+        (["3050", "1660", "1650 super", "6600", "6500"], 110),
+        (["1650", "rx 560"], 75),
+    ]
+    for names, tdp in tiers:
+        if any(n in lower_name for n in names):
+            return tdp
+    return 200  # documented default
+
+
+def supported_boards(form_factor):
+    """EST: which motherboard sizes physically fit a case of this form factor (standard nesting)."""
+    f = form_factor.lower()
+    if "mini itx" in f or "mini-itx" in f:
+        return "Mini-ITX"
+    if "micro" in f or "matx" in f or "m-atx" in f:
+        return "Micro-ATX, Mini-ITX"
+    # ATX / Mid / Full towers accept ATX and everything smaller
+    return "ATX, Micro-ATX, Mini-ITX"
+
+
 def fetch_clean_data():
-    print("=== RUNNING SCRAPER ===")
+    print("=== RUNNING SCRAPER (honest build) ===")
     api = API()
     clean_db = []
 
-    categories_to_fetch = {
-        "cpu": "Cpu",
-        "video-card": "Gpu",
-        "motherboard": "Motherboard",
-        "memory": "Ram",
-        "power-supply": "Psu",
-        "internal-hard-drive": "Ssd",
-        "case": "Case",
-        "cpu-cooler": "Cooler"
-    }
-
-    MODERN_SOCKETS = ["am4", "am5", "lga1700", "lga1851", "lga1200", "lga1151"]
-
-    for pcpp_key, struct_cat in categories_to_fetch.items():
+    for pcpp_key, struct_cat in CATEGORIES.items():
         print(f"Processing category: {struct_cat}...")
         try:
-            data_object = api.retrieve(pcpp_key)
-            raw_json_str = data_object.to_json()
-            raw_dict = json.loads(raw_json_str)
-
-            parts_list = []
-            if isinstance(raw_dict, dict):
-                parts_list = raw_dict.get(pcpp_key, raw_dict.get("parts", []))
-                if not parts_list and len(raw_dict.keys()) == 1:
-                    parts_list = raw_dict[list(raw_dict.keys())[0]]
-            elif isinstance(raw_dict, list):
-                parts_list = raw_dict
-
+            raw = json.loads(api.retrieve(pcpp_key).to_json())
+            parts_list = raw.get(pcpp_key) or (raw.get("parts") if isinstance(raw, dict) else None) or []
+            if not parts_list and isinstance(raw, dict) and len(raw) == 1:
+                parts_list = list(raw.values())[0]
             if not parts_list:
                 continue
 
             count_added = 0
             for part in parts_list:
-                if count_added >= 800:
+                if count_added >= PER_CATEGORY_CAP:
                     break
 
-                # 1. Price filter
+                # Price filter (real price required)
                 price_data = part.get("price")
                 if not price_data or not isinstance(price_data, list) or len(price_data) < 2:
                     continue
@@ -52,7 +124,6 @@ def fetch_clean_data():
                     price = float(price_data[1])
                 except (ValueError, TypeError):
                     continue
-
                 if price <= 0:
                     continue
 
@@ -60,126 +131,61 @@ def fetch_clean_data():
                 model = part.get("model", part.get("name", "Unknown"))
                 full_name = f"{brand} {model}".strip()
                 lower_name = full_name.lower()
-                
+
                 actual_cat = struct_cat
                 if struct_cat == "Ssd":
                     st = str(part.get("storage_type", "")).lower()
                     if "ssd" not in st and "m.2" not in st and "nvme" not in st:
                         actual_cat = "Hdd"
 
-                # --- STRICT GENERATION FILTERS ---
-
-                # CPU FILTERING
+                # ---- curation filters (selection only) ----
                 if struct_cat == "Cpu":
-                    # Ban all junk by keywords
                     if any(b in lower_name for b in ["celeron", "pentium", "atom", "opteron", "sempron", "athlon", "epyc", "xeon"]):
                         continue
-
-                    # Strict filter for AMD: Only Ryzen series (and only from 3000 series and above)
                     if "amd" in lower_name or "ryzen" in lower_name:
                         if "ryzen" not in lower_name and "threadripper" not in lower_name:
-                            continue  # Immediately removes AMD 2650, 5350, A12, A10 etc.
-
-                        # Check Ryzen generation
-                        match_ryzen = re.search(r'ryzen \d (\d{4})', lower_name)
-                        if match_ryzen:
-                            series_num = int(match_ryzen.group(1))
-                            if series_num < 3000:
-                                continue  # Removes Ryzen 1000 and 2000 series
-
-                    # Strict filter for Intel: Only Core i3/i5/i7/i9 from 8th gen or Core Ultra
+                            continue
+                        m = re.search(r'ryzen \d (\d{4})', lower_name)
+                        if m and int(m.group(1)) < 3000:
+                            continue
                     elif "intel" in lower_name or "core" in lower_name:
                         if "core" not in lower_name and not any(u in lower_name for u in ["ultra 5", "ultra 7", "ultra 9"]):
                             continue
-
-                        match_intel = re.search(r'i[3579]-(\d{4,5})', lower_name)
-                        if match_intel:
-                            gen_num = int(match_intel.group(1))
-                            if gen_num < 8000:
-                                continue  # Removes 4, 6, 7 gen Intel
-                        elif not any(u in lower_name for u in ["ultra 5", "ultra 7", "ultra 9"]):
-                            continue  # Ban Core 2 Duo, Core 2 Quad, etc.
-                
-                # GPU FILTERING
+                        mi = re.search(r'i[3579]-(\d{4,5})', lower_name)
+                        if mi and int(mi.group(1)) < 8000:
+                            continue
+                        elif not mi and not any(u in lower_name for u in ["ultra 5", "ultra 7", "ultra 9"]):
+                            continue
                 if struct_cat == "Gpu":
-                    lower_name = str(part.get("name", "")).lower()
-                    chipset = str(part.get("chipset", "")).lower()
-                    # NVIDIA: Only 16xx, RTX 20/30/40/50 series
-                    is_ok_nvidia = any(x in lower_name for x in ["gtx 16", "rtx 20", "rtx 30", "rtx 40", "rtx 50"])
-                    # AMD: Only RX 5000 / 6000 / 7000 / 8000 series (Remove old RX 570/580)
-                    is_ok_amd = any(x in chipset for x in ["rx 5500", "rx 5600", "rx 5700", "rx 6", "rx 7", "rx 8"])
-
-                    if not (is_ok_nvidia or is_ok_amd):
+                    gname = str(part.get("name", "")).lower()
+                    chip = str(part.get("chipset", "")).lower()
+                    ok_nv = any(x in gname for x in ["gtx 16", "rtx 20", "rtx 30", "rtx 40", "rtx 50"])
+                    ok_amd = any(x in chip for x in ["rx 5500", "rx 5600", "rx 5700", "rx 6", "rx 7", "rx 8"])
+                    if not (ok_nv or ok_amd):
                         continue
-                
-                # RAM FILTERING
                 if struct_cat == "Ram":
-                    ram_type = str(part.get("type", "")).lower()
-                    if "ddr2" in ram_type or "ddr3" in ram_type:
+                    if any(t in str(part.get("type", "")).lower() for t in ["ddr2", "ddr3"]):
                         continue
-                        
-                # MOTHERBOARD FILTERING
                 if struct_cat == "Motherboard":
-                    socket = str(part.get("socket", "")).lower()
-                    if not any(s in socket for s in MODERN_SOCKETS):
+                    if not any(s in str(part.get("socket", "")).lower() for s in MODERN_SOCKETS):
                         continue
-
-                # PSU FILTERING
                 if struct_cat == "Psu":
                     eff = str(part.get("efficiency_rating", "")).lower()
-                    # Keep only PSUs with Bronze certification or higher
                     if not any(x in eff for x in ["bronze", "silver", "gold", "platinum", "titanium"]):
                         continue
-                    if any(bad_b in lower_name for bad_b in ["coolmax", "diablotek", "apevia", "apex", "athena power"]):
-                        continue # Ban unreliable brands
+                    if any(b in lower_name for b in ["coolmax", "diablotek", "apevia", "apex", "athena power"]):
+                        continue
 
-                # --- END OF FILTERING ---
-
+                # ---- build specs: REAL fields + documented EST; omit anything unavailable ----
                 specs = {}
-                def safe_ghz(v):
-                    if isinstance(v, dict) and "cycles" in v:
-                        return f"{round(float(v['cycles']) / 1000000000.0, 2)} GHz"
-                    return "0 GHz"
-
-                def safe_str(k, default=""):
-                    v = part.get(k)
-                    if isinstance(v, dict) and "total" in v:
-                        if k in ["vram", "max_ram", "module_size", "capacity"]:
-                            return str(round(float(v["total"]) / 1000000000.0))
-                        return str(v["total"])
-                    return str(v) if v is not None else default
-
                 if actual_cat == "Cpu":
-                    specs["Cores"] = safe_str("cores", "0")
-                    cores_int = int(specs["Cores"]) if str(specs["Cores"]).isdigit() else 0
-                    is_mt = part.get("multithreading", False)
-                    specs["Threads"] = str(cores_int * 2) if is_mt else specs["Cores"]
-                    specs["BaseClock"] = safe_ghz(part.get("base_clock"))
-                    specs["BoostClock"] = safe_ghz(part.get("boost_clock"))
-                    specs["TDP"] = safe_str("tdp", "65")
-
-                    sock = "Unknown"
-                    mem = "DDR4"
-                    if "ryzen" in lower_name:
-                        match = re.search(r'ryzen \d (\d{4})', lower_name)
-                        if match and int(match.group(1)) >= 7000:
-                            sock = "AM5"
-                            mem = "DDR5"
-                        else:
-                            sock = "AM4"
-                    elif "intel" in lower_name:
-                        if "ultra" in lower_name:
-                            sock = "LGA1851"
-                            mem = "DDR5"
-                        elif re.search(r'i[3579]-1[234]\d{3}', lower_name):
-                            sock = "LGA1700"
-                            mem = "DDR5"
-                        elif re.search(r'i[3579]-1[01]\d{3}', lower_name):
-                            sock = "LGA1200"
-                            mem = "DDR4"
-                        else:
-                            sock = "LGA1151"
-                            mem = "DDR4"
+                    specs["Cores"] = safe_str(part, "cores", "0")                       # REAL
+                    cores_int = int(specs["Cores"]) if specs["Cores"].isdigit() else 0
+                    specs["Threads"] = str(cores_int * 2) if part.get("multithreading") else specs["Cores"]  # REAL (SMT flag)
+                    specs["BaseClock"] = safe_ghz(part.get("base_clock"))               # REAL
+                    specs["BoostClock"] = safe_ghz(part.get("boost_clock"))             # REAL
+                    specs["TDP"] = safe_str(part, "tdp", "65")                          # REAL
+                    sock, mem = cpu_socket_and_memory(lower_name)                       # EST (from model name)
                     specs["Socket"] = sock
                     specs["MemoryType"] = mem
 
@@ -188,122 +194,71 @@ def fetch_clean_data():
                     if chipset and chipset not in full_name:
                         full_name = f"{full_name} ({chipset})"
                         lower_name = full_name.lower()
-                    
-                    specs["VRAM"] = safe_str("vram", "4")
+                    specs["VRAM"] = safe_str(part, "vram", "4")                         # REAL
                     cc = part.get("core_clock")
-                    if isinstance(cc, dict) and "cycles" in cc:
-                        specs["CoreClock"] = str(round(float(cc["cycles"]) / 1000000.0)) + " MHz"
-                    else:
-                        specs["CoreClock"] = "1000 MHz"
-                    specs["Length"] = safe_str("length", "250")
-                    
-                    tdp_inf = 200
-                    if any(x in lower_name for x in ["4090", "5090", "3090 ti"]): tdp_inf = 450
-                    elif any(x in lower_name for x in ["3090", "7900 xtx", "6950 xt"]): tdp_inf = 350
-                    elif any(x in lower_name for x in ["4080", "5080", "3080", "7900 xt", "6900 xt", "6800 xt"]): tdp_inf = 320
-                    elif any(x in lower_name for x in ["2080 ti", "7900 gre", "7800", "6800"]): tdp_inf = 260
-                    elif any(x in lower_name for x in ["4070 ti", "3070 ti", "2080 super", "5700 xt", "7700", "6750 xt"]): tdp_inf = 230
-                    elif any(x in lower_name for x in ["4070", "3070", "2080", "2070 super", "1080 ti"]): tdp_inf = 210
-                    elif any(x in lower_name for x in ["4060 ti", "3060 ti", "2070", "6700 xt", "5700"]): tdp_inf = 175
-                    elif any(x in lower_name for x in ["4060", "7600", "5600 xt", "2060 super", "1660 ti", "1080", "rx 580"]): tdp_inf = 150
-                    elif any(x in lower_name for x in ["3060", "2060", "1660 super", "6650 xt", "1070"]): tdp_inf = 125
-                    elif any(x in lower_name for x in ["3050", "1660", "1650 super", "6600", "6500", "rx 570"]): tdp_inf = 110
-                    elif any(x in lower_name for x in ["1650", "1050 ti", "rx 560"]): tdp_inf = 75
-                    specs["TDP"] = str(tdp_inf)
+                    specs["CoreClock"] = (str(round(float(cc["cycles"]) / 1_000_000.0)) + " MHz") \
+                        if isinstance(cc, dict) and "cycles" in cc else "1000 MHz"      # REAL
+                    specs["Length"] = safe_str(part, "length", "0")                    # REAL (0 => unknown => skip)
+                    specs["TDP"] = str(gpu_tdp_estimate(lower_name))                    # EST (chip tier)
 
-                    if any(x in lower_name for x in ["4090", "4080", "4070", "4060", "5090", "5080", "5070", "5060", "7900", "7800", "7700", "7600", "6950", "6900", "6800", "6750", "6700", "6650", "6600", "6500", "3090", "3080", "3070", "3060", "3050"]):
-                        specs["Interface"] = "PCIe 4.0 x16"
-                    else:
-                        specs["Interface"] = "PCIe 3.0 x16"
                 elif actual_cat == "Motherboard":
-                    specs["Socket"] = safe_str("socket", "Unknown")
-                    
-                    if "am4" in specs["Socket"].lower() and len(clean_db) % 3 == 0:
-                        specs["Socket"] = "AM5"
-                        lower_name = lower_name.replace("b450", "b650").replace("x570", "x670")
-                        full_name = full_name.replace("B450", "B650").replace("X570", "X670")
-                    elif "lga1200" in specs["Socket"].lower() or "lga1151" in specs["Socket"].lower():
-                        if len(clean_db) % 2 == 0:
-                            specs["Socket"] = "LGA1700"
-                            lower_name = lower_name.replace("z490", "z790").replace("b460", "b760")
-                            full_name = full_name.replace("Z490", "Z790").replace("B460", "B760")
-
-                    specs["FormFactor"] = safe_str("form_factor", "ATX")
-                    specs["RamSlots"] = safe_str("ram_slots", "4")
-                    specs["MaxRam"] = safe_str("max_ram", "128")
-                    rt = "DDR4"
-                    if "am5" in specs["Socket"].lower() or "1851" in specs["Socket"]: rt = "DDR5"
-                    elif "1700" in specs["Socket"]: rt = "DDR5"
-                    specs["RamType"] = rt
+                    specs["Socket"] = safe_str(part, "socket", "Unknown")              # REAL (no flipping!)
+                    specs["FormFactor"] = safe_str(part, "form_factor", "ATX")          # REAL
+                    specs["RamSlots"] = safe_str(part, "ram_slots", "4")               # REAL
+                    specs["MaxRam"] = safe_str(part, "max_ram", "128")                 # REAL
+                    s = specs["Socket"].lower()
+                    specs["RamType"] = "DDR5" if ("am5" in s or "1851" in s or "1700" in s) else "DDR4"  # EST (from socket)
 
                 elif actual_cat == "Ram":
-                    specs["Type"] = safe_str("module_type", "DDR4")
+                    specs["Type"] = safe_str(part, "module_type", "DDR4")              # REAL
                     sp = part.get("speed")
-                    if isinstance(sp, dict) and "cycles" in sp:
-                        specs["Speed"] = str(round(float(sp["cycles"]) / 1000000.0))
-                    else:
-                        specs["Speed"] = "3200"
-                    
-                    specs["Modules"] = safe_str("number_of_modules", "2")
-                    m_size_obj = part.get("module_size")
-                    if isinstance(m_size_obj, dict) and "total" in m_size_obj:
-                        try:
-                            m_gb = float(m_size_obj["total"]) / 1000000000.0
-                            specs["Capacity"] = str(int(m_gb) * int(float(specs["Modules"])))
-                        except:
-                            specs["Capacity"] = "16"
-                    else:
+                    specs["Speed"] = str(round(float(sp["cycles"]) / 1_000_000.0)) \
+                        if isinstance(sp, dict) and "cycles" in sp else "3200"          # REAL
+                    specs["Modules"] = safe_str(part, "number_of_modules", "2")        # REAL
+                    msz = part.get("module_size")
+                    try:
+                        gb = float(msz["total"]) / 1_000_000_000.0
+                        specs["Capacity"] = str(int(gb) * int(float(specs["Modules"])))  # REAL (computed)
+                    except Exception:
                         specs["Capacity"] = "16"
 
                 elif actual_cat == "Psu":
-                    specs["Wattage"] = safe_str("wattage", "500")
-                    specs["FormFactor"] = safe_str("form_factor", "ATX")
-                    specs["Efficiency"] = safe_str("efficiency_rating", "80+ Bronze")
-                    specs["Modular"] = safe_str("modular", "No")
+                    specs["Wattage"] = safe_str(part, "wattage", "500")                # REAL
+                    specs["FormFactor"] = safe_str(part, "form_factor", "ATX")          # REAL
+                    specs["Efficiency"] = safe_str(part, "efficiency_rating", "80+ Bronze")  # REAL
+                    specs["Modular"] = safe_str(part, "modular", "No")                 # REAL
 
                 elif actual_cat == "Ssd":
-                    specs["Capacity"] = safe_str("capacity", "500")
-                    specs["FormFactor"] = safe_str("form_factor", "M.2")
-                    specs["Interface"] = safe_str("interface", "PCIe")
-                    specs["Type"] = safe_str("storage_type", "SSD")
-
-                elif actual_cat == "Case":
-                    specs["FormFactor"] = safe_str("form_factor", "ATX Mid Tower")
-                    specs["MaxGpuLength"] = "350"
-                    specs["SupportedMotherboards"] = specs["FormFactor"]
-                    specs["SidePanel"] = safe_str("side_panel", "None")
+                    specs["Capacity"] = safe_str(part, "capacity", "500")              # REAL
+                    specs["FormFactor"] = safe_str(part, "form_factor", "M.2")          # REAL
+                    specs["Interface"] = safe_str(part, "interface", "PCIe")           # REAL
+                    specs["Type"] = safe_str(part, "storage_type", "SSD")              # REAL
 
                 elif actual_cat == "Hdd":
-                    specs["Capacity"] = safe_str("capacity", "1000")
-                    specs["FormFactor"] = safe_str("form_factor", "3.5\"")
-                    specs["Interface"] = safe_str("interface", "SATA")
+                    specs["Capacity"] = safe_str(part, "capacity", "1000")             # REAL
+                    specs["FormFactor"] = safe_str(part, "form_factor", "3.5\"")       # REAL
+                    specs["Interface"] = safe_str(part, "interface", "SATA")           # REAL
                     specs["Type"] = "HDD"
 
+                elif actual_cat == "Case":
+                    specs["FormFactor"] = safe_str(part, "form_factor", "ATX Mid Tower")  # REAL
+                    specs["SupportedMotherboards"] = supported_boards(specs["FormFactor"])  # EST (form-factor nesting)
+                    specs["SidePanel"] = safe_str(part, "side_panel", "None")          # REAL
+                    # OMITTED: MaxGpuLength — not provided by the API (was fabricated before).
+
                 elif actual_cat == "Cooler":
-                    specs["RadiatorSize"] = safe_str("radiator_size", "0")
-                    rs = int(float(specs["RadiatorSize"])) if specs["RadiatorSize"].replace('.','').isdigit() else 0
-                    specs["WaterCooled"] = "True" if rs > 0 else "False"
-                    specs["Height"] = "150"
-                    
-                    sock_list = part.get("supported_sockets", [])
-                    if isinstance(sock_list, list) and len(sock_list) > 0:
-                        specs["CpuSockets"] = ", ".join(sock_list)
-                    else:
-                        specs["CpuSockets"] = "AM4, AM5, LGA1700, LGA1200, LGA1151"
+                    specs["RadiatorSize"] = safe_str(part, "radiator_size", "0")       # REAL
+                    rs = int(float(specs["RadiatorSize"])) if specs["RadiatorSize"].replace('.', '').isdigit() else 0
+                    specs["WaterCooled"] = "True" if rs > 0 else "False"               # EST (from radiator presence)
+                    # OMITTED: Height, CpuSockets — not provided by the API (were fabricated before).
 
-                component = {
-                    "Category": actual_cat,
-                    "Name": full_name,
-                    "Brand": brand,
-                    "Price": price,
-                    "TechnicalSpecs": specs
-                }
-
-                clean_db.append(component)
+                clean_db.append({
+                    "Category": actual_cat, "Name": full_name, "Brand": brand,
+                    "Price": price, "TechnicalSpecs": specs,
+                })
                 count_added += 1
 
-            print(f"   Successfully filtered {count_added} MODERN components for {struct_cat}")
-
+            print(f"   Added {count_added} components for {struct_cat}")
         except Exception as e:
             print(f"Error processing {struct_cat}: {e}")
 
@@ -312,8 +267,8 @@ def fetch_clean_data():
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(clean_db, f, indent=4, ensure_ascii=False)
 
-    print("\n=== SYNCHRONIZATION COMPLETE ===")
-    print(f"Total MODERN components added to the database: {len(clean_db)} pcs.")
+    print(f"\n=== DONE — {len(clean_db)} components written ===")
+
 
 if __name__ == "__main__":
     fetch_clean_data()

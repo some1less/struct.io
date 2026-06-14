@@ -236,3 +236,6 @@ scraper/venv
 #####
 # End of core ignore list, below put you custom 'per project' settings (patterns or path)
 #####
+# Apify API token (never commit secrets)
+scraper/.apify_token
+.apify_token
