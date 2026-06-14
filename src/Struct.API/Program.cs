@@ -49,6 +49,8 @@ builder.Services.AddScoped<IBuildComponentService, BuildComponentService>();
 builder.Services.AddScoped<ICompatibilityEngine, CompatibilityEngine>();
 builder.Services.AddScoped<IPerformanceScorer, PerformanceScorer>();
 builder.Services.AddScoped<IRecommendationEngine, RecommendationEngine>();
+builder.Services.AddSingleton(new Struct.BLL.Core.Recommendation.Models.ObjectiveSettings());
+builder.Services.AddScoped<Struct.BLL.Core.Recommendation.BuildObjective>();
 
 
 /* DATA SEEDING - ONES AND FORALL*/

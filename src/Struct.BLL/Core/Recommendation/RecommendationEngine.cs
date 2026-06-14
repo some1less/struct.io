@@ -13,6 +13,7 @@ public class RecommendationEngine : IRecommendationEngine
     private readonly IComponentRepository _repository;
     private readonly ICompatibilityEngine _compatibilityEngine;
     private readonly IPerformanceScorer _scorer;
+    private readonly BuildObjective _objective;
 
     // division matrix
     /* GAMING: GPU(35%) CPU(22%) Motherboard(12%) ...
@@ -58,12 +59,13 @@ public class RecommendationEngine : IRecommendationEngine
             Category.Cooler, Category.Gpu }
     };
 
-    public RecommendationEngine(IComponentRepository repository, 
-        ICompatibilityEngine compatibilityEngine, IPerformanceScorer scorer)
+    public RecommendationEngine(IComponentRepository repository,
+        ICompatibilityEngine compatibilityEngine, IPerformanceScorer scorer, BuildObjective objective)
     {
         _repository = repository;
         _compatibilityEngine = compatibilityEngine;
         _scorer = scorer;
+        _objective = objective;
     }
 
     public async Task<RecommendationResult> GenerateRecommendationAsync(RecommendationRequest request)
@@ -71,34 +73,29 @@ public class RecommendationEngine : IRecommendationEngine
         var purpose = BaseWeights.ContainsKey(request.Purpose) ? request.Purpose : "Gaming";
         var sequence = Sequences[purpose];
         var weights = new Dictionary<Category, double>(BaseWeights[purpose]);
-        
-        var allocatedBudgets = weights.
-            ToDictionary(k => k.Key, 
-                v => request.Budget * (decimal)v.Value);
-        
+
+        var allocatedBudgets = weights.ToDictionary(k => k.Key, v => request.Budget * (decimal)v.Value);
+
         var result = new RecommendationResult { Purpose = purpose, TotalBudget = request.Budget, IsSuccess = true };
         var currentBuild = new BuildContext();
+        var candidatesByCategory = new Dictionary<Category, List<Component>>();
         decimal actualTotal = 0;
 
+        // ---- Greedy construction (baseline) ----
         foreach (var category in sequence)
         {
             decimal slotBudget = allocatedBudgets[category];
-            
-             /* pulling up data + putting pageSize up to 5000 (performance heavy operation)
-              TODO: think about optimization
-              */
-            var candidates = await _repository.GetByCategoryAsync(category, 1, 5000);
 
-            // 1. money filter (with 10% tolerance, but strictly capped by remaining global budget)
+            var candidates = (await _repository.GetByCategoryAsync(category, 1, 5000)).ToList();
+            candidatesByCategory[category] = candidates;
+
             decimal maxAllowedPrice = slotBudget * 1.10m;
             decimal remainingGlobalBudget = request.Budget - actualTotal;
             if (maxAllowedPrice > remainingGlobalBudget) maxAllowedPrice = remainingGlobalBudget;
             if (maxAllowedPrice < 0) maxAllowedPrice = 0;
 
-            var affordable = candidates.Where(c => c.Price <= maxAllowedPrice).ToList();
-
-            // 2. compatibility filter
-            var compatible = affordable
+            var compatible = candidates
+                .Where(c => c.Price <= maxAllowedPrice)
                 .Where(c => _compatibilityEngine.CheckCompatibility(currentBuild, c).IsCompatible)
                 .ToList();
 
@@ -110,75 +107,88 @@ public class RecommendationEngine : IRecommendationEngine
                     Category = category.ToString(),
                     Reason = $"Could not find a compatible {category} within {slotBudget:F2} PLN."
                 });
-                continue; // Do not break, try to fill the rest of the build
+                continue;
             }
 
-            // 3. scoring and sorting 
-            var ranked = compatible
-                .Select(c => {
-                    double baseScore = _scorer.CalculateScore(c, purpose);
-                    // Add a slight bonus (up to 5%) for components that better utilize the slot budget
-                    // This creates variety: higher budgets will prefer more premium/expensive variants
-                    double budgetUtilization = (double)(c.Price / slotBudget);
-                    if (budgetUtilization > 1.0) budgetUtilization = 1.0;
-                    double finalScore = baseScore * (1.0 + (budgetUtilization * 0.05));
-                    
-                    return new { Component = c, Score = finalScore, BaseScore = baseScore };
-                })
-                .OrderByDescending(x => x.Score)
-                .Take(2) // Take TOP-2
-                .ToList();
+            var best = compatible.OrderByDescending(c => _scorer.CalculateScore(c, purpose)).First();
 
-            var bestComponent = ranked.First().Component;
+            AssignToContext(currentBuild, best);
+            actualTotal += best.Price;
 
-            // adding the beast variant to build-in memory current build
-            AssignToContext(currentBuild, bestComponent);
-            actualTotal += bestComponent.Price;
-
-            // 4. packing result
-            var slotRec = new SlotRecommendation
-            {
-                Category = category.ToString(),
-                AllocatedBudget = Math.Round(slotBudget, 2, MidpointRounding.AwayFromZero),
-                Recommendations = ranked.Select((r, index) => new RankedComponent
-                {
-                    Rank = index + 1,
-                    Component = r.Component.Adapt<ComponentDto>(),
-                    // Display the normalized 0..1 base score. The budget-utilization multiplier in
-                    // r.Score is used only for ranking and must not leak into the public 0..1 contract.
-                    PerformanceScore = Math.Round(r.BaseScore, 3)
-                }).ToList()
-            };
-            result.Slots.Add(slotRec);
-
-            // 5. dynamic budget handling (WSA Magic)
-            decimal savings = slotBudget - bestComponent.Price;
+            decimal savings = slotBudget - best.Price;
             var remainingCategories = sequence.Skip(sequence.IndexOf(category) + 1).ToList();
-
             if (savings != 0 && remainingCategories.Any())
             {
                 double remainingWeightSum = remainingCategories.Sum(c => weights[c]);
                 if (remainingWeightSum > 0)
-                {
                     foreach (var remCat in remainingCategories)
-                    {
-                        // giving rest money to others (or taking away if overspent!)
-                        decimal addedBudget = savings * (decimal)(weights[remCat] / remainingWeightSum);
-                        allocatedBudgets[remCat] += addedBudget;
-                    }
-                }
+                        allocatedBudgets[remCat] += savings * (decimal)(weights[remCat] / remainingWeightSum);
             }
         }
 
-        // Always report what was actually picked, even on partial (failed) builds.
-        result.ActualTotalPrice = actualTotal;
+        // ---- Local-search upgrade pass (spends leftover budget + rebalances) ----
+        RunUpgradePass(currentBuild, candidatesByCategory, sequence, weights, purpose, request.Budget, ref actualTotal);
 
+        // ---- Build result slots from the final build (rank-1 only) ----
+        foreach (var category in sequence)
+        {
+            var chosen = GetComponent(currentBuild, category);
+            if (chosen == null) continue;
+
+            result.Slots.Add(new SlotRecommendation
+            {
+                Category = category.ToString(),
+                AllocatedBudget = Math.Round(allocatedBudgets[category], 2, MidpointRounding.AwayFromZero),
+                Recommendations = new List<RankedComponent>
+                {
+                    new RankedComponent
+                    {
+                        Rank = 1,
+                        Component = chosen.Adapt<ComponentDto>(),
+                        PerformanceScore = Math.Round(_scorer.CalculateScore(chosen, purpose), 3)
+                    }
+                }
+            });
+        }
+
+        result.ActualTotalPrice = actualTotal;
         result.Message = result.IsSuccess
             ? "Build generated successfully."
             : $"Incomplete build: could not fill {string.Join(", ", result.FailedSlots.Select(f => f.Category))}.";
 
         return result;
     }
+
+    private void RunUpgradePass(
+        BuildContext build,
+        Dictionary<Category, List<Component>> candidatesByCategory,
+        List<Category> sequence,
+        Dictionary<Category, double> weights,
+        string purpose,
+        decimal budget,
+        ref decimal actualTotal)
+    {
+        // Implemented in Task 3.
+    }
+
+    private static BuildContext CloneBuild(BuildContext b) => new()
+    {
+        Cpu = b.Cpu, Gpu = b.Gpu, Motherboard = b.Motherboard, Ram = b.Ram,
+        Psu = b.Psu, Case = b.Case, Cooler = b.Cooler, Storage = b.Storage
+    };
+
+    private static Component? GetComponent(BuildContext b, Category c) => c switch
+    {
+        Category.Cpu => b.Cpu,
+        Category.Gpu => b.Gpu,
+        Category.Motherboard => b.Motherboard,
+        Category.Ram => b.Ram,
+        Category.Psu => b.Psu,
+        Category.Case => b.Case,
+        Category.Cooler => b.Cooler,
+        Category.Ssd or Category.Hdd => b.Storage,
+        _ => null
+    };
 
     private void AssignToContext(BuildContext context, Component candidate)
     {

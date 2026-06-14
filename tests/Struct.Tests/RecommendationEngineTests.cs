@@ -16,7 +16,8 @@ namespace Struct.Tests;
 public class RecommendationEngineTests
 {
     private static RecommendationEngine EngineFor(IEnumerable<Component> catalog) =>
-        new(new StubComponentRepository(catalog), new CompatibilityEngine(), new PerformanceScorer());
+        new(new StubComponentRepository(catalog), new CompatibilityEngine(), new PerformanceScorer(),
+            new BuildObjective(new PerformanceScorer(), new ObjectiveSettings()));
 
     [Fact]
     public async Task FullCatalog_ProducesComplete8SlotBuild_WithinBudget()
