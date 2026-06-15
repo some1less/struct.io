@@ -22,24 +22,24 @@ export function BudgetMeter({ totalBudget, actualTotalPrice }: BudgetMeterProps)
       : 'var(--color-good)'
 
   return (
-    <Card className="p-5">
+    <Card className="flex flex-col p-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 font-mono text-xs tracking-wide text-faint uppercase">
-          <Wallet size={14} /> Budget used
+        <div className="flex items-center gap-2 font-mono text-[11px] tracking-wide text-faint uppercase">
+          <Wallet size={13} /> Budget used
         </div>
         <span className="font-mono text-sm font-semibold tabular-nums" style={{ color }}>
           {pct}%
         </span>
       </div>
 
-      <div className="mt-3 flex items-baseline gap-2">
-        <span className="font-mono text-3xl font-semibold tabular-nums text-fg">
+      <div className="mt-2 flex items-baseline gap-1.5">
+        <span className="font-mono text-2xl font-semibold tabular-nums text-fg">
           {formatPln(actualTotalPrice)}
         </span>
-        <span className="font-mono text-sm text-faint">/ {formatPln(totalBudget)}</span>
+        <span className="font-mono text-xs text-faint">/ {formatPln(totalBudget)}</span>
       </div>
 
-      <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-surface-2">
+      <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-surface-2">
         <motion.div
           className="h-full rounded-full"
           style={{ backgroundColor: color }}
@@ -49,10 +49,10 @@ export function BudgetMeter({ totalBudget, actualTotalPrice }: BudgetMeterProps)
         />
       </div>
 
-      <p className={cn('mt-2 font-mono text-xs', over ? 'text-bad' : 'text-muted')}>
+      <p className={cn('mt-2 font-mono text-[11px]', over ? 'text-bad' : 'text-muted')}>
         {over
           ? `${formatPln(Math.abs(leftover))} over budget`
-          : `${formatPln(leftover)} left unspent (stranded budget)`}
+          : `${formatPln(leftover)} unspent · stranded`}
       </p>
     </Card>
   )

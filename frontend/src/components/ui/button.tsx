@@ -8,8 +8,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         accent:
-          'bg-[var(--accent)] text-bg hover:brightness-110 shadow-md shadow-[var(--accent-soft)]',
-        outline: 'border border-line bg-transparent text-fg hover:bg-surface-2',
+          'bg-[var(--accent-2)] text-[var(--on-accent-2)] font-semibold hover:brightness-[1.04] shadow-sm shadow-[var(--accent-2-soft)]',
+        cyan: 'bg-[var(--accent)] text-[var(--on-accent)] hover:brightness-110 shadow-sm shadow-[var(--accent-soft)]',
+        outline: 'border border-line bg-surface text-fg hover:bg-surface-2',
         ghost: 'bg-transparent text-muted hover:bg-surface-2 hover:text-fg',
       },
       size: {

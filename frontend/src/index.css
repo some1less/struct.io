@@ -1,25 +1,38 @@
 @import 'tailwindcss';
 
-/* ---- Design system: Dark OLED, slate base, Fira type (from ui-ux-pro-max) ---- */
+/* ---- Design system: Light, Fira type, cyan = structure / yellow = energy ---- */
 @theme {
   --font-sans: 'Fira Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Fira Code', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  --color-bg: #0b1120;
-  --color-surface: #111a2c;
-  --color-surface-2: #18233a;
-  --color-line: #27344c;
-  --color-fg: #f1f5f9;
-  --color-muted: #93a3bb;
-  --color-faint: #64748b;
+  /* Light surfaces */
+  --color-bg: #f4f7fa;
+  --color-surface: #ffffff;
+  --color-surface-2: #eef2f7;
+  --color-line: #dbe3ec;
+  --color-fg: #0f1b2d;
+  --color-muted: #45566e;
+  --color-faint: #637085;
 
-  --color-good: #22c55e;
-  --color-warn: #f59e0b;
-  --color-bad: #ef4444;
+  /* Status (AA on light surfaces) */
+  --color-good: #15803d;
+  --color-warn: #b45309;
+  --color-bad: #c0271f;
 
-  /* fixed identity colors so the bottleneck meter reads the same under any purpose theme */
-  --color-cpu: #38bdf8;
-  --color-gpu: #a78bfa;
+  /* fixed identity colors so the bottleneck meter reads the same regardless of theme */
+  --color-cpu: #0891b2;
+  --color-gpu: #7c3aed;
+}
+
+/* Brand duo — referenced via var() in components (not Tailwind utilities). */
+:root {
+  --accent: #0891b2; /* cyan-600 — structural accent */
+  --accent-soft: #d8f0f6; /* light cyan tint */
+  --on-accent: #ffffff; /* text/icon on a cyan fill */
+
+  --accent-2: #f5b50a; /* yellow — brand mark + primary CTA */
+  --accent-2-soft: #fdf0c6; /* light yellow tint */
+  --on-accent-2: #2a2100; /* text/icon on a yellow fill */
 }
 
 html,
@@ -31,26 +44,14 @@ body,
 body {
   margin: 0;
   background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(56, 189, 248, 0.06), transparent 60%),
+    radial-gradient(900px 520px at 10% -12%, rgba(8, 145, 178, 0.07), transparent 60%),
+    radial-gradient(820px 520px at 102% -4%, rgba(245, 181, 10, 0.09), transparent 56%),
     var(--color-bg);
+  background-attachment: fixed;
   color: var(--color-fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* The active purpose sets --accent on a wrapper; components read var(--accent). */
-[data-purpose='Gaming'] {
-  --accent: #a78bfa;
-  --accent-soft: rgba(167, 139, 250, 0.14);
-}
-[data-purpose='Work'] {
-  --accent: #38bdf8;
-  --accent-soft: rgba(56, 189, 248, 0.14);
-}
-[data-purpose='Office'] {
-  --accent: #2dd4bf;
-  --accent-soft: rgba(45, 212, 191, 0.14);
 }
 
 @media (prefers-reduced-motion: reduce) {

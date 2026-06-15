@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Boxes, AlertCircle, Sparkles } from 'lucide-react'
+import { Boxes, AlertCircle, Sparkles, Radio } from 'lucide-react'
 import type { Purpose, RecommendationResult } from '@/lib/types'
-import { getRecommendation, PURPOSE_DEFAULT_BUDGET } from '@/lib/api'
+import { getRecommendation, IS_LIVE, PURPOSE_DEFAULT_BUDGET, PURPOSE_LABEL } from '@/lib/api'
 import { readBottleneck } from '@/lib/bottleneck'
 import { sortByCategory } from '@/lib/format'
 import { ControlPanel } from '@/components/ControlPanel'
 import { BudgetMeter } from '@/components/BudgetMeter'
 import { BottleneckMeter } from '@/components/BottleneckMeter'
-import { SlotCard } from '@/components/SlotCard'
+import { BuildList } from '@/components/BuildList'
 import { FailedSlots } from '@/components/FailedSlots'
 import { Badge } from '@/components/ui/badge'
 
@@ -55,8 +55,8 @@ export default function App() {
         <header className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span
-              className="grid h-10 w-10 place-items-center rounded-xl text-bg"
-              style={{ backgroundColor: 'var(--accent)' }}
+              className="grid h-10 w-10 place-items-center rounded-xl shadow-sm shadow-[var(--accent-2-soft)] ring-1 ring-black/5"
+              style={{ backgroundColor: 'var(--accent-2)', color: 'var(--on-accent-2)' }}
             >
               <Boxes size={22} />
             </span>
@@ -65,9 +65,15 @@ export default function App() {
               <p className="text-xs text-faint">PC build recommender · engine visualizer</p>
             </div>
           </div>
-          <Badge tone="neutral">
-            <Sparkles size={12} /> mock data
-          </Badge>
+          {IS_LIVE ? (
+            <Badge tone="good">
+              <Radio size={12} /> live data
+            </Badge>
+          ) : (
+            <Badge tone="neutral">
+              <Sparkles size={12} /> mock data
+            </Badge>
+          )}
         </header>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -108,17 +114,23 @@ export default function App() {
                     <Badge tone={result.isSuccess ? 'good' : 'warn'}>
                       {result.isSuccess ? 'Complete build' : 'Partial build'}
                     </Badge>
-                    <Badge tone="accent">{result.purpose}</Badge>
+                    <Badge tone="accent">
+                      {PURPOSE_LABEL[result.purpose as Purpose] ?? result.purpose}
+                    </Badge>
                     <span className="text-sm text-muted">{result.message}</span>
                   </div>
 
-                  {/* Meters */}
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <BudgetMeter
-                      totalBudget={result.totalBudget}
-                      actualTotalPrice={result.actualTotalPrice}
-                    />
-                    <BottleneckMeter reading={readBottleneck(result)} />
+                  {/* Meters — budget gets less width, bottleneck gets room to breathe */}
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-5">
+                    <div className="md:col-span-2">
+                      <BudgetMeter
+                        totalBudget={result.totalBudget}
+                        actualTotalPrice={result.actualTotalPrice}
+                      />
+                    </div>
+                    <div className="md:col-span-3">
+                      <BottleneckMeter reading={readBottleneck(result)} />
+                    </div>
                   </div>
 
                   {/* Build breakdown */}
@@ -126,11 +138,7 @@ export default function App() {
                     <h2 className="mb-3 font-mono text-xs tracking-wide text-faint uppercase">
                       The build · {sortedSlots.length} parts
                     </h2>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                      {sortedSlots.map((slot, i) => (
-                        <SlotCard key={slot.category} slot={slot} index={i} />
-                      ))}
-                    </div>
+                    <BuildList slots={sortedSlots} />
                   </div>
 
                   <FailedSlots slots={result.failedSlots} />

@@ -32,7 +32,7 @@ export function Slider({
       </SliderPrimitive.Track>
       <SliderPrimitive.Thumb
         aria-label="Budget"
-        className="block h-5 w-5 cursor-grab rounded-full border-2 border-[var(--accent)] bg-bg shadow-md transition-transform outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-110 active:cursor-grabbing"
+        className="block h-5 w-5 cursor-grab rounded-full border-2 border-[var(--accent)] bg-surface shadow-md transition-transform outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-110 active:cursor-grabbing"
       />
     </SliderPrimitive.Root>
   )

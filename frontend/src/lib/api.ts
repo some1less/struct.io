@@ -1,14 +1,25 @@
 import type { Purpose, RecommendationRequest, RecommendationResult } from './types'
 import { MOCK_RESULTS } from '@/data/mockResult'
 
-// Flip to true (and run the .NET API at API_BASE) to use the live recommendation engine.
-// The API serves on http://localhost:5165 by default (see launchSettings.json); it needs CORS
-// enabled for this origin (a permissive dev policy is wired in Program.cs).
-const USE_LIVE = false
-const API_BASE = 'http://localhost:5165'
+// Live recommendation engine. The dockerized API serves on http://localhost:8080
+// (compose.yaml); a permissive dev CORS policy in Program.cs allows this origin.
+// Set USE_LIVE = false to fall back to the bundled mock build (no API required).
+// Override the base URL at build time with VITE_API_BASE (e.g. http://localhost:5165 for `dotnet run`).
+const USE_LIVE = true
+const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
+
+// Exposed so the UI can label its data source.
+export const IS_LIVE = USE_LIVE
 
 export const PURPOSES: Purpose[] = ['Gaming', 'Work', 'Office']
 export const MIN_BUDGET = 2400 // mirrors AlgorithmsController's guard
+
+// Display names. The API value stays the Purpose key; 'Work' is surfaced as 'Hybrid'.
+export const PURPOSE_LABEL: Record<Purpose, string> = {
+  Gaming: 'Gaming',
+  Work: 'Hybrid',
+  Office: 'Office',
+}
 
 export const PURPOSE_DEFAULT_BUDGET: Record<Purpose, number> = {
   Gaming: MOCK_RESULTS.Gaming.totalBudget,

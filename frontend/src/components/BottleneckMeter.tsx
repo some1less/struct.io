@@ -50,7 +50,7 @@ export function BottleneckMeter({ reading }: { reading: BottleneckReading }) {
         <div className="absolute top-1/2 left-1/2 h-4 w-px -translate-x-1/2 -translate-y-1/2 bg-line" />
         {/* pointer */}
         <motion.div
-          className="absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-fg/80 bg-bg shadow-lg"
+          className="absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-fg/70 bg-surface shadow-md"
           initial={{ left: '50%' }}
           animate={{ left: `${pointerLeft}%` }}
           transition={{ type: 'spring', stiffness: 120, damping: 16 }}

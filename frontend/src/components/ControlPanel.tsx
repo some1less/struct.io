@@ -8,10 +8,11 @@ import { cn } from '@/lib/utils'
 
 const MAX_BUDGET = 25000
 
-const PURPOSE_META: Record<Purpose, { icon: LucideIcon; blurb: string }> = {
-  Gaming: { icon: Gamepad2, blurb: 'GPU-first, high frame rates' },
-  Work: { icon: Briefcase, blurb: 'Cores & memory for productivity' },
-  Office: { icon: Building2, blurb: 'Efficient everyday essentials' },
+// `label` is the display name; the API value stays the Purpose key ('Work' → shown as 'Hybrid').
+const PURPOSE_META: Record<Purpose, { icon: LucideIcon; label: string; blurb: string }> = {
+  Gaming: { icon: Gamepad2, label: 'Gaming', blurb: 'GPU-first build tuned for high frame rates.' },
+  Work: { icon: Briefcase, label: 'Hybrid', blurb: 'Balanced cores, memory & GPU for work plus play.' },
+  Office: { icon: Building2, label: 'Office', blurb: 'Efficient, quiet everyday essentials.' },
 }
 
 interface ControlPanelProps {
@@ -34,13 +35,13 @@ export function ControlPanel({
   const tooLow = budget < MIN_BUDGET
 
   return (
-    <div className="rounded-2xl border border-line bg-surface/70 p-5 shadow-xl shadow-black/30 backdrop-blur-sm sm:p-6">
+    <div className="rounded-2xl border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(15,27,45,0.04),0_14px_38px_-20px_rgba(15,27,45,0.22)] sm:p-6">
       {/* Purpose segmented control */}
       <fieldset>
         <legend className="mb-2 font-mono text-xs tracking-wide text-faint uppercase">
           Purpose
         </legend>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-2">
           {PURPOSES.map((p) => {
             const Icon = PURPOSE_META[p].icon
             const active = p === purpose
@@ -51,7 +52,7 @@ export function ControlPanel({
                 onClick={() => onPurposeChange(p)}
                 aria-pressed={active}
                 className={cn(
-                  'group flex cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition-colors duration-150',
+                  'flex cursor-pointer flex-col items-center gap-2 rounded-xl border px-2 py-3 transition-colors duration-150',
                   active
                     ? 'border-[var(--accent)] bg-[var(--accent-soft)]'
                     : 'border-line bg-surface-2/40 hover:border-faint',
@@ -59,29 +60,27 @@ export function ControlPanel({
               >
                 <span
                   className={cn(
-                    'grid h-10 w-10 shrink-0 place-items-center rounded-lg transition-colors',
-                    active ? 'bg-[var(--accent)] text-bg' : 'bg-surface-2 text-muted',
+                    'grid h-9 w-9 shrink-0 place-items-center rounded-lg transition-colors',
+                    active ? 'bg-[var(--accent)] text-[var(--on-accent)]' : 'bg-surface-2 text-muted',
                   )}
                 >
-                  <Icon size={20} strokeWidth={2} />
+                  <Icon size={18} strokeWidth={2} />
                 </span>
-                <span className="min-w-0">
-                  <span
-                    className={cn(
-                      'block font-mono text-sm font-semibold',
-                      active ? 'text-fg' : 'text-muted',
-                    )}
-                  >
-                    {p}
-                  </span>
-                  <span className="block truncate text-xs text-faint">
-                    {PURPOSE_META[p].blurb}
-                  </span>
+                <span
+                  className={cn(
+                    'font-mono text-sm font-semibold',
+                    active ? 'text-fg' : 'text-muted',
+                  )}
+                >
+                  {PURPOSE_META[p].label}
                 </span>
               </button>
             )
           })}
         </div>
+        <p className="mt-2 min-h-8 text-xs leading-relaxed text-faint">
+          {PURPOSE_META[purpose].blurb}
+        </p>
       </fieldset>
 
       {/* Budget */}
