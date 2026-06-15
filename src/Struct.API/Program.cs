@@ -19,6 +19,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 
+// Permissive dev CORS so the Vite frontend (the recommendation visualizer) can call the API directly.
+builder.Services.AddCors(options =>
+    options.AddPolicy("frontend", policy =>
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
 var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
 dataSourceBuilder.EnableDynamicJson(); // fixing error for casting Dictionary within the Postgres
 var dataSource = dataSourceBuilder.Build();
@@ -104,7 +109,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors("frontend");
 
 app.UseAuthorization();
 

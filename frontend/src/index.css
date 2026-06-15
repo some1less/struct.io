@@ -1,0 +1,63 @@
+@import 'tailwindcss';
+
+/* ---- Design system: Dark OLED, slate base, Fira type (from ui-ux-pro-max) ---- */
+@theme {
+  --font-sans: 'Fira Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --color-bg: #0b1120;
+  --color-surface: #111a2c;
+  --color-surface-2: #18233a;
+  --color-line: #27344c;
+  --color-fg: #f1f5f9;
+  --color-muted: #93a3bb;
+  --color-faint: #64748b;
+
+  --color-good: #22c55e;
+  --color-warn: #f59e0b;
+  --color-bad: #ef4444;
+
+  /* fixed identity colors so the bottleneck meter reads the same under any purpose theme */
+  --color-cpu: #38bdf8;
+  --color-gpu: #a78bfa;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(56, 189, 248, 0.06), transparent 60%),
+    var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* The active purpose sets --accent on a wrapper; components read var(--accent). */
+[data-purpose='Gaming'] {
+  --accent: #a78bfa;
+  --accent-soft: rgba(167, 139, 250, 0.14);
+}
+[data-purpose='Work'] {
+  --accent: #38bdf8;
+  --accent-soft: rgba(56, 189, 248, 0.14);
+}
+[data-purpose='Office'] {
+  --accent: #2dd4bf;
+  --accent-soft: rgba(45, 212, 191, 0.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
