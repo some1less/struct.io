@@ -1,51 +1,6 @@
 [
     {
         "Category": "Cpu",
-        "Name": "Intel Core i5-3450S 2.8 GHz Quad-Core Processor",
-        "Brand": "Intel",
-        "Price": 85.0,
-        "TechnicalSpecs": {
-            "Cores": "4",
-            "Threads": "4",
-            "BaseClock": "2.8 GHz",
-            "BoostClock": "0 GHz",
-            "TDP": "65",
-            "Socket": "LGA1155",
-            "MemoryType": "DDR4"
-        }
-    },
-    {
-        "Category": "Cpu",
-        "Name": "Intel Core i7-4930K 3.4 GHz 6-Core Processor",
-        "Brand": "Intel",
-        "Price": 98.0,
-        "TechnicalSpecs": {
-            "Cores": "6",
-            "Threads": "12",
-            "BaseClock": "3.4 GHz",
-            "BoostClock": "3.9 GHz",
-            "TDP": "130",
-            "Socket": "LGA2011",
-            "MemoryType": "DDR4"
-        }
-    },
-    {
-        "Category": "Cpu",
-        "Name": "Intel Core i5-7600K 3.8 GHz Quad-Core Processor",
-        "Brand": "Intel",
-        "Price": 123.0,
-        "TechnicalSpecs": {
-            "Cores": "4",
-            "Threads": "4",
-            "BaseClock": "3.8 GHz",
-            "BoostClock": "4.2 GHz",
-            "TDP": "91",
-            "Socket": "LGA1151",
-            "MemoryType": "DDR4"
-        }
-    },
-    {
-        "Category": "Cpu",
         "Name": "Intel Core Ultra 5 225F 3.3 GHz 10-Core Processor",
         "Brand": "Intel",
         "Price": 163.3,
@@ -181,21 +136,6 @@
     },
     {
         "Category": "Cpu",
-        "Name": "Intel Core i7-9700F 3 GHz 8-Core Processor",
-        "Brand": "Intel",
-        "Price": 247.3,
-        "TechnicalSpecs": {
-            "Cores": "8",
-            "Threads": "8",
-            "BaseClock": "3 GHz",
-            "BoostClock": "4.7 GHz",
-            "TDP": "65",
-            "Socket": "LGA1151",
-            "MemoryType": "DDR4"
-        }
-    },
-    {
-        "Category": "Cpu",
         "Name": "Intel Core i5-14500 2.6 GHz 14-Core Processor",
         "Brand": "Intel",
         "Price": 249.9,
@@ -207,36 +147,6 @@
             "TDP": "65",
             "Socket": "LGA1700",
             "MemoryType": "DDR5"
-        }
-    },
-    {
-        "Category": "Cpu",
-        "Name": "Intel Core i7-4790K 4 GHz Quad-Core OEM/Tray Processor",
-        "Brand": "Intel",
-        "Price": 249.9,
-        "TechnicalSpecs": {
-            "Cores": "4",
-            "Threads": "8",
-            "BaseClock": "4 GHz",
-            "BoostClock": "4.4 GHz",
-            "TDP": "88",
-            "Socket": "LGA1150",
-            "MemoryType": "DDR4"
-        }
-    },
-    {
-        "Category": "Cpu",
-        "Name": "Intel Core i7-6900K 3.2 GHz 8-Core Processor",
-        "Brand": "Intel",
-        "Price": 249.9,
-        "TechnicalSpecs": {
-            "Cores": "8",
-            "Threads": "16",
-            "BaseClock": "3.2 GHz",
-            "BoostClock": "3.7 GHz",
-            "TDP": "140",
-            "Socket": "LGA2011-3",
-            "MemoryType": "DDR4"
         }
     },
     {
@@ -357,21 +267,6 @@
             "TDP": "125",
             "Socket": "LGA1700",
             "MemoryType": "DDR5"
-        }
-    },
-    {
-        "Category": "Cpu",
-        "Name": "Intel Core i7-7820X 3.6 GHz 8-Core Processor",
-        "Brand": "Intel",
-        "Price": 349.9,
-        "TechnicalSpecs": {
-            "Cores": "8",
-            "Threads": "16",
-            "BaseClock": "3.6 GHz",
-            "BoostClock": "4.5 GHz",
-            "TDP": "140",
-            "Socket": "LGA2066",
-            "MemoryType": "DDR4"
         }
     },
     {
@@ -597,21 +492,6 @@
             "TDP": "65",
             "Socket": "LGA1851",
             "MemoryType": "DDR5"
-        }
-    },
-    {
-        "Category": "Cpu",
-        "Name": "Intel Core i9-9940X 3.3 GHz 14-Core OEM/Tray Processor",
-        "Brand": "Intel",
-        "Price": 998.9,
-        "TechnicalSpecs": {
-            "Cores": "14",
-            "Threads": "28",
-            "BaseClock": "3.3 GHz",
-            "BoostClock": "4.4 GHz",
-            "TDP": "165",
-            "Socket": "LGA2066",
-            "MemoryType": "DDR4"
         }
     },
     {
@@ -3649,53 +3529,1776 @@
     },
     {
         "Category": "Cooler",
-        "Name": "Valkyrie Vind 125 SL 80 CFM CPU Cooler",
-        "Brand": "Valkyrie",
-        "Price": 48.7,
+        "Name": "Noctua NH-L9A-AM5 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 49.9,
         "TechnicalSpecs": {
             "WaterCooled": "False",
-            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+",
+            "Height": "37"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9i-17xx 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 49.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "LGA1700, LGA1851",
+            "Height": "37"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9i 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 49.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200",
+            "Height": "37"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9A-AM5 CHROMAX.BLACK 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 59.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+",
+            "Height": "37"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9i-17xx chromax.black 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 59.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "LGA1700, LGA1851",
+            "Height": "37"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9i chromax.black 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 59.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200",
+            "Height": "37"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9a-AM4 chromax.black 33.8 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 59.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+",
+            "Height": "37"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9a-AM4 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 61.1,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+",
+            "Height": "37"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U9DXi4 37.8 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 64.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM4, AM5, LGA1366, LGA2011, LGA2011-3, LGA2011-3 Narrow, LGA2066",
+            "Height": "125"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9x65 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 69.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "65"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U12S SE-AM4 CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 69.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
             "Height": "158"
         }
     },
     {
         "Category": "Cooler",
-        "Name": "EK Nucleus AIO CR240 Dark 72 CFM Liquid CPU Cooler",
-        "Brand": "EK",
-        "Price": 100.0,
+        "Name": "Noctua NH-U9S 46.44 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 69.9,
         "TechnicalSpecs": {
             "WaterCooled": "False",
-            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "124"
         }
     },
     {
         "Category": "Cooler",
-        "Name": "EK EK-Nucleus AIO CR240 Lux D-RGB 72 CFM Liquid CPU Cooler",
-        "Brand": "EK",
-        "Price": 110.0,
+        "Name": "Noctua NH-L9x65 SE-AM4 CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 70.0,
         "TechnicalSpecs": {
             "WaterCooled": "False",
-            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "65"
         }
     },
     {
         "Category": "Cooler",
-        "Name": "EK Nucleus AIO CR360 Dark 72 CFM Liquid CPU Cooler",
-        "Brand": "EK",
-        "Price": 115.0,
+        "Name": "Noctua NH-U12S redux 70.75 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 71.1,
         "TechnicalSpecs": {
             "WaterCooled": "False",
-            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "158"
         }
     },
     {
         "Category": "Cooler",
-        "Name": "EK EK-Nucleus AIO CR360 Lux D-RGB 72 CFM Liquid CPU Cooler",
-        "Brand": "EK",
-        "Price": 145.0,
+        "Name": "Noctua NH-L12S 55.44 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 74.9,
         "TechnicalSpecs": {
             "WaterCooled": "False",
-            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "70"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L12 Ghost S1 37.8 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 74.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "66"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U9S chromax.black 46.4 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 74.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "125"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9x65 chromax.black 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 79.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "65"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L12Sx77 55.44 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 79.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "77"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D9L 46.44 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 84.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "110"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D9L chromax.black 46.44 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 84.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "110"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-C14S 82.52 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 89.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "142"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U12S 55 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 96.4,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "158"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U12S chromax.black 55 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 99.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "158"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D12L 60.09 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 99.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "145"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U14S 82.52 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 101.4,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "165"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D15S 82.52 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 104.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "160"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D12L CHROMAX.BLACK 60.09 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 109.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "145"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D15 82.5 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 114.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "165"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U12A 60.09 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 114.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "158"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D15S chromax.black 82.51 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 114.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "160"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-P1 Fanless CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 119.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "158"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U12S TR4-SP3 54.97 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 119.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "sTR4, sTRX4",
+            "Height": "158"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D15 chromax.black 82.52 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 124.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "165"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U12A chromax.black 60.09 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 124.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "158"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D15 SE-AM4 82.52 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 129.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA775, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "165"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D15 G2 91.58 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 164.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "168"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D15 G2 LBC 91.58 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 164.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "168"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D15 G2 HBC 91.58 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 164.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "168"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D15 G2 chromax.black 91.58 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 174.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "168"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-C14 CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA775, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851",
+            "Height": "130"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U9DX 1366 37.8 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM4, AM5, LGA1366",
+            "Height": "122"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-C12P SE14 64.95 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA775, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851",
+            "Height": "114"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U9DO A3 64.3 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "Height": "125"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U14S TR4-SP3 82.52 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "sTR4, sTRX4",
+            "Height": "165"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D14 64.95 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA775, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851",
+            "Height": "160"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U9 TR4-SP3 46.44 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "sTR4, sTRX4",
+            "Height": "125"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D9DX i4 3U 46.44 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2011-3 Narrow, LGA2066",
+            "Height": "110"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L12 37.79 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA775, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "93"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-D14 SE2011 CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066",
+            "Height": "160"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-L9a 33.84 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+",
+            "Height": "37"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U12DXi4 55 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2011-3 Narrow, LGA2066",
+            "Height": "158"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U12P SE2 54.36 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA775, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851",
+            "Height": "158"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "Noctua NH-U9B SE2 37.86 CFM CPU Cooler",
+        "Brand": "Noctua",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "False",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA775, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851",
+            "Height": "125"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Samsung 990 Pro PM9F1 512GB SSD",
+        "Brand": "Samsung",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "512",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Samsung 990 Pro PM9F1 1TB SSD",
+        "Brand": "Samsung",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Samsung 990 Pro PM9F1 2TB SSD",
+        "Brand": "Samsung",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Samsung 980 PRO with Heatsink 1TB",
+        "Brand": "Samsung",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Samsung 980 PRO with Heatsink 2TB",
+        "Brand": "Samsung",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "WD BLACK SN850X 1TB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "WD BLACK SN850X 2000GB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "WD BLACK SN850X 4TB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "4000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "WD BLACK SN770 250GB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "250",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "WD BLACK SN770 500GB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "500",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "NVMe WD BLACK SN770 1TB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "NVMe WD Blue SN5000 1TB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "WD Blue SN5000 2TB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "NVMe WD Blue SN5000 4TB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "4000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial P3 Plus 500GB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "500",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial P3 Plus 1TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial P3 500GB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "500",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 3.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial P3 1TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 3.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial P3 2TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 3.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial T500 1TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial T500 2TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial T500 4TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "4000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial T700 1TB SSD with heatsink",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 5.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial T700 2TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 5.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial T700 4TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "4000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 5.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "KINGSTON NV2 250GB SSD",
+        "Brand": "Kingston",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "250",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Kingston NV2 1TB SSD",
+        "Brand": "Kingston",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "KINGSTON NV2 2TB SSD",
+        "Brand": "Kingston",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "KINGSTON KC3000 512GB",
+        "Brand": "Kingston",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "512",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "KINGSTON KC3000 1TB",
+        "Brand": "Kingston",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "KINGSTON KC3000 2TB",
+        "Brand": "Kingston",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Sabrent Rocket 4 500GB SSD",
+        "Brand": "Sabrent",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "500",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Sabrent Rocket 4 1TB SSD",
+        "Brand": "Sabrent",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Sabrent Rocket 4 2TB SSD",
+        "Brand": "Sabrent",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Lexar NM790 1TB SSD",
+        "Brand": "Lexar",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Lexar NM790 2TB SSD",
+        "Brand": "Lexar",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Lexar NM790 4TB SSD",
+        "Brand": "Lexar",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "4000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Solidigm P44 Pro 1 TB",
+        "Brand": "Solidigm",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Solidigm P44 Pro 2TB SSD",
+        "Brand": "Solidigm",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Corsair MP700 1TB",
+        "Brand": "Corsair",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 5.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Corsair MP700 2TB",
+        "Brand": "Corsair",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 5.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Corsair MP700 PRO 4TB",
+        "Brand": "Corsair",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "4000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 5.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "ADATA LEGEND 960 1TB SSD",
+        "Brand": "ADATA",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "ADATA LEGEND 960 2TB SSD",
+        "Brand": "ADATA",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "ADATA LEGEND 960 4TB SSD",
+        "Brand": "ADATA",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "4000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "SK Hynix Platinum P41 2TB SSD",
+        "Brand": "SK Hynix",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "M.2-2280",
+            "Interface": "PCIe 4.0 X4",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial MX500 500GB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "500",
+            "FormFactor": "2.5\"",
+            "Interface": "SATA III",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial MX500 1TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "2.5\"",
+            "Interface": "SATA III",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial MX500 2TB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "2.5\"",
+            "Interface": "SATA III",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Crucial BX500 500GB SSD",
+        "Brand": "Crucial",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "500",
+            "FormFactor": "2.5\"",
+            "Interface": "SATA III",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Ssd",
+        "Name": "Kingston A400 240GB SSD",
+        "Brand": "Kingston",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "240",
+            "FormFactor": "2.5\"",
+            "Interface": "SATA III",
+            "Type": "SSD"
+        }
+    },
+    {
+        "Category": "Hdd",
+        "Name": "SEAGATE Barracuda 500GB Drive",
+        "Brand": "Seagate",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "500",
+            "FormFactor": "3.5\"",
+            "Interface": "SATA III",
+            "Type": "HDD"
+        }
+    },
+    {
+        "Category": "Hdd",
+        "Name": "Seagate Barracuda 2TB Hard Drive",
+        "Brand": "Seagate",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "2000",
+            "FormFactor": "3.5\"",
+            "Interface": "SATA III",
+            "Type": "HDD"
+        }
+    },
+    {
+        "Category": "Hdd",
+        "Name": "Seagate BarraCuda 4TB Drive",
+        "Brand": "Seagate",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "4000",
+            "FormFactor": "3.5\"",
+            "Interface": "SATA III",
+            "Type": "HDD"
+        }
+    },
+    {
+        "Category": "Hdd",
+        "Name": "Seagate IronWolf NAS 4TB",
+        "Brand": "Seagate",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "4000",
+            "FormFactor": "3.5\"",
+            "Interface": "SATA III",
+            "Type": "HDD"
+        }
+    },
+    {
+        "Category": "Hdd",
+        "Name": "Seagate IronWolf NAS 8TB",
+        "Brand": "Seagate",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "8000",
+            "FormFactor": "3.5\"",
+            "Interface": "SATA III",
+            "Type": "HDD"
+        }
+    },
+    {
+        "Category": "Hdd",
+        "Name": "WD Blue SN570 250GB SSD",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "250",
+            "FormFactor": "3.5\"",
+            "Interface": "SATA III",
+            "Type": "HDD"
+        }
+    },
+    {
+        "Category": "Hdd",
+        "Name": "NVMe WD Blue SN570 1TB",
+        "Brand": "Western Digital",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1000",
+            "FormFactor": "3.5\"",
+            "Interface": "SATA III",
+            "Type": "HDD"
+        }
+    },
+    {
+        "Category": "Hdd",
+        "Name": "KBG40ZPZ256G NVMe TOSHIBA 256GB",
+        "Brand": "Toshiba",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "256",
+            "FormFactor": "3.5\"",
+            "Interface": "SATA III",
+            "Type": "HDD"
+        }
+    },
+    {
+        "Category": "Hdd",
+        "Name": "KBG40ZPZ1T02 NVMe TOSHIBA 1024GB",
+        "Brand": "Toshiba",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Capacity": "1024",
+            "FormFactor": "3.5\"",
+            "Interface": "SATA III",
+            "Type": "HDD"
+        }
+    },
+    {
+        "Category": "Cpu",
+        "Name": "AMD Ryzen 5 7600 3.8 GHz 6-Core Processor",
+        "Brand": "AMD",
+        "Price": 208.9,
+        "TechnicalSpecs": {
+            "Cores": "6",
+            "Threads": "12",
+            "BaseClock": "3.8 GHz",
+            "BoostClock": "5.1 GHz",
+            "TDP": "65",
+            "Socket": "AM5",
+            "MemoryType": "DDR5"
+        }
+    },
+    {
+        "Category": "Cpu",
+        "Name": "AMD Ryzen 5 7600X3D 4.1 GHz 6-Core Processor",
+        "Brand": "AMD",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Cores": "6",
+            "Threads": "12",
+            "BaseClock": "4.1 GHz",
+            "BoostClock": "4.7 GHz",
+            "TDP": "65",
+            "Socket": "AM5",
+            "MemoryType": "DDR5"
+        }
+    },
+    {
+        "Category": "Cpu",
+        "Name": "AMD Ryzen 5 7600X3D 4.1 GHz 6-Core OEM/Tray Processor",
+        "Brand": "AMD",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "Cores": "6",
+            "Threads": "12",
+            "BaseClock": "4.1 GHz",
+            "BoostClock": "4.7 GHz",
+            "TDP": "65",
+            "Socket": "AM5",
+            "MemoryType": "DDR5"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Core 240 RGB 75.05 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 89.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "64"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken M22 Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 89.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken 120 73.11 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 89.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Plus 240 RGB 75.05 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 109.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "56"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Core 360 RGB 75.05 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 109.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "64"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 240 (2024) 73.47 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 129.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X63 98.17 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 129.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X73 73.11 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 132.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X53 RGB 52.44 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 135.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken 240 78.02 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 149.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "56"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Plus 360 73.47 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 149.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "56"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 240 RGB (2024) 75.12 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 149.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 280 99.68 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 159.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "60"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 280 RGB (2024) 98.61 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 159.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Plus 360 RGB 75.05 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 169.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "56"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 280 RGB 90.79 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 179.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "60"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Z53 73.11 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 187.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Z63 98.17 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 203.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X73 RGB 52.44 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 224.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 360 (2024) 73.47 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 229.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 240 78.02 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 239.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "60"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 360 RGB (2024) 75.12 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 249.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 240 RGB 78.02 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 249.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "60"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Z53 RGB 52.44 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 254.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Z63 RGB 91.19 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 274.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 420 RGB (2025) 98.61 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 334.9,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "65"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Elite 360 RGB 78.02 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "60"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken 360 78.02 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "56"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken 360 RGB 78.02 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "56"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken 280 99.68 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "56"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken Z73 RGB 52.44 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X72 Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, sTR4, sTRX4, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken 280 RGB 90.79 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM4, AM5, sTR4, sTRX4, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1700, LGA1851",
+            "Height": "56"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X52 Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, sTR4, sTRX4, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X62 Rev 2 98.17 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, sTR4, sTRX4, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X41 106.1 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X61 106.1 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, sTR4, sTRX4, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X42 Rev 2 98.17 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X42 Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
+        }
+    },
+    {
+        "Category": "Cooler",
+        "Name": "NZXT Kraken X31 69.5 CFM Liquid CPU Cooler",
+        "Brand": "NZXT",
+        "Price": 0.0,
+        "TechnicalSpecs": {
+            "WaterCooled": "True",
+            "CpuSockets": "AM2, AM2+, AM3, AM3+, AM4, AM5, FM1, FM2, FM2+, LGA1150, LGA1151, LGA1155, LGA1156, LGA1200, LGA1366, LGA1700, LGA1851, LGA2011, LGA2011-3, LGA2066"
         }
     }
 ]
