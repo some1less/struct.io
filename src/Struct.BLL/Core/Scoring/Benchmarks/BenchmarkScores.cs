@@ -16,6 +16,8 @@ public class BenchmarkScores
 
     private readonly Dictionary<string, double> _cpu;
     private readonly Dictionary<string, double> _gpu;
+    private readonly string[] _cpuKeys; // normalized keys, longest first (for containment matching)
+    private readonly string[] _gpuKeys;
 
     /// <param name="cpuMarks">Raw CPU name → CPU Mark.</param>
     /// <param name="gpuMarks">Raw GPU chip name → G3D Mark.</param>
@@ -23,6 +25,8 @@ public class BenchmarkScores
     {
         _cpu = BuildMap(cpuMarks);
         _gpu = BuildMap(gpuMarks);
+        _cpuKeys = _cpu.Keys.OrderByDescending(k => k.Length).ToArray();
+        _gpuKeys = _gpu.Keys.OrderByDescending(k => k.Length).ToArray();
     }
 
     private static Dictionary<string, double> BuildMap(IReadOnlyDictionary<string, double> raw)
@@ -57,8 +61,36 @@ public class BenchmarkScores
     /// </summary>
     public void Enrich(IReadOnlyList<Component> components)
     {
-        EnrichCategory(components, Category.Cpu, c => _cpu.TryGetValue(Normalize(c.Name), out var m) ? m : (double?)null);
-        EnrichCategory(components, Category.Gpu, c => _gpu.TryGetValue(Normalize(ExtractGpuChip(c.Name)), out var m) ? m : (double?)null);
+        EnrichCategory(components, Category.Cpu, c => MatchMark(_cpu, _cpuKeys, c.Name));
+        EnrichCategory(components, Category.Gpu, c =>
+        {
+            // New catalogs carry the chip in the Chipset spec (names are full board-partner strings
+            // with no parentheses); older catalogs put it in parentheses in the name. Prefer the spec.
+            if (c.TechnicalSpecs.TryGetValue("Chipset", out var chip) && !string.IsNullOrWhiteSpace(chip))
+            {
+                var bySpec = MatchMark(_gpu, _gpuKeys, chip);
+                if (bySpec.HasValue) return bySpec;
+            }
+            return MatchMark(_gpu, _gpuKeys, ExtractGpuChip(c.Name));
+        });
+    }
+
+    /// <summary>
+    /// Looks a model up by exact normalized name, then by the longest benchmark key that appears as a
+    /// whole-token substring of the query. Containment handles catalog names that carry extra marketing
+    /// text, e.g. "AMD Ryzen 7 7800X3D 4.2 GHz 8-Core Processor" → key "AMD Ryzen 7 7800X3D".
+    /// </summary>
+    private static double? MatchMark(Dictionary<string, double> map, string[] keysByLengthDesc, string query)
+    {
+        var q = Normalize(query);
+        if (q.Length == 0) return null;
+        if (map.TryGetValue(q, out var exact)) return exact;
+
+        var padded = " " + q + " ";
+        foreach (var key in keysByLengthDesc)
+            if (padded.Contains(" " + key + " "))
+                return map[key];
+        return null;
     }
 
     private static void EnrichCategory(IReadOnlyList<Component> components, Category category, Func<Component, double?> lookup)

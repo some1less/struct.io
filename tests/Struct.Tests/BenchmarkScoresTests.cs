@@ -47,4 +47,44 @@ public class BenchmarkScoresTests
         Assert.Equal(1.0, Score(gpu), 6);                                     // only GPU → max → 1.0
         Assert.False(unmatched.TechnicalSpecs.ContainsKey("BenchmarkScore"));  // unmatched untouched
     }
+
+    [Fact]
+    public void Enrich_MatchesCpu_ByContainment_PickingTheSpecificModelInAMarketingName()
+    {
+        // Scraped catalog names carry extra text ("4.2 GHz 8-Core Processor"); the benchmark key is the
+        // bare model. Containment must still pick the SPECIFIC model (7800X3D, not the shorter 7700X).
+        var cpuMarks = new Dictionary<string, double>
+        {
+            ["AMD Ryzen 7 7800X3D"] = 35000,
+            ["AMD Ryzen 7 7700X"] = 30000
+        };
+        var bench = new BenchmarkScores(cpuMarks, new Dictionary<string, double>());
+
+        var x3d = ComponentBuilder.New(Category.Cpu, "AMD Ryzen 7 7800X3D 4.2 GHz 8-Core Processor").Build();
+        var x = ComponentBuilder.New(Category.Cpu, "AMD Ryzen 7 7700X 4.5 GHz 8-Core Processor").Build();
+        bench.Enrich(new[] { x3d, x });
+
+        double Score(Component c) =>
+            double.Parse(c.TechnicalSpecs["BenchmarkScore"], System.Globalization.CultureInfo.InvariantCulture);
+
+        Assert.Equal(1.0, Score(x3d), 6);                  // 35000 is the category max
+        Assert.Equal(30000.0 / 35000.0, Score(x), 6);      // matched 7700X, not the longer 7800X3D
+    }
+
+    [Fact]
+    public void Enrich_MatchesGpu_ByChipsetSpec_WhenNameHasNoParentheses()
+    {
+        // New catalog GPU names are full board-partner strings with no parentheses; the chip lives in
+        // the Chipset spec. Matching must use that spec.
+        var gpuMarks = new Dictionary<string, double> { ["GeForce RTX 4070 SUPER"] = 27000 };
+        var bench = new BenchmarkScores(new Dictionary<string, double>(), gpuMarks);
+
+        var gpu = ComponentBuilder.New(Category.Gpu, "Gigabyte WINDFORCE OC GeForce RTX 4070 SUPER 12 GB")
+            .Spec("Chipset", "GeForce RTX 4070 SUPER").Build();
+        bench.Enrich(new[] { gpu });
+
+        Assert.True(gpu.TechnicalSpecs.ContainsKey("BenchmarkScore"));
+        Assert.Equal(1.0,
+            double.Parse(gpu.TechnicalSpecs["BenchmarkScore"], System.Globalization.CultureInfo.InvariantCulture), 6);
+    }
 }
