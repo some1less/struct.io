@@ -1,3 +1,5 @@
+using Struct.DAL.Models;
+
 namespace Struct.API.Extensions.Seeding;
 
 public static class ComponentPriceCalculator
@@ -375,5 +377,28 @@ public static class ComponentPriceCalculator
         }
 
         return Math.Max(coolerPrice, 40m);
+    }
+
+    /// <summary>
+    /// Documented absolute sanity bounds per category (PLN). Catches broken/garbage prices
+    /// (a $0 source, a scalper outlier) WITHOUT discarding legitimately high real prices like a
+    /// flagship GPU. Only clamps genuine out-of-range values; in-range real prices pass untouched.
+    /// </summary>
+    public static decimal ClampToCategoryBounds(Category category, decimal price)
+    {
+        (decimal min, decimal max) = category switch
+        {
+            Category.Cpu => (150m, 25000m),
+            Category.Gpu => (500m, 18000m),
+            Category.Ram => (50m, 6000m),
+            Category.Motherboard => (150m, 6000m),
+            Category.Psu => (80m, 3000m),
+            Category.Case => (80m, 3000m),
+            Category.Cooler => (40m, 2500m),
+            Category.Ssd => (60m, 6000m),
+            Category.Hdd => (80m, 4000m),
+            _ => (40m, 30000m),
+        };
+        return Math.Clamp(price, min, max);
     }
 }

@@ -109,21 +109,38 @@ public class DatabaseSeeder
             InferCpuMemoryType(specs);
         }
 
-        decimal rawPriceUsd = 0;
-        if (root["Price"]?.ToString() is string priceStr && decimal.TryParse(priceStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var parsedPrice))
+        // Price resolution, most-trusted source first:
+        //   1. PricePln — a real PLN price (manual Allegro collection / future live feed) wins outright.
+        //   2. Price    — the real PCPartPicker USD price, FX-converted (US list price -> PL retail,
+        //                 which includes ~23% VAT; ×4 is the documented proxy for that conversion).
+        //   3. heuristic — spec-based estimate, ONLY when no real price exists (e.g. storage has none).
+        // Then clamp to documented per-category sanity bounds so genuine garbage can't leak through.
+        // NOTE: the old "discard the scraped price if it differs >±50% from the heuristic" guard was
+        // backwards — it validated real data against a worse estimate and threw away correct prices
+        // (e.g. a real RX 9070 at ~3765 PLN was replaced by the heuristic's ~700 PLN). Removed.
+        const decimal UsdToPln = 4.0m;
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        var anyNum = System.Globalization.NumberStyles.Any;
+
+        // Real PLN (e.g. Allegro storage) wins; else the real PCPartPicker USD price FX-converted — which
+        // already reflects current market conditions, INCLUDING the 2026 DRAM surge that makes RAM
+        // genuinely expensive (a real market effect, not a bug, so we do NOT "correct" it down); else the
+        // spec heuristic, only when no real price exists.
+        decimal pricePln;
+        if (root["PricePln"]?.ToString() is string plnStr && decimal.TryParse(plnStr, anyNum, inv, out var realPln) && realPln > 0)
         {
-            rawPriceUsd = parsedPrice;
+            pricePln = realPln;
+        }
+        else if (root["Price"]?.ToString() is string usdStr && decimal.TryParse(usdStr, anyNum, inv, out var usd) && usd > 0)
+        {
+            pricePln = usd * UsdToPln;
+        }
+        else
+        {
+            pricePln = ComponentPriceCalculator.CalculatePricePLN(actualCategory.ToString(), brand, name, specs);
         }
 
-        decimal pricePln = rawPriceUsd * 4.0m;
-
-        decimal calculatedPrice = ComponentPriceCalculator.CalculatePricePLN(actualCategory.ToString(), brand, name, specs);
-        
-        // If PCPartPicker price is missing, or is an obvious outlier (e.g. scalper price for out of stock old hardware)
-        if (pricePln <= 0 || pricePln > calculatedPrice * 1.5m || pricePln < calculatedPrice * 0.5m)
-        {
-            pricePln = calculatedPrice;
-        }
+        pricePln = ComponentPriceCalculator.ClampToCategoryBounds(actualCategory, pricePln);
 
         return new Component
         {
