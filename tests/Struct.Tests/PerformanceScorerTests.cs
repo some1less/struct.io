@@ -7,7 +7,7 @@ namespace Struct.Tests;
 /// <summary>
 /// Characterization tests for the PerformanceScorer (Feedback - Performance Scorer). Pins both
 /// the behavior that is correct (purpose-awareness, normalized range) and the known distortions
-/// (DDR5-6000 parsing, untiered GPUs collapsing to 0) so Phase-2 fixes are intentional and visible.
+/// (untiered GPUs collapsing to 0) so fixes are intentional and visible.
 /// </summary>
 public class PerformanceScorerTests
 {
@@ -63,17 +63,15 @@ public class PerformanceScorerTests
     // ---- KNOWN DISTORTIONS (pin current behavior) ----------------------
 
     [Fact]
-    public void Ram_DirtySpeedString_SaturatesScore_KnownParsingBug()
+    public void Ram_DirtySpeedString_ScoresLikeCleanValue()
     {
-        // Feedback: Speed "DDR5-6000" parses as 56000 MT/s (all digits concatenated),
-        // saturating the score to 1.0 versus 0.757 for the clean "6000".
         Component dirty = ComponentBuilder.New(Category.Ram, "Kit A")
             .Spec("Type", "DDR5").Spec("Capacity", "32").Spec("Modules", "2").Spec("Speed", "DDR5-6000");
         Component clean = ComponentBuilder.New(Category.Ram, "Kit B")
             .Spec("Type", "DDR5").Spec("Capacity", "32").Spec("Modules", "2").Spec("Speed", "6000");
 
-        Assert.Equal(1.0, _scorer.CalculateScore(dirty), precision: 3);
-        Assert.True(_scorer.CalculateScore(clean) < 1.0);
+        Assert.Equal(_scorer.CalculateScore(clean), _scorer.CalculateScore(dirty), precision: 6);
+        Assert.True(_scorer.CalculateScore(dirty) < 1.0);
     }
 
     [Fact]

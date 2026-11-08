@@ -1,5 +1,6 @@
 using System.Globalization;
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 namespace Struct.BLL.Core.Scoring;
 
@@ -31,11 +32,11 @@ public class PerformanceScorer : IPerformanceScorer
     {
         if (TryBenchmarkScore(specs, out var benchmark)) return benchmark;
 
-        double cores = ParseDouble(specs, "Cores", 4);
-        double threads = ParseDouble(specs, "Threads", 4);
-        double baseClock = ParseDouble(specs, "BaseClock", 3.0);
-        double boostClock = ParseDouble(specs, "BoostClock", 4.0);
-        string socket = specs.TryGetValue("Socket", out var s) ? s.ToUpperInvariant() : "";
+        double cores = SpecReader.GetNumber(specs, Spec.Cores, 4);
+        double threads = SpecReader.GetNumber(specs, Spec.Threads, 4);
+        double baseClock = SpecReader.GetNumber(specs, Spec.BaseClock, 3.0);
+        double boostClock = SpecReader.GetNumber(specs, Spec.BoostClock, 4.0);
+        string socket = specs.TryGetValue(Spec.Socket, out var s) ? s.ToUpperInvariant() : "";
 
         double effectiveCores = isWork ? cores : Math.Min(cores, 8);
         double effectiveThreads = isWork ? threads : Math.Min(threads, 16);
@@ -72,9 +73,9 @@ public class PerformanceScorer : IPerformanceScorer
     {
         if (TryBenchmarkScore(specs, out var benchmark)) return benchmark;
 
-        double vram = ParseDouble(specs, "VRAM", 4);
+        double vram = SpecReader.GetNumber(specs, Spec.Vram, 4);
         if (vram == 0) vram = 4; // Fallback for strict minimum VRAM
-        double coreClock = Math.Min(ParseDouble(specs, "CoreClock", 1000), 3000);
+        double coreClock = Math.Min(SpecReader.GetNumber(specs, Spec.CoreClock, 1000), 3000);
 
         double effectiveVram = isWork ? vram : Math.Min(vram, 24);
 
@@ -111,8 +112,8 @@ public class PerformanceScorer : IPerformanceScorer
 
     private double ScoreMotherboard(Dictionary<string, string> specs, string name)
     {
-        double ramSlots = ParseDouble(specs, "RamSlots", 2);
-        double maxRam = ParseDouble(specs, "MaxRam", 32);
+        double ramSlots = SpecReader.GetNumber(specs, Spec.RamSlots, 2);
+        double maxRam = SpecReader.GetNumber(specs, Spec.MaxRam, 32);
         
         double tierBonus = 0;
         if (name.Contains("x670") || name.Contains("z790") || name.Contains("x870")) tierBonus = 300;
@@ -126,11 +127,11 @@ public class PerformanceScorer : IPerformanceScorer
 
     private double ScoreRam(Dictionary<string, string> specs, string name, bool isWork)
     {
-        double capacity = ParseDouble(specs, "Capacity", 8);
-        double speed = ParseDouble(specs, "Speed", 2400);
-        double modules = ParseDouble(specs, "Modules", 1);
+        double capacity = SpecReader.GetNumber(specs, Spec.Capacity, 8);
+        double speed = SpecReader.GetNumber(specs, Spec.Speed, 2400);
+        double modules = SpecReader.GetNumber(specs, Spec.Modules, 1);
         
-        string type = specs.TryGetValue("Type", out var t) ? t.ToUpperInvariant() : "";
+        string type = specs.TryGetValue(Spec.Type, out var t) ? t.ToUpperInvariant() : "";
         
         // DDR5 bonus now scales with speed to avoid terrible DDR5 kits outscoring premium DDR4
         double typeBonus = type.Contains("DDR5") ? (speed > 4800 ? 150 + (speed - 4800) * 0.1 : 50) : type.Contains("DDR4") ? 100 : 20;
@@ -150,19 +151,19 @@ public class PerformanceScorer : IPerformanceScorer
 
     private double ScorePsu(Dictionary<string, string> specs, string name)
     {
-        double wattage = ParseDouble(specs, "Wattage", 500);
+        double wattage = SpecReader.GetNumber(specs, Spec.Wattage, 500);
         
         // Cap wattage benefit — beyond 1000W has diminishing returns for gaming
         double effectiveWattage = Math.Min(wattage, 1000);
         
         double effMultiplier = 1.0;
-        string eff = specs.TryGetValue("Efficiency", out var e) ? e.ToLowerInvariant() : "";
+        string eff = specs.TryGetValue(Spec.Efficiency, out var e) ? e.ToLowerInvariant() : "";
         if (eff.Contains("platinum") || eff.Contains("titanium")) effMultiplier = 1.3;
         else if (eff.Contains("gold")) effMultiplier = 1.15;
         else if (eff.Contains("bronze")) effMultiplier = 1.05;
 
         // Modular bonus
-        string mod = specs.TryGetValue("Modular", out var m) ? m.ToLowerInvariant() : "";
+        string mod = specs.TryGetValue(Spec.Modular, out var m) ? m.ToLowerInvariant() : "";
         double modBonus = mod.Contains("full") ? 100 : mod.Contains("semi") ? 50 : 0;
 
         double rawScore = (effectiveWattage * effMultiplier) + modBonus;
@@ -171,11 +172,11 @@ public class PerformanceScorer : IPerformanceScorer
 
     private double ScoreStorage(Dictionary<string, string> specs, bool isSsd)
     {
-        double capacity = ParseDouble(specs, "Capacity", 500);
-        if (specs.TryGetValue("Capacity", out var rawCap) && rawCap.ToUpperInvariant().Contains("TB")) 
+        double capacity = SpecReader.GetNumber(specs, Spec.Capacity, 500);
+        if (specs.TryGetValue(Spec.Capacity, out var rawCap) && rawCap.ToUpperInvariant().Contains("TB")) 
             capacity *= 1000;
 
-        string iface = specs.TryGetValue("Interface", out var i) ? i.ToLowerInvariant() : "";
+        string iface = specs.TryGetValue(Spec.Interface, out var i) ? i.ToLowerInvariant() : "";
         bool isNvme = iface.Contains("nvme") || iface.Contains("pcie") || iface.Contains("m.2");
 
         // Cap HDD capacity points so a 4TB HDD doesn't beat an NVMe SSD for gaming
@@ -188,7 +189,7 @@ public class PerformanceScorer : IPerformanceScorer
 
     private double ScoreCase(Dictionary<string, string> specs, string name)
     {
-        double maxGpu = ParseDouble(specs, "MaxGpuLength", 300);
+        double maxGpu = SpecReader.GetNumber(specs, Spec.MaxGpuLength, 300);
         // Cap MaxGpu contribution to 350 so massive server cases don't auto-win
         double effectiveGpuClearance = Math.Min(maxGpu, 350);
 
@@ -198,11 +199,11 @@ public class PerformanceScorer : IPerformanceScorer
 
     private double ScoreCooler(Dictionary<string, string> specs, string name)
     {
-        bool isWater = specs.TryGetValue("WaterCooled", out var w) && w.Equals("True", StringComparison.OrdinalIgnoreCase);
-        double radSize = ParseDouble(specs, "RadiatorSize", 0);
+        bool isWater = specs.TryGetValue(Spec.WaterCooled, out var w) && w.Equals("True", StringComparison.OrdinalIgnoreCase);
+        double radSize = SpecReader.GetNumber(specs, Spec.RadiatorSize, 0);
         if (isWater && radSize == 0) radSize = 240; // Fallback for missing rad size
         
-        double height = ParseDouble(specs, "Height", 100);
+        double height = SpecReader.GetNumber(specs, Spec.Height, 100);
         
         // Water: base 100 + radSize * 1.5 (240mm = 460)
         // Air: base 100 + height * 2.0 (160mm tower = 420)
@@ -223,39 +224,13 @@ public class PerformanceScorer : IPerformanceScorer
     private static bool TryBenchmarkScore(Dictionary<string, string> specs, out double score)
     {
         score = 0;
-        if (specs.TryGetValue("BenchmarkScore", out var raw) &&
+        if (specs.TryGetValue(Spec.BenchmarkScore, out var raw) &&
             double.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, out var ratio))
         {
             score = Math.Sqrt(Math.Clamp(ratio, 0.0, 1.0));
             return true;
         }
         return false;
-    }
-
-    private double ParseDouble(Dictionary<string, string> specs, string key, double fallback)
-    {
-        if (!specs.TryGetValue(key, out var val)) return fallback;
-        
-        var cleanVal = new string(val.Where(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
-        if (cleanVal.Count(c => c == ',' || c == '.') > 1)
-        {
-            char separator = cleanVal.Contains('.') ? '.' : ',';
-            if (cleanVal.Contains('.') && cleanVal.Contains(',')) 
-                separator = cleanVal.LastIndexOf('.') > cleanVal.LastIndexOf(',') ? '.' : ',';
-            
-            int sepIndex = cleanVal.LastIndexOf(separator);
-            string wholePart = new string(cleanVal.Substring(0, sepIndex).Where(char.IsDigit).ToArray());
-            string fracPart = new string(cleanVal.Substring(sepIndex).Where(char.IsDigit).ToArray());
-            cleanVal = wholePart + "." + fracPart;
-        }
-        else
-        {
-            cleanVal = cleanVal.Replace(',', '.');
-        }
-
-        return double.TryParse(cleanVal, NumberStyles.Any, CultureInfo.InvariantCulture, out double result) 
-            ? result 
-            : fallback;
     }
 
     // takes input value and transforms to from 0.0 to 1.0 using a curve

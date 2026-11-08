@@ -13,7 +13,7 @@ Struct is a PJATK engineering-thesis project: an ASP.NET Core (.NET 9) Web API t
 dotnet build Struct.sln
 dotnet test tests/Struct.Tests/Struct.Tests.csproj
 dotnet test --filter "FullyQualifiedName~RecommendationEngineTests"   # one class
-dotnet test --filter "Name=Gaming_PrefersX3D_Over_24CoreI9"           # one test
+dotnet test --filter "FullyQualifiedName~Gaming_PrefersX3D_Over_24CoreI9"   # one test (xUnit has no Name= filter)
 
 # Run the API locally (expects Postgres reachable per appsettings.json)
 dotnet run --project src/Struct.API           # Swagger UI at /swagger in Development
@@ -53,10 +53,15 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 
 `scraper/generate_db.py` (PCPartPicker via the unofficial `pcpartpicker` lib, USD→PLN ×4, modern-socket filter) writes `clean_database.json`. At API startup, `Program.cs` runs `DatabaseSeeder.SeedFromDirectoryAsync` against `src/Struct.API/Extensions/Seeding/clean-db/clean_database.json`. The seeder dispatches each row to a per-category `IComponentParser` (`Parsers/`) that normalizes raw fields into the `TechnicalSpecs` dictionary the engines later read. **Seeding only runs into an empty `Components` table** — it must never delete existing components (saved builds reference them).
 
+## Conventions
+
+- **Keep code comments minimal.** Comment only a short *why* the code can't show. No changelog/history comments ("fixed in…", "used to…"), no restating what the code does — the git diff is the record.
+- **Commits: never add Claude as co-author.** No `Co-Authored-By: Claude` trailer and no "Generated with Claude Code" lines in commit messages or PR bodies.
+
 ## Active refactoring context
 
 This codebase is mid-refactor following a code review. **Read `~/Desktop/main/Claude/Claude+Obsidian/Struct/Refactoring/Refactoring Plan — Phases.md`** (Obsidian vault) before non-trivial work — it has the phase plan and rationale; the `Feedbacks/` folder beside it has the detailed findings.
 
 - `tests/Struct.Tests` is a **characterization suite**: it pins *current* behavior, including known bugs. Tests named `_KnownBug` / `_KnownGap` assert today's incorrect behavior on purpose. When you fix one of those bugs, the corresponding test is **expected to fail** — update it as part of the fix; that diff is the record of what changed. Run `dotnet test` to confirm the baseline is green before changing engine code.
-- Known issues actively being addressed (don't "discover" them as new): partial builds drop failed slots and report `ActualTotalPrice = 0`; displayed score can exceed 1.0; greedy allocation strands budget; cooler-height/RAM-slot compatibility unchecked; `ParseDouble` concatenates all digits in a string; invalid `Purpose` silently defaults to Gaming.
+- Known issues actively being addressed (don't "discover" them as new): partial builds drop failed slots and report `ActualTotalPrice = 0`; displayed score can exceed 1.0; greedy allocation strands budget; cooler-height/RAM-slot compatibility unchecked; invalid `Purpose` silently defaults to Gaming.
 - There is **no authentication yet** — passwords are placeholder strings and controllers are open. Don't assume an auth/identity context exists.

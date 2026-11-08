@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 
 namespace Struct.API.Extensions.Seeding.Parsers;
@@ -15,11 +16,11 @@ public class GpuParser : IComponentParser
         var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "VRAM", ts?["VRAM"]?.ToString() ?? "0" },
-            { "CoreClock", ts?["CoreClock"]?.ToString() ?? "0" },
-            { "Length", ts?["Length"]?.ToString() ?? "0" },
-            { "TDP", ts?["TDP"]?.ToString() ?? "0" },
-            { "Interface", ts?["Interface"]?.ToString() ?? "Unknown" }
+            { Spec.Vram, ts?[Spec.Vram]?.ToString() ?? "0" },
+            { Spec.CoreClock, ts?[Spec.CoreClock]?.ToString() ?? "0" },
+            { Spec.Length, ts?[Spec.Length]?.ToString() ?? "0" },
+            { Spec.Tdp, ts?[Spec.Tdp]?.ToString() ?? "0" },
+            { Spec.Interface, ts?[Spec.Interface]?.ToString() ?? "Unknown" }
         };
     }
 }

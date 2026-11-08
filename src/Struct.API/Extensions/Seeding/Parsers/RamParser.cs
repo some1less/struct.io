@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 
 namespace Struct.API.Extensions.Seeding.Parsers;
@@ -15,10 +16,10 @@ public class RamParser : IComponentParser
         var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "Type", ts?["Type"]?.ToString() ?? "Unknown" },
-            { "Capacity", ts?["Capacity"]?.ToString() ?? "0" },
-            { "Speed", ts?["Speed"]?.ToString() ?? "0" },
-            { "Modules", ts?["Modules"]?.ToString() ?? "1" }
+            { Spec.Type, ts?[Spec.Type]?.ToString() ?? "Unknown" },
+            { Spec.Capacity, ts?[Spec.Capacity]?.ToString() ?? "0" },
+            { Spec.Speed, ts?[Spec.Speed]?.ToString() ?? "0" },
+            { Spec.Modules, ts?[Spec.Modules]?.ToString() ?? "1" }
         };
     }
 }
