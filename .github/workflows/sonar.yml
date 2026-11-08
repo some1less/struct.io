@@ -45,8 +45,8 @@ jobs:
             /d:sonar.host.url=https://sonarcloud.io /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" \
             /d:sonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info \
-            /d:sonar.exclusions="**/Migrations/**,frontend/src/data/**" \
-            /d:sonar.coverage.exclusions=".github/**,scripts/**,frontend/e2e/**,**/*.config.ts,**/*.config.js" \
+            /d:sonar.exclusions="**/Migrations/**,frontend/src/data/**,.github/scripts/**,scripts/**" \
+            /d:sonar.coverage.exclusions="frontend/e2e/**,**/*.config.ts,**/*.config.js" \
             /d:sonar.qualitygate.wait=true
       - name: Build
         run: dotnet build Struct.sln
