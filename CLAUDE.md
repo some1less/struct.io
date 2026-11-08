@@ -63,7 +63,7 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 ## Conventions
 
 - **Keep code comments minimal.** Comment only a short *why* the code can't show. No changelog/history comments ("fixed in…", "used to…"), no restating what the code does — the git diff is the record.
-- **GitHub flow:** work on a branch, open a PR into `main`, merge only when CI (`.github/workflows/ci.yml` orchestrates reusable `secrets.yml`, `backend.yml`, `frontend.yml`, `e2e.yml`; the single required check is `CI result`; `sonar.yml` (SonarQube Cloud, project `some1less_struct.io`) is informational and not part of it; job summaries come from `.github/scripts/ci_summary.py`) is green. The user merges.
+- **GitHub flow:** work on a branch, open a PR into `main`, merge only when CI (`.github/workflows/ci.yml` orchestrates reusable `secrets.yml`, `backend.yml`, `frontend.yml`, `e2e.yml`; the single required check is `CI result`; `sonar.yml` (SonarQube Cloud, project `some1less_struct.io`) is informational and not part of it) is green. The user merges.
 - **npm on macOS drops Linux-only optional deps (`@emnapi/*`) from `package-lock.json`**, which breaks `npm ci` in CI. After any `npm install`, regenerate the lock in Linux: `docker run --rm -v <copy-of-frontend>:/app -w /app node:24 npm install --package-lock-only`, then confirm `npm ci --dry-run` there.
 - **Commits: never add Claude as co-author.** No `Co-Authored-By: Claude` trailer and no "Generated with Claude Code" lines in commit messages or PR bodies.
 

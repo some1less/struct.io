@@ -17,9 +17,8 @@ jobs:
         id: stack
         run: docker compose up --build -d
       - name: Smoke (API)
-        id: smoke
         if: ${{ !cancelled() && steps.stack.outcome == 'success' }}
-        run: SMOKE_REPORT=smoke.md scripts/smoke.sh
+        run: scripts/smoke.sh
       - uses: actions/setup-node@v4
         if: ${{ !cancelled() && steps.stack.outcome == 'success' }}
         with:
@@ -34,18 +33,9 @@ jobs:
           npm ci --ignore-scripts
           npm run test:e2e:install
       - name: E2E (Playwright)
-        id: e2e
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         working-directory: frontend
         run: npm run test:e2e
-      - name: Summary
-        if: always()
-        run: |
-          python3 .github/scripts/ci_summary.py steps "E2E" \
-            "Start API and database=${{ steps.stack.outcome }}" "Smoke (API)=${{ steps.smoke.outcome }}" \
-            "Install Playwright=${{ steps.install.outcome }}" "E2E (Playwright)=${{ steps.e2e.outcome }}"
-          if [ -f smoke.md ]; then cat smoke.md >> "$GITHUB_STEP_SUMMARY"; fi
-          python3 .github/scripts/ci_summary.py tests "E2E (Playwright)" "frontend/reports/e2e.xml"
       - name: API logs
         if: failure()
         run: docker compose logs struct.api

@@ -22,21 +22,11 @@ jobs:
         run: npm ci --ignore-scripts
       # Lint, build and tests each run once deps are in, so one failure doesn't hide the others.
       - name: Lint
-        id: lint
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run lint
       - name: Typecheck and build
-        id: build
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run build
       - name: Unit tests
-        id: unit
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/unit.xml
-      - name: Summary
-        if: always()
-        run: |
-          python3 ../.github/scripts/ci_summary.py steps "Frontend" \
-            "Install=${{ steps.install.outcome }}" "Lint=${{ steps.lint.outcome }}" \
-            "Typecheck and build=${{ steps.build.outcome }}" "Unit tests=${{ steps.unit.outcome }}"
-          python3 ../.github/scripts/ci_summary.py tests "Unit tests (vitest)" "reports/unit.xml"
+        run: npm test

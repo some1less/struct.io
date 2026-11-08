@@ -45,7 +45,7 @@ jobs:
             /d:sonar.host.url=https://sonarcloud.io /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" \
             /d:sonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info \
-            /d:sonar.exclusions="**/Migrations/**,frontend/src/data/**,.github/scripts/**,scripts/**" \
+            /d:sonar.exclusions="**/Migrations/**,frontend/src/data/**,scripts/**" \
             /d:sonar.coverage.exclusions="frontend/e2e/**,**/*.config.ts,**/*.config.js" \
             /d:sonar.qualitygate.wait=true
       - name: Build
@@ -56,6 +56,3 @@ jobs:
           -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
       - name: End analysis
         run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
-      - name: Summary
-        if: always()
-        run: python3 .github/scripts/ci_summary.py sonar "$SONAR_PROJECT" "${{ github.event.pull_request.number }}"
