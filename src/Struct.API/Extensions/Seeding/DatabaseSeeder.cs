@@ -15,6 +15,12 @@ public class DatabaseSeeder
     private readonly ILogger<DatabaseSeeder> _logger;
     private const int BatchSize = 1000;
 
+    // Catalog categories whose parser has a different TargetFolderName (lookups ignore case).
+    private static readonly Dictionary<string, string> ParserAliases = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Case"] = "PCCase", ["Cooler"] = "CPUCooler", ["Ssd"] = "Storage", ["Hdd"] = "Storage"
+    };
+
     public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers, PriceBoundsSettings priceBounds,
         ILogger<DatabaseSeeder> logger)
     {
@@ -59,19 +65,10 @@ public class DatabaseSeeder
 
         foreach (var root in rootArray)
         {
-            var categoryStr = root?["Category"]?.ToString();
-            if (categoryStr == null) continue;
+            var category = root?["Category"]?.ToString();
+            if (category == null) continue;
 
-            // Map "Cpu" to "CPU", "Gpu" to "GPU", "Psu" to "PSU" to match TargetFolderName
-            if (categoryStr.Equals("Cpu", StringComparison.OrdinalIgnoreCase)) categoryStr = "CPU";
-            else if (categoryStr.Equals("Gpu", StringComparison.OrdinalIgnoreCase)) categoryStr = "GPU";
-            else if (categoryStr.Equals("Psu", StringComparison.OrdinalIgnoreCase)) categoryStr = "PSU";
-            else if (categoryStr.Equals("Case", StringComparison.OrdinalIgnoreCase)) categoryStr = "PCCase";
-            else if (categoryStr.Equals("Cooler", StringComparison.OrdinalIgnoreCase)) categoryStr = "CPUCooler";
-            else if (categoryStr.Equals("Ssd", StringComparison.OrdinalIgnoreCase)) categoryStr = "Storage";
-            else if (categoryStr.Equals("Hdd", StringComparison.OrdinalIgnoreCase)) categoryStr = "Storage";
-
-            if (parsersByCategory.TryGetValue(categoryStr, out var parser))
+            if (parsersByCategory.TryGetValue(ParserAliases.GetValueOrDefault(category, category), out var parser))
                 components.Add(ParseComponent(root!, parser));
         }
 
