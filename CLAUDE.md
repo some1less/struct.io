@@ -15,7 +15,8 @@ dotnet test tests/Struct.Tests/Struct.Tests.csproj
 dotnet test --filter "FullyQualifiedName~RecommendationEngineTests"   # one class
 dotnet test --filter "FullyQualifiedName~Gaming_PrefersX3D_Over_24CoreI9"   # one test (xUnit has no Name= filter)
 
-# Run the API locally (expects Postgres reachable per appsettings.json)
+# Run the API locally (expects Postgres reachable; the connection string with password lives in user-secrets)
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=struct_db;Username=postgres;Password=<pw>" --project src/Struct.API
 dotnet run --project src/Struct.API           # Swagger UI at /swagger in Development
 
 # Full stack via Docker (API + Postgres, reads .env for POSTGRES_*)
