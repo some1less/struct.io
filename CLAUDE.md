@@ -21,6 +21,13 @@ dotnet run --project src/Struct.API           # Swagger UI at /swagger in Develo
 # Full stack via Docker (API + Postgres, reads .env for POSTGRES_*)
 docker compose up --build
 
+# Frontend (from frontend/): lint, unit tests (vitest), E2E (Playwright; needs the API up via docker compose)
+npm run lint && npm test
+npm run test:e2e
+
+# HTTP smoke checks against a running API
+scripts/smoke.sh [http://localhost:8080]
+
 # EF Core migrations — migrations live in Struct.DAL, startup project is Struct.API
 dotnet ef migrations add <Name> --project src/Struct.DAL --startup-project src/Struct.API
 dotnet ef database update      --project src/Struct.DAL --startup-project src/Struct.API
@@ -56,6 +63,7 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 ## Conventions
 
 - **Keep code comments minimal.** Comment only a short *why* the code can't show. No changelog/history comments ("fixed in…", "used to…"), no restating what the code does — the git diff is the record.
+- **GitHub flow:** work on a branch, open a PR into `main`, merge only when CI (`.github/workflows/ci.yml` orchestrates reusable `secrets.yml`, `backend.yml`, `frontend.yml`, `e2e.yml`; the single required check is `CI result`; job summaries come from `.github/scripts/ci_summary.py`) is green. The user merges.
 - **Commits: never add Claude as co-author.** No `Co-Authored-By: Claude` trailer and no "Generated with Claude Code" lines in commit messages or PR bodies.
 
 ## Active refactoring context
