@@ -63,7 +63,7 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 ## Conventions
 
 - **Keep code comments minimal.** Comment only a short *why* the code can't show. No changelog/history comments ("fixed in…", "used to…"), no restating what the code does — the git diff is the record.
-- **GitHub flow:** work on a branch, open a PR into `main`, merge only when CI (`.github/workflows/ci.yml`: backend tests → frontend lint/build/unit → docker compose + smoke + E2E) is green. The user merges.
+- **GitHub flow:** work on a branch, open a PR into `main`, merge only when CI (`.github/workflows/ci.yml`: gitleaks secret scan, backend tests → frontend lint/build/unit → docker compose + smoke + E2E) is green. The user merges.
 - **Commits: never add Claude as co-author.** No `Co-Authored-By: Claude` trailer and no "Generated with Claude Code" lines in commit messages or PR bodies.
 
 ## Active refactoring context
