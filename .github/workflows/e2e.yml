@@ -31,8 +31,8 @@ jobs:
         if: ${{ !cancelled() && steps.stack.outcome == 'success' }}
         working-directory: frontend
         run: |
-          npm ci
-          npx playwright install --with-deps chromium
+          npm ci --ignore-scripts
+          npm run test:e2e:install
       - name: E2E (Playwright)
         id: e2e
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}

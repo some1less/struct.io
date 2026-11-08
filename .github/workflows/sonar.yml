@@ -33,8 +33,8 @@ jobs:
       - name: Frontend coverage (vitest)
         working-directory: frontend
         run: |
-          npm ci
-          npx vitest run --coverage
+          npm ci --ignore-scripts
+          npm run test:coverage
       - name: Install scanner
         run: |
           dotnet tool install --global dotnet-sonarscanner --version 11.3.0
@@ -46,6 +46,7 @@ jobs:
             /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml" \
             /d:sonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info \
             /d:sonar.exclusions="**/Migrations/**,frontend/src/data/**" \
+            /d:sonar.coverage.exclusions=".github/**,scripts/**,frontend/e2e/**,**/*.config.ts,**/*.config.js" \
             /d:sonar.qualitygate.wait=true
       - name: Build
         run: dotnet build Struct.sln
