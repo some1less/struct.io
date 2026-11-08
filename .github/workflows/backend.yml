@@ -13,14 +13,6 @@ jobs:
         with:
           dotnet-version: 9.0.x
       - name: Build
-        id: build
         run: dotnet build Struct.sln
       - name: Test
-        id: test
-        run: dotnet test Struct.sln --no-build --logger "trx;LogFileName=results.trx" --results-directory TestResults
-      - name: Summary
-        if: always()
-        run: |
-          python3 .github/scripts/ci_summary.py steps "Backend" \
-            "Build=${{ steps.build.outcome }}" "xUnit=${{ steps.test.outcome }}"
-          python3 .github/scripts/ci_summary.py tests "Backend tests (xUnit)" "TestResults/*.trx"
+        run: dotnet test Struct.sln --no-build

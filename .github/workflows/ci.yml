@@ -25,6 +25,13 @@ jobs:
     name: Frontend
     uses: ./.github/workflows/frontend.yml
 
+  # Informational until the rules are calibrated, so it is not part of CI result.
+  sonar:
+    name: Sonar
+    uses: ./.github/workflows/sonar.yml
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   e2e:
     name: E2E
     needs: [backend, frontend]
@@ -36,10 +43,6 @@ jobs:
     needs: [secrets, backend, frontend, e2e]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github/scripts
-      - name: Summary
-        env:
-          NEEDS: ${{ toJSON(needs) }}
-        run: python3 .github/scripts/ci_summary.py result
+      - name: Fail if any stage did not pass
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        run: exit 1
