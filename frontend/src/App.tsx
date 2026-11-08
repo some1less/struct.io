@@ -17,23 +17,30 @@ export default function App() {
   const [purpose, setPurpose] = useState<Purpose>('Gaming')
   const [budget, setBudget] = useState<number>(PURPOSE_DEFAULT_BUDGET.Gaming)
   const [result, setResult] = useState<RecommendationResult | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [runId, setRunId] = useState(0)
 
-  const runRecommend = useCallback(async (b: number, p: Purpose) => {
+  // State is set only in promise callbacks, so the mount effect below never sets state synchronously.
+  const fetchRecommendation = useCallback(
+    (b: number, p: Purpose) =>
+      getRecommendation({ budget: b, purpose: p })
+        .then(
+          (res) => {
+            setResult(res)
+            setRunId((n) => n + 1)
+          },
+          (e: unknown) => setError(e instanceof Error ? e.message : 'Something went wrong.'),
+        )
+        .finally(() => setLoading(false)),
+    [],
+  )
+
+  function runRecommend(b: number, p: Purpose) {
     setLoading(true)
     setError(null)
-    try {
-      const res = await getRecommendation({ budget: b, purpose: p })
-      setResult(res)
-      setRunId((n) => n + 1)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+    void fetchRecommendation(b, p)
+  }
 
   useEffect(() => {
     getConfig().then(setConfig, (e: unknown) =>
@@ -41,10 +48,10 @@ export default function App() {
     )
   }, [])
 
-  // Build a recommendation on first load so the page isn't empty.
+  // Build a recommendation on first load so the page isn't empty (loading starts true).
   useEffect(() => {
-    void runRecommend(PURPOSE_DEFAULT_BUDGET.Gaming, 'Gaming')
-  }, [runRecommend])
+    void fetchRecommendation(PURPOSE_DEFAULT_BUDGET.Gaming, 'Gaming')
+  }, [fetchRecommendation])
 
   function handlePurposeChange(p: Purpose) {
     setPurpose(p)
