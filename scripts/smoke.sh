@@ -23,6 +23,13 @@ check "unknown purpose" 400 -X POST "$BASE/api/algorithms/recommend" \
 check "budget below minimum" 400 -X POST "$BASE/api/algorithms/recommend" \
   -H 'Content-Type: application/json' -d '{"budget":1000,"purpose":"Gaming"}'
 
+check "validate empty build" 400 -X POST "$BASE/api/algorithms/validate-build" \
+  -H 'Content-Type: application/json' -d '[]'
+ids=$(curl -fs -X POST "$BASE/api/algorithms/recommend" -H 'Content-Type: application/json' \
+  -d '{"budget":12000,"purpose":"Gaming"}' | jq -c '[.slots[].recommendations[0].component.id]')
+if curl -fs -X POST "$BASE/api/algorithms/validate-build" -H 'Content-Type: application/json' -d "$ids" \
+  | grep -q '"isCompatible":true'; then echo "ok    recommended build validates"; else echo "FAIL  recommended build does not validate"; fail=1; fi
+
 if curl -fs "$BASE/api/config" | grep -q '"minBudget"'; then echo "ok    config has minBudget"; else echo "FAIL  config has no minBudget"; fail=1; fi
 
 exit $fail

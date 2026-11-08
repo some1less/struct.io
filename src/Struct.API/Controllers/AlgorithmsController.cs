@@ -68,45 +68,18 @@ public class AlgorithmsController : ControllerBase
 
             var component = componentDto.Adapt<DAL.Models.Component>();
 
-            switch (component.Category)
-            {
-                case DAL.Models.Category.Cpu: buildContext.Cpu = component; break;
-                case DAL.Models.Category.Gpu: buildContext.Gpu = component; break;
-                case DAL.Models.Category.Motherboard: buildContext.Motherboard = component; break;
-                case DAL.Models.Category.Ram: buildContext.Ram = component; break;
-                case DAL.Models.Category.Psu: buildContext.Psu = component; break;
-                case DAL.Models.Category.Case: buildContext.Case = component; break;
-                case DAL.Models.Category.Cooler: buildContext.Cooler = component; break;
-                case DAL.Models.Category.Ssd:
-                case DAL.Models.Category.Hdd: buildContext.Storage = component; break;
-            }
+            buildContext.Assign(component);
         }
 
-        var validationReport = new List<string>();
-        
-        if (buildContext.Cpu != null) VerifyComponent(buildContext, buildContext.Cpu, validationReport);
-        if (buildContext.Gpu != null) VerifyComponent(buildContext, buildContext.Gpu, validationReport);
-        if (buildContext.Motherboard != null) VerifyComponent(buildContext, buildContext.Motherboard, validationReport);
-        if (buildContext.Ram != null) VerifyComponent(buildContext, buildContext.Ram, validationReport);
-        if (buildContext.Psu != null) VerifyComponent(buildContext, buildContext.Psu, validationReport);
-        if (buildContext.Case != null) VerifyComponent(buildContext, buildContext.Case, validationReport);
-        if (buildContext.Cooler != null) VerifyComponent(buildContext, buildContext.Cooler, validationReport);
-
-        var distinctViolations = validationReport.Distinct().ToList();
+        var distinctViolations = buildContext.Components
+            .SelectMany(c => _compatibilityEngine.CheckCompatibility(buildContext, c).Violations)
+            .Distinct()
+            .ToList();
 
         return Ok(new
         {
             IsCompatible = !distinctViolations.Any(),
             Violations = distinctViolations
         });
-    }
-
-    private void VerifyComponent(BuildContext context, DAL.Models.Component component, List<string> report)
-    {
-        var res = _compatibilityEngine.CheckCompatibility(context, component);
-        if (!res.IsCompatible)
-        {
-            report.AddRange(res.Violations);
-        }
     }
 }

@@ -13,8 +13,8 @@ public class CompatibilityEngine : ICompatibilityEngine
     {
         var result = new CompatibilityResult();
         
-        var testBuild = CloneContext(currentBuild);
-        AssignCandidate(testBuild, candidate);
+        var testBuild = currentBuild.Clone();
+        testBuild.Assign(candidate);
 
         // socket check (CPU <-> Motherboard <-> Cooler)
         CheckSocketCompatibility(testBuild, result);
@@ -210,36 +210,4 @@ public class CompatibilityEngine : ICompatibilityEngine
     {
         return s1.Replace(" ", "").Equals(s2.Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
     }
-
-    private BuildContext CloneContext(BuildContext original)
-    {
-        return new BuildContext
-        {
-            Cpu = original.Cpu,
-            Gpu = original.Gpu,
-            Motherboard = original.Motherboard,
-            Ram = original.Ram,
-            Psu = original.Psu,
-            Case = original.Case,
-            Cooler = original.Cooler,
-            Storage = original.Storage
-        };
-    }
-
-    private void AssignCandidate(BuildContext context, Component candidate)
-    {
-        switch (candidate.Category)
-        {
-            case Category.Cpu: context.Cpu = candidate; break;
-            case Category.Gpu: context.Gpu = candidate; break;
-            case Category.Motherboard: context.Motherboard = candidate; break;
-            case Category.Ram: context.Ram = candidate; break;
-            case Category.Psu: context.Psu = candidate; break;
-            case Category.Case: context.Case = candidate; break;
-            case Category.Cooler: context.Cooler = candidate; break;
-            case Category.Ssd: 
-            case Category.Hdd: context.Storage = candidate; break;
-        }
-    }
-    
 }

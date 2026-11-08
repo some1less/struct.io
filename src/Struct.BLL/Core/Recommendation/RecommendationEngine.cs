@@ -70,7 +70,7 @@ public class RecommendationEngine : IRecommendationEngine
 
             var best = compatible.OrderByDescending(c => _scorer.CalculateScore(c, purpose)).First();
 
-            BuildContextOps.Assign(currentBuild, best);
+            currentBuild.Assign(best);
             actualTotal += best.Price;
 
             decimal savings = slotBudget - best.Price;
@@ -90,7 +90,7 @@ public class RecommendationEngine : IRecommendationEngine
         // ---- Build result slots from the final build (rank-1 only) ----
         foreach (var category in sequence)
         {
-            var chosen = BuildContextOps.Get(currentBuild, category);
+            var chosen = currentBuild[category];
             if (chosen == null) continue;
 
             result.Slots.Add(new SlotRecommendation
@@ -137,7 +137,7 @@ public class RecommendationEngine : IRecommendationEngine
 
             foreach (var category in sequence)
             {
-                var chosen = BuildContextOps.Get(build, category);
+                var chosen = build[category];
                 if (chosen == null) continue; // failed slot — nothing to upgrade
                 if (!candidatesByCategory.TryGetValue(category, out var pool)) continue;
 
@@ -152,8 +152,8 @@ public class RecommendationEngine : IRecommendationEngine
                     // this category with the candidate, so the rest of the build is held fixed).
                     if (!_compatibilityEngine.CheckCompatibility(build, candidate).IsCompatible) continue;
 
-                    var trial = BuildContextOps.Clone(build);
-                    BuildContextOps.Assign(trial, candidate);
+                    var trial = build.Clone();
+                    trial.Assign(candidate);
                     double delta = _objective.Evaluate(trial, weights, purpose) - currentObjective;
 
                     if (delta > bestDelta)
@@ -167,9 +167,9 @@ public class RecommendationEngine : IRecommendationEngine
 
             if (bestSwap != null)
             {
-                var old = BuildContextOps.Get(build, bestCategory)!;
+                var old = build[bestCategory]!;
                 actualTotal = actualTotal - old.Price + bestSwap.Price;
-                BuildContextOps.Assign(build, bestSwap);
+                build.Assign(bestSwap);
                 improved = true; // objective strictly increased; loop is bounded ⇒ terminates
             }
         }
