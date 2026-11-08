@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 namespace Struct.API.Extensions.Seeding.Parsers;
 
@@ -11,7 +12,7 @@ public class StorageParser : IComponentParser
     public Category DetermineCategory(JsonNode root)
     {
         var ts = root["TechnicalSpecs"];
-        var type = ts?["Type"]?.ToString();
+        var type = ts?[Spec.Type]?.ToString();
 
         if (type == "HDD")
         {
@@ -26,10 +27,10 @@ public class StorageParser : IComponentParser
         var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "Capacity", ts?["Capacity"]?.ToString() ?? "0" },
-            { "FormFactor", ts?["FormFactor"]?.ToString() ?? "Unknown" },
-            { "Interface", ts?["Interface"]?.ToString() ?? "Unknown" },
-            { "Type", ts?["Type"]?.ToString() ?? "Unknown" }
+            { Spec.Capacity, ts?[Spec.Capacity]?.ToString() ?? "0" },
+            { Spec.FormFactor, ts?[Spec.FormFactor]?.ToString() ?? "Unknown" },
+            { Spec.Interface, ts?[Spec.Interface]?.ToString() ?? "Unknown" },
+            { Spec.Type, ts?[Spec.Type]?.ToString() ?? "Unknown" }
         };
     }
 }

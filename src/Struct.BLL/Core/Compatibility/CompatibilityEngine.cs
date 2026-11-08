@@ -1,9 +1,14 @@
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 namespace Struct.BLL.Core.Compatibility;
 
 public class CompatibilityEngine : ICompatibilityEngine
 {
+    private readonly CompatibilitySettings _settings;
+
+    public CompatibilityEngine(CompatibilitySettings settings) => _settings = settings;
+
     public CompatibilityResult CheckCompatibility(BuildContext currentBuild, Component candidate)
     {
         var result = new CompatibilityResult();
@@ -28,9 +33,9 @@ public class CompatibilityEngine : ICompatibilityEngine
     
     private void CheckSocketCompatibility(BuildContext build, CompatibilityResult result)
     {
-        string? cpuSocket = GetSpec(build.Cpu, "Socket");
-        string? moboSocket = GetSpec(build.Motherboard, "Socket");
-        string? coolerSockets = GetSpec(build.Cooler, "CpuSockets");
+        string? cpuSocket = SpecReader.GetString(build.Cpu?.TechnicalSpecs, Spec.Socket);
+        string? moboSocket = SpecReader.GetString(build.Motherboard?.TechnicalSpecs, Spec.Socket);
+        string? coolerSockets = SpecReader.GetString(build.Cooler?.TechnicalSpecs, Spec.CpuSockets);
 
         // CPU vs Motherboard
         if (cpuSocket != null && moboSocket != null)
@@ -56,9 +61,9 @@ public class CompatibilityEngine : ICompatibilityEngine
     
     private void CheckRamCompatibility(BuildContext build, CompatibilityResult result)
     {
-        string? ramType = GetSpec(build.Ram, "Type");
-        string? moboRamType = GetSpec(build.Motherboard, "RamType");
-        string? cpuMemType = GetSpec(build.Cpu, "MemoryType");
+        string? ramType = SpecReader.GetString(build.Ram?.TechnicalSpecs, Spec.Type);
+        string? moboRamType = SpecReader.GetString(build.Motherboard?.TechnicalSpecs, Spec.RamType);
+        string? cpuMemType = SpecReader.GetString(build.Cpu?.TechnicalSpecs, Spec.MemoryType);
 
         // RAM vs Motherboard
         if (ramType != null && moboRamType != null)
@@ -72,7 +77,7 @@ public class CompatibilityEngine : ICompatibilityEngine
         // RAM vs CPU (CPU memory controllers dictate supported RAM)
         if (ramType != null && cpuMemType != null && cpuMemType != "UNKNOWN")
         {
-            string? cpuSocket = GetSpec(build.Cpu, "Socket");
+            string? cpuSocket = SpecReader.GetString(build.Cpu?.TechnicalSpecs, Spec.Socket);
             bool isLga1700 = cpuSocket != null && cpuSocket.Contains("1700");
             
             string cleanCpuMem = cpuMemType.Replace(" ", "").ToUpperInvariant();
@@ -92,7 +97,7 @@ public class CompatibilityEngine : ICompatibilityEngine
         if (build.Ram != null && build.Motherboard != null)
         {
             string ramName = build.Ram.Name.ToLowerInvariant();
-            string? moboForm = GetSpec(build.Motherboard, "FormFactor");
+            string? moboForm = SpecReader.GetString(build.Motherboard?.TechnicalSpecs, Spec.FormFactor);
 
             if (ramName.Contains("sodimm") && moboForm != null &&
                 !moboForm.Contains("Thin Mini-ITX", StringComparison.OrdinalIgnoreCase) &&
@@ -105,8 +110,8 @@ public class CompatibilityEngine : ICompatibilityEngine
         // RAM module count vs Motherboard slots (skipped when either spec is missing/zero)
         if (build.Ram != null && build.Motherboard != null)
         {
-            int modules = ParseInt(GetSpec(build.Ram, "Modules"), 0);
-            int moboSlots = ParseInt(GetSpec(build.Motherboard, "RamSlots"), 0);
+            double modules = SpecReader.GetNumber(build.Ram?.TechnicalSpecs, Spec.Modules, 0);
+            double moboSlots = SpecReader.GetNumber(build.Motherboard?.TechnicalSpecs, Spec.RamSlots, 0);
 
             if (modules > 0 && moboSlots > 0 && modules > moboSlots)
             {
@@ -114,8 +119,8 @@ public class CompatibilityEngine : ICompatibilityEngine
             }
 
             // RAM total capacity vs Motherboard maximum
-            int capacity = ParseInt(GetSpec(build.Ram, "Capacity"), 0);
-            int moboMaxRam = ParseInt(GetSpec(build.Motherboard, "MaxRam"), 0);
+            double capacity = SpecReader.GetNumber(build.Ram?.TechnicalSpecs, Spec.Capacity, 0);
+            double moboMaxRam = SpecReader.GetNumber(build.Motherboard?.TechnicalSpecs, Spec.MaxRam, 0);
 
             if (capacity > 0 && moboMaxRam > 0 && capacity > moboMaxRam)
             {
@@ -128,12 +133,11 @@ public class CompatibilityEngine : ICompatibilityEngine
     {
         if (build.Psu == null) return;
 
-        int psuWattage = ParseInt(GetSpec(build.Psu, "Wattage"), 0);
-        int cpuTdp = ParseInt(GetSpec(build.Cpu, "TDP"), 65); // default if unknown
-        int gpuTdp = ParseInt(GetSpec(build.Gpu, "TDP"), build.Gpu != null ? 200 : 0);
+        double psuWattage = SpecReader.GetNumber(build.Psu?.TechnicalSpecs, Spec.Wattage, 0);
+        double cpuTdp = SpecReader.GetNumber(build.Cpu?.TechnicalSpecs, Spec.Tdp, 65); // default if unknown
+        double gpuTdp = SpecReader.GetNumber(build.Gpu?.TechnicalSpecs, Spec.Tdp, build.Gpu != null ? 200 : 0);
 
-        // formula: (CPU + GPU + 50W on mb/ram) * 1.3 (30% bonus place)
-        double requiredWattage = (cpuTdp + gpuTdp + 50) * 1.3;
+        double requiredWattage = (cpuTdp + gpuTdp + _settings.PsuBaseLoadWatts) * _settings.PsuHeadroom;
 
         if (psuWattage < requiredWattage)
         {
@@ -148,8 +152,8 @@ public class CompatibilityEngine : ICompatibilityEngine
         // GPU vs Case Length
         if (build.Gpu != null)
         {
-            int gpuLength = ParseInt(GetSpec(build.Gpu, "Length"), 0);
-            int caseMaxGpu = ParseInt(GetSpec(build.Case, "MaxGpuLength"), 999);
+            double gpuLength = SpecReader.GetNumber(build.Gpu?.TechnicalSpecs, Spec.Length, 0);
+            double caseMaxGpu = SpecReader.GetNumber(build.Case?.TechnicalSpecs, Spec.MaxGpuLength, 999);
 
             if (caseMaxGpu == 0) caseMaxGpu = 999;
 
@@ -162,8 +166,8 @@ public class CompatibilityEngine : ICompatibilityEngine
         // Cooler height vs Case clearance (skipped when either spec is missing)
         if (build.Cooler != null)
         {
-            int coolerHeight = ParseInt(GetSpec(build.Cooler, "Height"), 0);
-            int caseMaxCooler = ParseInt(GetSpec(build.Case, "MaxCoolerHeight"), 0);
+            double coolerHeight = SpecReader.GetNumber(build.Cooler?.TechnicalSpecs, Spec.Height, 0);
+            double caseMaxCooler = SpecReader.GetNumber(build.Case?.TechnicalSpecs, Spec.MaxCoolerHeight, 0);
 
             if (coolerHeight > 0 && caseMaxCooler > 0 && coolerHeight > caseMaxCooler)
             {
@@ -174,8 +178,8 @@ public class CompatibilityEngine : ICompatibilityEngine
         // Motherboard Form Factor vs Case
         if (build.Motherboard != null)
         {
-            string? moboForm = GetSpec(build.Motherboard, "FormFactor");
-            string? caseSupported = GetSpec(build.Case, "SupportedMotherboards");
+            string? moboForm = SpecReader.GetString(build.Motherboard?.TechnicalSpecs, Spec.FormFactor);
+            string? caseSupported = SpecReader.GetString(build.Case?.TechnicalSpecs, Spec.SupportedMotherboards);
 
             if (moboForm != null && caseSupported != null)
             {
@@ -202,29 +206,9 @@ public class CompatibilityEngine : ICompatibilityEngine
         }
     }
     
-    private string? GetSpec(Component? component, string key)
-    {
-        if (component?.TechnicalSpecs == null) return null;
-        return component.TechnicalSpecs.TryGetValue(key, out var val) ? val : null;
-    }
-    
     private bool CompareClean(string s1, string s2)
     {
         return s1.Replace(" ", "").Equals(s2.Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
-    }
-
-    private int ParseInt(string? value, int fallback)
-    {
-        if (string.IsNullOrWhiteSpace(value)) return fallback;
-        
-        var cleanValue = new string(value.Where(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
-        cleanValue = cleanValue.Replace(',', '.');
-
-        if (double.TryParse(cleanValue, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double result))
-        {
-            return (int)Math.Round(result);
-        }
-        return fallback;
     }
 
     private BuildContext CloneContext(BuildContext original)

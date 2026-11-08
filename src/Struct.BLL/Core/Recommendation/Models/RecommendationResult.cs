@@ -2,7 +2,7 @@ namespace Struct.BLL.Core.Recommendation.Models;
 
 public class RecommendationResult
 {
-    public string Purpose { get; set; } = string.Empty;
+    public Purpose Purpose { get; set; }
     public decimal TotalBudget { get; set; }
     public decimal ActualTotalPrice { get; set; }
     public bool IsSuccess { get; set; }

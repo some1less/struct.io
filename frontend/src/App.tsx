@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Boxes, AlertCircle, Sparkles, Radio } from 'lucide-react'
-import type { Purpose, RecommendationResult } from '@/lib/types'
-import { getRecommendation, IS_LIVE, PURPOSE_DEFAULT_BUDGET, PURPOSE_LABEL } from '@/lib/api'
+import type { AppConfig, Purpose, RecommendationResult } from '@/lib/types'
+import { getConfig, getRecommendation, IS_LIVE, PURPOSE_DEFAULT_BUDGET, PURPOSE_LABEL } from '@/lib/api'
 import { readBottleneck } from '@/lib/bottleneck'
 import { sortByCategory } from '@/lib/format'
 import { ControlPanel } from '@/components/ControlPanel'
@@ -13,6 +13,7 @@ import { FailedSlots } from '@/components/FailedSlots'
 import { Badge } from '@/components/ui/badge'
 
 export default function App() {
+  const [config, setConfig] = useState<AppConfig | null>(null)
   const [purpose, setPurpose] = useState<Purpose>('Gaming')
   const [budget, setBudget] = useState<number>(PURPOSE_DEFAULT_BUDGET.Gaming)
   const [result, setResult] = useState<RecommendationResult | null>(null)
@@ -32,6 +33,12 @@ export default function App() {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  useEffect(() => {
+    getConfig().then(setConfig, (e: unknown) =>
+      setError(e instanceof Error ? e.message : 'Could not load engine config.'),
+    )
   }, [])
 
   // Build a recommendation on first load so the page isn't empty.
@@ -80,14 +87,18 @@ export default function App() {
           {/* Controls */}
           <div className="lg:col-span-4">
             <div className="lg:sticky lg:top-8">
-              <ControlPanel
-                budget={budget}
-                purpose={purpose}
-                loading={loading}
-                onBudgetChange={setBudget}
-                onPurposeChange={handlePurposeChange}
-                onSubmit={() => runRecommend(budget, purpose)}
-              />
+              {config && (
+                <ControlPanel
+                  budget={budget}
+                  purpose={purpose}
+                  purposes={config.purposes}
+                  minBudget={config.minBudget}
+                  loading={loading}
+                  onBudgetChange={setBudget}
+                  onPurposeChange={handlePurposeChange}
+                  onSubmit={() => runRecommend(budget, purpose)}
+                />
+              )}
             </div>
           </div>
 
@@ -100,7 +111,7 @@ export default function App() {
               </div>
             )}
 
-            {result && (
+            {result && config && (
               <AnimatePresence mode="wait">
                 <motion.div
                   key={runId}
@@ -129,7 +140,10 @@ export default function App() {
                       />
                     </div>
                     <div className="md:col-span-3">
-                      <BottleneckMeter reading={readBottleneck(result)} />
+                      <BottleneckMeter
+                        reading={readBottleneck(result, config.bottleneckThreshold)}
+                        threshold={config.bottleneckThreshold}
+                      />
                     </div>
                   </div>
 
@@ -155,7 +169,8 @@ export default function App() {
         </div>
 
         <footer className="mt-12 border-t border-line pt-4 font-mono text-[11px] text-faint">
-          Bottleneck reproduces the engine's own term · gap = |cpuScore − gpuScore|, threshold 0.15
+          Bottleneck reproduces the engine's own term · gap = |cpuScore − gpuScore|, threshold{' '}
+          {config?.bottleneckThreshold ?? '…'}
         </footer>
       </div>
     </div>

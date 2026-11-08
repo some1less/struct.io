@@ -1,8 +1,7 @@
 import type { RecommendationResult } from './types'
 
 // Reproduces the engine's CPU<->GPU bottleneck term (BuildObjective / ObjectiveSettings):
-//   gap = |cpuScore - gpuScore|, penalty applies once gap exceeds BottleneckThreshold (0.15).
-export const BOTTLENECK_THRESHOLD = 0.15
+//   gap = |cpuScore - gpuScore|, penalty applies once gap exceeds the configured threshold.
 
 export type BottleneckStatus = 'balanced' | 'cpu-bound' | 'gpu-bound' | 'unknown'
 
@@ -21,7 +20,10 @@ function scoreFor(result: RecommendationResult, category: string): number | null
   return top ? top.performanceScore : null
 }
 
-export function readBottleneck(result: RecommendationResult): BottleneckReading {
+export function readBottleneck(
+  result: RecommendationResult,
+  threshold: number,
+): BottleneckReading {
   const cpuScore = scoreFor(result, 'Cpu')
   const gpuScore = scoreFor(result, 'Gpu')
 
@@ -31,7 +33,7 @@ export function readBottleneck(result: RecommendationResult): BottleneckReading 
 
   const gap = Math.abs(cpuScore - gpuScore)
   let status: BottleneckStatus = 'balanced'
-  if (gap > BOTTLENECK_THRESHOLD) {
+  if (gap > threshold) {
     status = cpuScore > gpuScore ? 'gpu-bound' : 'cpu-bound'
   }
   return { status, cpuScore, gpuScore, gap }

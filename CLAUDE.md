@@ -13,7 +13,7 @@ Struct is a PJATK engineering-thesis project: an ASP.NET Core (.NET 9) Web API t
 dotnet build Struct.sln
 dotnet test tests/Struct.Tests/Struct.Tests.csproj
 dotnet test --filter "FullyQualifiedName~RecommendationEngineTests"   # one class
-dotnet test --filter "Name=Gaming_PrefersX3D_Over_24CoreI9"           # one test
+dotnet test --filter "FullyQualifiedName~Gaming_PrefersX3D_Over_24CoreI9"   # one test (xUnit has no Name= filter)
 
 # Run the API locally (expects Postgres reachable per appsettings.json)
 dotnet run --project src/Struct.API           # Swagger UI at /swagger in Development
@@ -42,8 +42,8 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 
 `RecommendationEngine.GenerateRecommendationAsync` is the orchestrator and the only place the three engines combine:
 
-1. A **weight matrix** and a **fill sequence** per purpose (`Gaming` / `Work` / `Office`) are hardcoded as static dictionaries. The sequence is deliberately ordered (e.g. GPU-first for Gaming) so that by the time the PSU slot is filled, CPU+GPU TDP is known, and by the case slot, GPU length is known.
-2. For each category slot it loads candidates, filters by an allocated **slot budget** (with 10% tolerance, capped by remaining global budget), filters by `CompatibilityEngine.CheckCompatibility` against the partial `BuildContext`, ranks survivors by `PerformanceScorer.CalculateScore`, and picks the best.
+1. A **weight matrix** and a **fill sequence** per purpose (`Gaming` / `Work` / `Office`) come from `appsettings.json` (`Engine:Recommendation:Profiles`), as do the slot tolerance, min budget, objective λ/θ, solver TopK and PSU formula. Settings are plain records bound once at startup (`ErrorOnUnknownConfiguration`); tests bind the same file via `TestConfig`. The sequence is deliberately ordered (e.g. GPU-first for Gaming) so that by the time the PSU slot is filled, CPU+GPU TDP is known, and by the case slot, GPU length is known.
+2. For each category slot it loads candidates, filters by an allocated **slot budget** (with `SlotBudgetTolerance`, capped by remaining global budget), filters by `CompatibilityEngine.CheckCompatibility` against the partial `BuildContext`, ranks survivors by `PerformanceScorer.CalculateScore`, and picks the best.
 3. **Budget redistribution**: leftover (or overspend) from a slot cascades proportionally onto the remaining slots' budgets by their weights.
 
 - `CompatibilityEngine` is **side-effect-free**: it clones the `BuildContext`, assigns the candidate, and runs socket / RAM / power / physical-clearance rules. A **missing spec means the check is skipped (silent pass)** — intentional, for dirty scraped data. Rules read string specs out of `TechnicalSpecs`.
@@ -53,10 +53,15 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 
 `scraper/generate_db.py` (PCPartPicker via the unofficial `pcpartpicker` lib, USD→PLN ×4, modern-socket filter) writes `clean_database.json`. At API startup, `Program.cs` runs `DatabaseSeeder.SeedFromDirectoryAsync` against `src/Struct.API/Extensions/Seeding/clean-db/clean_database.json`. The seeder dispatches each row to a per-category `IComponentParser` (`Parsers/`) that normalizes raw fields into the `TechnicalSpecs` dictionary the engines later read. **Seeding only runs into an empty `Components` table** — it must never delete existing components (saved builds reference them).
 
+## Conventions
+
+- **Keep code comments minimal.** Comment only a short *why* the code can't show. No changelog/history comments ("fixed in…", "used to…"), no restating what the code does — the git diff is the record.
+- **Commits: never add Claude as co-author.** No `Co-Authored-By: Claude` trailer and no "Generated with Claude Code" lines in commit messages or PR bodies.
+
 ## Active refactoring context
 
 This codebase is mid-refactor following a code review. **Read `~/Desktop/main/Claude/Claude+Obsidian/Struct/Refactoring/Refactoring Plan — Phases.md`** (Obsidian vault) before non-trivial work — it has the phase plan and rationale; the `Feedbacks/` folder beside it has the detailed findings.
 
 - `tests/Struct.Tests` is a **characterization suite**: it pins *current* behavior, including known bugs. Tests named `_KnownBug` / `_KnownGap` assert today's incorrect behavior on purpose. When you fix one of those bugs, the corresponding test is **expected to fail** — update it as part of the fix; that diff is the record of what changed. Run `dotnet test` to confirm the baseline is green before changing engine code.
-- Known issues actively being addressed (don't "discover" them as new): partial builds drop failed slots and report `ActualTotalPrice = 0`; displayed score can exceed 1.0; greedy allocation strands budget; cooler-height/RAM-slot compatibility unchecked; `ParseDouble` concatenates all digits in a string; invalid `Purpose` silently defaults to Gaming.
+- Known issues actively being addressed (don't "discover" them as new): partial builds drop failed slots and report `ActualTotalPrice = 0`; displayed score can exceed 1.0; greedy allocation strands budget; cooler-height/RAM-slot compatibility unchecked.
 - There is **no authentication yet** — passwords are placeholder strings and controllers are open. Don't assume an auth/identity context exists.

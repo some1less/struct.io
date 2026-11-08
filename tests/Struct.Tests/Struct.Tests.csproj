@@ -23,4 +23,9 @@
     <ProjectReference Include="..\..\src\Struct.DAL\Struct.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <None Include="..\..\src\Struct.API\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

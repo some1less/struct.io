@@ -4,5 +4,5 @@ namespace Struct.BLL.Core.Scoring;
 
 public interface IPerformanceScorer
 {
-    double CalculateScore(Component component, string purpose = "Gaming");
+    double CalculateScore(Component component, Purpose purpose = Purpose.Gaming);
 }

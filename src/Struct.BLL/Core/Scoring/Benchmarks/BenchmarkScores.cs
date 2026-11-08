@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 namespace Struct.BLL.Core.Scoring.Benchmarks;
 
@@ -12,7 +13,6 @@ namespace Struct.BLL.Core.Scoring.Benchmarks;
 /// </summary>
 public class BenchmarkScores
 {
-    public const string SpecKey = "BenchmarkScore";
 
     private readonly Dictionary<string, double> _cpu;
     private readonly Dictionary<string, double> _gpu;
@@ -56,7 +56,7 @@ public class BenchmarkScores
     }
 
     /// <summary>
-    /// Writes a per-category 0..1 <see cref="SpecKey"/> (raw mark ÷ best matched mark in that category)
+    /// Writes a per-category 0..1 <see cref="Spec.BenchmarkScore"/> (raw mark ÷ best matched mark in that category)
     /// onto every matched CPU/GPU component. Components with no match are left unchanged.
     /// </summary>
     public void Enrich(IReadOnlyList<Component> components)
@@ -66,7 +66,7 @@ public class BenchmarkScores
         {
             // New catalogs carry the chip in the Chipset spec (names are full board-partner strings
             // with no parentheses); older catalogs put it in parentheses in the name. Prefer the spec.
-            if (c.TechnicalSpecs.TryGetValue("Chipset", out var chip) && !string.IsNullOrWhiteSpace(chip))
+            if (c.TechnicalSpecs.TryGetValue(Spec.Chipset, out var chip) && !string.IsNullOrWhiteSpace(chip))
             {
                 var bySpec = MatchMark(_gpu, _gpuKeys, chip);
                 if (bySpec.HasValue) return bySpec;
@@ -107,7 +107,7 @@ public class BenchmarkScores
         if (max <= 0) return;
 
         foreach (var (component, mark) in matched)
-            component.TechnicalSpecs[SpecKey] = (mark / max).ToString(CultureInfo.InvariantCulture);
+            component.TechnicalSpecs[Spec.BenchmarkScore] = (mark / max).ToString(CultureInfo.InvariantCulture);
     }
 
     /// <summary>Loads the two PassMark CSVs (cpuName,cpuMark / gpuName,G3Dmark).</summary>

@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 
 namespace Struct.API.Extensions.Seeding.Parsers;
@@ -15,11 +16,11 @@ public class MotherboardParser : IComponentParser
         var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "Socket", ts?["Socket"]?.ToString() ?? "Unknown" },
-            { "FormFactor", ts?["FormFactor"]?.ToString() ?? "Unknown" },
-            { "RamType", ts?["RamType"]?.ToString() ?? "Unknown" },
-            { "MaxRam", ts?["MaxRam"]?.ToString() ?? "0" },
-            { "RamSlots", ts?["RamSlots"]?.ToString() ?? "0" }
+            { Spec.Socket, ts?[Spec.Socket]?.ToString() ?? "Unknown" },
+            { Spec.FormFactor, ts?[Spec.FormFactor]?.ToString() ?? "Unknown" },
+            { Spec.RamType, ts?[Spec.RamType]?.ToString() ?? "Unknown" },
+            { Spec.MaxRam, ts?[Spec.MaxRam]?.ToString() ?? "0" },
+            { Spec.RamSlots, ts?[Spec.RamSlots]?.ToString() ?? "0" }
         };
     }
 }

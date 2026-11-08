@@ -20,7 +20,7 @@ public class BuildObjective
         _settings = settings;
     }
 
-    public double Evaluate(BuildContext build, IReadOnlyDictionary<Category, double> weights, string purpose)
+    public double Evaluate(BuildContext build, IReadOnlyDictionary<Category, double> weights, Purpose purpose)
     {
         double sum = 0;
         foreach (var (category, weight) in weights)
@@ -32,7 +32,7 @@ public class BuildObjective
         return sum - _settings.BottleneckWeight * BottleneckPenalty(build, purpose);
     }
 
-    private double BottleneckPenalty(BuildContext build, string purpose)
+    private double BottleneckPenalty(BuildContext build, Purpose purpose)
     {
         if (build.Cpu == null || build.Gpu == null) return 0;
         double cpu = _scorer.CalculateScore(build.Cpu, purpose);

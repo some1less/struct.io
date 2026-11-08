@@ -1,3 +1,4 @@
+using Struct.BLL.Core;
 using Struct.BLL.Core.Scoring;
 using Struct.DAL.Models;
 using Struct.Tests.TestSupport;
@@ -7,7 +8,7 @@ namespace Struct.Tests;
 /// <summary>
 /// Characterization tests for the PerformanceScorer (Feedback - Performance Scorer). Pins both
 /// the behavior that is correct (purpose-awareness, normalized range) and the known distortions
-/// (DDR5-6000 parsing, untiered GPUs collapsing to 0) so Phase-2 fixes are intentional and visible.
+/// (untiered GPUs collapsing to 0) so fixes are intentional and visible.
 /// </summary>
 public class PerformanceScorerTests
 {
@@ -26,21 +27,33 @@ public class PerformanceScorerTests
     [Fact]
     public void Gaming_PrefersX3D_Over_24CoreI9()
     {
-        Assert.True(_scorer.CalculateScore(X3dCpu(), "Gaming") > _scorer.CalculateScore(I9Cpu(), "Gaming"));
+        Assert.True(_scorer.CalculateScore(X3dCpu(), Purpose.Gaming) > _scorer.CalculateScore(I9Cpu(), Purpose.Gaming));
     }
 
     [Fact]
     public void Work_Prefers24CoreI9_Over_X3D()
     {
-        Assert.True(_scorer.CalculateScore(I9Cpu(), "Work") > _scorer.CalculateScore(X3dCpu(), "Work"));
+        Assert.True(_scorer.CalculateScore(I9Cpu(), Purpose.Work) > _scorer.CalculateScore(X3dCpu(), Purpose.Work));
     }
+
+    [Fact]
+    public void Office_ScoresLikeGaming_KnownGap()
+    {
+        // Office has no scoring rules of its own yet (plan step 4.3).
+        foreach (var c in new[] { X3dCpu(), I9Cpu() })
+            Assert.Equal(_scorer.CalculateScore(c, Purpose.Gaming), _scorer.CalculateScore(c, Purpose.Office), precision: 6);
+    }
+
+    [Fact]
+    public void UndefinedPurpose_Throws() =>
+        Assert.Throws<ArgumentOutOfRangeException>(() => _scorer.CalculateScore(X3dCpu(), (Purpose)42));
 
     // ---- Normalized output range ---------------------------------------
 
     [Theory]
-    [InlineData("Gaming")]
-    [InlineData("Work")]
-    public void Score_StaysWithinUnitInterval(string purpose)
+    [InlineData(Purpose.Gaming)]
+    [InlineData(Purpose.Work)]
+    public void Score_StaysWithinUnitInterval(Purpose purpose)
     {
         foreach (var c in new[] { X3dCpu(), I9Cpu() })
         {
@@ -63,17 +76,15 @@ public class PerformanceScorerTests
     // ---- KNOWN DISTORTIONS (pin current behavior) ----------------------
 
     [Fact]
-    public void Ram_DirtySpeedString_SaturatesScore_KnownParsingBug()
+    public void Ram_DirtySpeedString_ScoresLikeCleanValue()
     {
-        // Feedback: Speed "DDR5-6000" parses as 56000 MT/s (all digits concatenated),
-        // saturating the score to 1.0 versus 0.757 for the clean "6000".
         Component dirty = ComponentBuilder.New(Category.Ram, "Kit A")
             .Spec("Type", "DDR5").Spec("Capacity", "32").Spec("Modules", "2").Spec("Speed", "DDR5-6000");
         Component clean = ComponentBuilder.New(Category.Ram, "Kit B")
             .Spec("Type", "DDR5").Spec("Capacity", "32").Spec("Modules", "2").Spec("Speed", "6000");
 
-        Assert.Equal(1.0, _scorer.CalculateScore(dirty), precision: 3);
-        Assert.True(_scorer.CalculateScore(clean) < 1.0);
+        Assert.Equal(_scorer.CalculateScore(clean), _scorer.CalculateScore(dirty), precision: 6);
+        Assert.True(_scorer.CalculateScore(dirty) < 1.0);
     }
 
     [Fact]
@@ -83,7 +94,7 @@ public class PerformanceScorerTests
         Component gt1030 = ComponentBuilder.New(Category.Gpu, "GeForce GT 1030")
             .Spec("VRAM", "2").Spec("CoreClock", "1227");
 
-        Assert.Equal(0.0, _scorer.CalculateScore(gt1030, "Gaming"), precision: 6);
+        Assert.Equal(0.0, _scorer.CalculateScore(gt1030, Purpose.Gaming), precision: 6);
     }
 
     // ---- Benchmark-backed scoring (Phase 3a part 2) ----
@@ -93,20 +104,20 @@ public class PerformanceScorerTests
     {
         // BenchmarkScore is a pre-normalized 0..1 ratio; the scorer applies the √ curve for UX parity.
         Component c = ComponentBuilder.New(Category.Cpu, "anything").Spec("BenchmarkScore", "0.25");
-        Assert.Equal(0.5, _scorer.CalculateScore(c, "Gaming"), precision: 6); // sqrt(0.25)
+        Assert.Equal(0.5, _scorer.CalculateScore(c, Purpose.Gaming), precision: 6); // sqrt(0.25)
     }
 
     [Fact]
     public void Gpu_WithBenchmarkScore_UsesIt_OverHeuristic()
     {
         Component c = ComponentBuilder.New(Category.Gpu, "anything").Spec("BenchmarkScore", "1");
-        Assert.Equal(1.0, _scorer.CalculateScore(c, "Gaming"), precision: 6); // sqrt(1)
+        Assert.Equal(1.0, _scorer.CalculateScore(c, Purpose.Gaming), precision: 6); // sqrt(1)
     }
 
     [Fact]
     public void Cpu_WithoutBenchmarkScore_FallsBackToHeuristic()
     {
         // No BenchmarkScore spec ⇒ heuristic path still runs (purpose-aware, non-zero).
-        Assert.True(_scorer.CalculateScore(X3dCpu(), "Gaming") > 0);
+        Assert.True(_scorer.CalculateScore(X3dCpu(), Purpose.Gaming) > 0);
     }
 }

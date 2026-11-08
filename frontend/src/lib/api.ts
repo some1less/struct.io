@@ -1,5 +1,5 @@
-import type { Purpose, RecommendationRequest, RecommendationResult } from './types'
-import { MOCK_RESULTS } from '@/data/mockResult'
+import type { AppConfig, Purpose, RecommendationRequest, RecommendationResult } from './types'
+import { MOCK_CONFIG, MOCK_RESULTS } from '@/data/mockResult'
 
 // Live recommendation engine. The dockerized API serves on http://localhost:8080
 // (compose.yaml); a permissive dev CORS policy in Program.cs allows this origin.
@@ -10,9 +10,6 @@ const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
 
 // Exposed so the UI can label its data source.
 export const IS_LIVE = USE_LIVE
-
-export const PURPOSES: Purpose[] = ['Gaming', 'Work', 'Office']
-export const MIN_BUDGET = 2400 // mirrors AlgorithmsController's guard
 
 // Display names. The API value stays the Purpose key; 'Work' is surfaced as 'Hybrid'.
 export const PURPOSE_LABEL: Record<Purpose, string> = {
@@ -29,6 +26,13 @@ export const PURPOSE_DEFAULT_BUDGET: Record<Purpose, number> = {
 
 function delay(ms: number) {
   return new Promise((r) => setTimeout(r, ms))
+}
+
+export async function getConfig(): Promise<AppConfig> {
+  if (!USE_LIVE) return MOCK_CONFIG
+  const res = await fetch(`${API_BASE}/api/config`)
+  if (!res.ok) throw new Error(`Could not load engine config (${res.status})`)
+  return (await res.json()) as AppConfig
 }
 
 export async function getRecommendation(

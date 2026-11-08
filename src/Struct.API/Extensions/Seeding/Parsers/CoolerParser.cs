@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 namespace Struct.API.Extensions.Seeding.Parsers;
 
@@ -14,10 +15,10 @@ public class CoolerParser : IComponentParser
         var ts = root["TechnicalSpecs"];
         return new Dictionary<string, string>
         {
-            { "CpuSockets", ts?["CpuSockets"]?.ToString() ?? "Unknown" },
-            { "Height", ts?["Height"]?.ToString() ?? "0" },
-            { "WaterCooled", ts?["WaterCooled"]?.ToString() ?? "False" },
-            { "RadiatorSize", ts?["RadiatorSize"]?.ToString() ?? "0" }
+            { Spec.CpuSockets, ts?[Spec.CpuSockets]?.ToString() ?? "Unknown" },
+            { Spec.Height, ts?[Spec.Height]?.ToString() ?? "0" },
+            { Spec.WaterCooled, ts?[Spec.WaterCooled]?.ToString() ?? "False" },
+            { Spec.RadiatorSize, ts?[Spec.RadiatorSize]?.ToString() ?? "0" }
         };
     }
 }

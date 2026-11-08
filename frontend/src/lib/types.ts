@@ -2,6 +2,13 @@
 
 export type Purpose = 'Gaming' | 'Work' | 'Office'
 
+// GET /api/config — engine policy the UI must not duplicate.
+export interface AppConfig {
+  minBudget: number
+  purposes: Purpose[]
+  bottleneckThreshold: number
+}
+
 export interface RecommendationRequest {
   budget: number
   purpose: Purpose

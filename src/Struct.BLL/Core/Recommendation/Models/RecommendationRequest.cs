@@ -5,5 +5,5 @@ public class RecommendationRequest
     public decimal Budget { get; set; }
     
     /* Gaming (default), Work, Office*/
-    public string Purpose { get; set; } = "Gaming"; 
+    public Purpose Purpose { get; set; } = Purpose.Gaming;
 }

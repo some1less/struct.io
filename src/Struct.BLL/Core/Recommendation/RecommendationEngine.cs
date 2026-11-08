@@ -14,21 +14,23 @@ public class RecommendationEngine : IRecommendationEngine
     private readonly ICompatibilityEngine _compatibilityEngine;
     private readonly IPerformanceScorer _scorer;
     private readonly BuildObjective _objective;
+    private readonly RecommendationSettings _settings;
 
-    public RecommendationEngine(IComponentRepository repository,
-        ICompatibilityEngine compatibilityEngine, IPerformanceScorer scorer, BuildObjective objective)
+    public RecommendationEngine(IComponentRepository repository, ICompatibilityEngine compatibilityEngine,
+        IPerformanceScorer scorer, BuildObjective objective, RecommendationSettings settings)
     {
         _repository = repository;
         _compatibilityEngine = compatibilityEngine;
         _scorer = scorer;
         _objective = objective;
+        _settings = settings;
     }
 
     public async Task<RecommendationResult> GenerateRecommendationAsync(RecommendationRequest request)
     {
-        var purpose = RecommendationProfiles.Weights.ContainsKey(request.Purpose) ? request.Purpose : "Gaming";
-        var sequence = RecommendationProfiles.Sequences[purpose];
-        var weights = new Dictionary<Category, double>(RecommendationProfiles.Weights[purpose]);
+        var purpose = request.Purpose;
+        var sequence = _settings.Profiles[purpose].Sequence;
+        var weights = new Dictionary<Category, double>(_settings.Profiles[purpose].Weights);
 
         var allocatedBudgets = weights.ToDictionary(k => k.Key, v => request.Budget * (decimal)v.Value);
 
@@ -45,7 +47,7 @@ public class RecommendationEngine : IRecommendationEngine
             var candidates = (await _repository.GetByCategoryAsync(category, 1, 5000)).ToList();
             candidatesByCategory[category] = candidates;
 
-            decimal maxAllowedPrice = slotBudget * 1.10m;
+            decimal maxAllowedPrice = slotBudget * _settings.SlotBudgetTolerance;
             decimal remainingGlobalBudget = request.Budget - actualTotal;
             if (maxAllowedPrice > remainingGlobalBudget) maxAllowedPrice = remainingGlobalBudget;
             if (maxAllowedPrice < 0) maxAllowedPrice = 0;
@@ -120,7 +122,7 @@ public class RecommendationEngine : IRecommendationEngine
         Dictionary<Category, List<Component>> candidatesByCategory,
         List<Category> sequence,
         Dictionary<Category, double> weights,
-        string purpose,
+        Purpose purpose,
         decimal budget,
         ref decimal actualTotal)
     {

@@ -1,4 +1,5 @@
 import type {
+  AppConfig,
   ComponentDto,
   Purpose,
   RankedComponent,
@@ -382,6 +383,12 @@ const office: RecommendationResult = {
       ),
     ]),
   ],
+}
+
+export const MOCK_CONFIG: AppConfig = {
+  minBudget: 2400,
+  purposes: ['Gaming', 'Work', 'Office'],
+  bottleneckThreshold: 0.15,
 }
 
 export const MOCK_RESULTS: Record<Purpose, RecommendationResult> = {

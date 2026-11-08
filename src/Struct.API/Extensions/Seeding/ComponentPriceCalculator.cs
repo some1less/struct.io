@@ -1,4 +1,5 @@
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 namespace Struct.API.Extensions.Seeding;
 
@@ -10,12 +11,12 @@ public static class ComponentPriceCalculator
         {
             string lowerName = name.Replace("\u2122", "").Replace("\u00AE", "").ToLowerInvariant();
             string lowerBrand = brand.Replace("\u2122", "").Replace("\u00AE", "").ToLowerInvariant();
-            string socket = specs.TryGetValue("Socket", out var s) ? s.Replace(" ", "").ToUpperInvariant() : "";
+            string socket = specs.TryGetValue(Spec.Socket, out var s) ? s.Replace(" ", "").ToUpperInvariant() : "";
 
-            string memType = specs.TryGetValue("Type", out var mt) ? mt.ToUpperInvariant() : "";
+            string memType = specs.TryGetValue(Spec.Type, out var mt) ? mt.ToUpperInvariant() : "";
             if (category.Equals("CPU", StringComparison.OrdinalIgnoreCase))
             {
-                memType = specs.TryGetValue("MemoryType", out var memoryType) ? memoryType.ToUpperInvariant() : "";
+                memType = specs.TryGetValue(Spec.MemoryType, out var memoryType) ? memoryType.ToUpperInvariant() : "";
             }
 
             switch (category.ToUpperInvariant())
@@ -62,8 +63,8 @@ public static class ComponentPriceCalculator
 
     private static decimal CalculateCpuPrice(string lowerName, Dictionary<string, string> specs, string socket)
     {
-        int cores = specs.TryGetValue("Cores", out var cStr) && int.TryParse(cStr, out var c) ? c : 4;
-        decimal baseClock = specs.TryGetValue("BaseClock", out var bStr) && decimal.TryParse(bStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var bc) ? bc : 2.0m;
+        int cores = specs.TryGetValue(Spec.Cores, out var cStr) && int.TryParse(cStr, out var c) ? c : 4;
+        decimal baseClock = specs.TryGetValue(Spec.BaseClock, out var bStr) && decimal.TryParse(bStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var bc) ? bc : 2.0m;
 
         // Tier premium based on product line
         decimal tierPremium = 0;
@@ -143,7 +144,7 @@ public static class ComponentPriceCalculator
                  lowerName.Contains("rx 5000") || lowerName.Contains("rx 5700") || 
                  lowerName.Contains("rx 5600") || lowerName.Contains("rx 5500")) genMultiplier = 0.30m;
 
-        int vram = specs.TryGetValue("VRAM", out var vrStr) && int.TryParse(vrStr.Replace("GB", "").Trim(), out var vr) ? vr : 4;
+        int vram = specs.TryGetValue(Spec.Vram, out var vrStr) && int.TryParse(vrStr.Replace("GB", "").Trim(), out var vr) ? vr : 4;
         decimal gpuPrice = (tierBase * genMultiplier) + (vram * 25) + tiSuperBonus;
 
         return Math.Max(gpuPrice, 150m);
@@ -181,7 +182,7 @@ public static class ComponentPriceCalculator
             mbPrice *= 0.4m;
 
         // Mini ITX premium
-        if (specs.TryGetValue("FormFactor", out var mbFf))
+        if (specs.TryGetValue(Spec.FormFactor, out var mbFf))
         {
             if (mbFf.Contains("Mini ITX", StringComparison.OrdinalIgnoreCase) ||
                 mbFf.Contains("Mini-ITX", StringComparison.OrdinalIgnoreCase)) mbPrice += 150;
@@ -192,7 +193,7 @@ public static class ComponentPriceCalculator
 
     private static decimal CalculateRamPrice(string lowerName, Dictionary<string, string> specs, string memType)
     {
-        int capacity = specs.TryGetValue("Capacity", out var capStr) && int.TryParse(capStr.Replace("GB", "").Trim(), out var cap) ? cap : 8;
+        int capacity = specs.TryGetValue(Spec.Capacity, out var capStr) && int.TryParse(capStr.Replace("GB", "").Trim(), out var cap) ? cap : 8;
 
         decimal baseCostPerGb = 12m;
         decimal ramPrice = 80 + (capacity * baseCostPerGb);
@@ -203,7 +204,7 @@ public static class ComponentPriceCalculator
         else if (memType.Contains("DDR3")) ramMultiplier = 0.5m;
         ramPrice *= ramMultiplier;
 
-        if (specs.TryGetValue("Speed", out var speedStr) && int.TryParse(speedStr, out var speed))
+        if (specs.TryGetValue(Spec.Speed, out var speedStr) && int.TryParse(speedStr, out var speed))
         {
             if (speed >= 7000) ramPrice += 300;
             else if (speed >= 6000) ramPrice += 150;
@@ -220,10 +221,10 @@ public static class ComponentPriceCalculator
 
     private static decimal CalculatePsuPrice(Dictionary<string, string> specs)
     {
-        int wattage = specs.TryGetValue("Wattage", out var wattStr) && int.TryParse(wattStr, out var w) ? w : 500;
+        int wattage = specs.TryGetValue(Spec.Wattage, out var wattStr) && int.TryParse(wattStr, out var w) ? w : 500;
         decimal psuPrice = 80 + (wattage * 0.3m);
 
-        if (specs.TryGetValue("Efficiency", out var eff))
+        if (specs.TryGetValue(Spec.Efficiency, out var eff))
         {
             string lowerEff = eff.ToLowerInvariant();
             if (lowerEff.Contains("platinum") || lowerEff.Contains("titanium")) psuPrice += 250 + (wattage >= 1000 ? 100 : 0);
@@ -232,7 +233,7 @@ public static class ComponentPriceCalculator
             if (lowerEff == "unknown") psuPrice *= 0.6m;
         }
 
-        if (specs.TryGetValue("Modular", out var mod))
+        if (specs.TryGetValue(Spec.Modular, out var mod))
         {
             string lowerMod = mod.ToLowerInvariant();
             if (lowerMod.Contains("full")) psuPrice += 60;
@@ -245,13 +246,13 @@ public static class ComponentPriceCalculator
 
     private static decimal CalculateSsdPrice(Dictionary<string, string> specs)
     {
-        string rawCap = specs.TryGetValue("Capacity", out var capVal) ? capVal : "512";
+        string rawCap = specs.TryGetValue(Spec.Capacity, out var capVal) ? capVal : "512";
         bool isTb = rawCap.Contains("TB", StringComparison.OrdinalIgnoreCase);
         int ssdCap = int.TryParse(rawCap.Replace("GB", "").Replace("TB", "").Trim(), out var sc) ? sc : 512;
         if (isTb) ssdCap *= 1000;
 
         decimal ssdPrice = 40 + (ssdCap * 0.18m);
-        if (specs.TryGetValue("Interface", out var sInt) &&
+        if (specs.TryGetValue(Spec.Interface, out var sInt) &&
             (sInt.Contains("PCIe", StringComparison.OrdinalIgnoreCase) ||
              sInt.Contains("NVMe", StringComparison.OrdinalIgnoreCase) ||
              sInt.Contains("M.2", StringComparison.OrdinalIgnoreCase)))
@@ -262,7 +263,7 @@ public static class ComponentPriceCalculator
 
     private static decimal CalculateHddPrice(Dictionary<string, string> specs)
     {
-        string rawCap = specs.TryGetValue("Capacity", out var capVal) ? capVal : "1000";
+        string rawCap = specs.TryGetValue(Spec.Capacity, out var capVal) ? capVal : "1000";
         bool isTb = rawCap.Contains("TB", StringComparison.OrdinalIgnoreCase);
         int hddCap = int.TryParse(rawCap.Replace("GB", "").Replace("TB", "").Trim(), out var hc) ? hc : 1000;
         if (isTb) hddCap *= 1000;
@@ -274,7 +275,7 @@ public static class ComponentPriceCalculator
     {
         decimal casePrice = 200;
 
-        if (specs.TryGetValue("FormFactor", out var formFactor))
+        if (specs.TryGetValue(Spec.FormFactor, out var formFactor))
         {
             string lowerFf = formFactor.ToLowerInvariant();
             if (lowerFf.Contains("full tower")) casePrice = 450;
@@ -291,7 +292,7 @@ public static class ComponentPriceCalculator
                  lowerBrand.Contains("apevia") || lowerBrand.Contains("diypc"))
             casePrice *= 0.7m;
 
-        if (specs.TryGetValue("SidePanel", out var panel))
+        if (specs.TryGetValue(Spec.SidePanel, out var panel))
         {
             string lowerPanel = panel.ToLowerInvariant();
             if (lowerPanel.Contains("glass") || lowerPanel.Contains("tempered")) casePrice += 100;
@@ -303,14 +304,14 @@ public static class ComponentPriceCalculator
 
     private static decimal CalculateCoolerPrice(string lowerName, string lowerBrand, Dictionary<string, string> specs)
     {
-        bool isWaterCooled = specs.TryGetValue("WaterCooled", out var wc) &&
+        bool isWaterCooled = specs.TryGetValue(Spec.WaterCooled, out var wc) &&
                              wc.Equals("True", StringComparison.OrdinalIgnoreCase);
         decimal coolerPrice;
 
         if (isWaterCooled)
         {
             // ---- AIO LIQUID COOLERS ----
-            int radSize = specs.TryGetValue("RadiatorSize", out var radStr) &&
+            int radSize = specs.TryGetValue(Spec.RadiatorSize, out var radStr) &&
                           int.TryParse(radStr, out var rs) ? rs : 120;
 
             // Base price by radiator size
@@ -343,7 +344,7 @@ public static class ComponentPriceCalculator
         else
         {
             // ---- AIR COOLERS ----
-            int height = specs.TryGetValue("Height", out var hStr) &&
+            int height = specs.TryGetValue(Spec.Height, out var hStr) &&
                          int.TryParse(hStr, out var h) ? h : 120;
 
             // Stock-level cooler override
@@ -377,28 +378,5 @@ public static class ComponentPriceCalculator
         }
 
         return Math.Max(coolerPrice, 40m);
-    }
-
-    /// <summary>
-    /// Documented absolute sanity bounds per category (PLN). Catches broken/garbage prices
-    /// (a $0 source, a scalper outlier) WITHOUT discarding legitimately high real prices like a
-    /// flagship GPU. Only clamps genuine out-of-range values; in-range real prices pass untouched.
-    /// </summary>
-    public static decimal ClampToCategoryBounds(Category category, decimal price)
-    {
-        (decimal min, decimal max) = category switch
-        {
-            Category.Cpu => (150m, 25000m),
-            Category.Gpu => (500m, 18000m),
-            Category.Ram => (50m, 6000m),
-            Category.Motherboard => (150m, 6000m),
-            Category.Psu => (80m, 3000m),
-            Category.Case => (80m, 3000m),
-            Category.Cooler => (40m, 2500m),
-            Category.Ssd => (60m, 6000m),
-            Category.Hdd => (80m, 4000m),
-            _ => (40m, 30000m),
-        };
-        return Math.Clamp(price, min, max);
     }
 }

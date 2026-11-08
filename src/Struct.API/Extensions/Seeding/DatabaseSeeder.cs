@@ -3,6 +3,7 @@ using Struct.API.Extensions.Seeding.Parsers;
 using Struct.BLL.Core.Scoring.Benchmarks;
 using Struct.DAL.Context;
 using Struct.DAL.Models;
+using Struct.BLL.Core.Specs;
 
 namespace Struct.API.Extensions.Seeding;
 
@@ -10,12 +11,14 @@ public class DatabaseSeeder
 {
     private readonly AppDbContext _context;
     private readonly IEnumerable<IComponentParser> _parsers;
+    private readonly PriceBoundsSettings _priceBounds;
     private const int BatchSize = 1000;
 
-    public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers)
+    public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers, PriceBoundsSettings priceBounds)
     {
         _context = context;
         _parsers = parsers;
+        _priceBounds = priceBounds;
     }
 
     public async Task SeedFromDirectoryAsync(string baseDirectoryPath, BenchmarkScores? benchmarks = null)
@@ -91,7 +94,7 @@ public class DatabaseSeeder
         Console.WriteLine($"[INFO] Seeded {uniqueComponents.Count} components (filtered {filteredCount} obsolete).");
     }
 
-    private static Component? ParseComponent(JsonNode root, IComponentParser parser)
+    private Component? ParseComponent(JsonNode root, IComponentParser parser)
     {
         var name = root["Name"]?.ToString() ?? "Unknown";
         var brand = root["Brand"]?.ToString() ?? "Unknown";
@@ -140,7 +143,8 @@ public class DatabaseSeeder
             pricePln = ComponentPriceCalculator.CalculatePricePLN(actualCategory.ToString(), brand, name, specs);
         }
 
-        pricePln = ComponentPriceCalculator.ClampToCategoryBounds(actualCategory, pricePln);
+        var bounds = _priceBounds.PerCategory.GetValueOrDefault(actualCategory, _priceBounds.Fallback);
+        pricePln = Math.Clamp(pricePln, bounds.Min, bounds.Max);
 
         return new Component
         {
@@ -171,27 +175,27 @@ public class DatabaseSeeder
 
     private static void InferCpuMemoryType(Dictionary<string, string> specs)
     {
-        if (specs.TryGetValue("MemoryType", out var memType) &&
+        if (specs.TryGetValue(Spec.MemoryType, out var memType) &&
             !string.IsNullOrEmpty(memType) &&
             !memType.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
             return;
 
-        if (!specs.TryGetValue("Socket", out var socket)) return;
+        if (!specs.TryGetValue(Spec.Socket, out var socket)) return;
 
         string s = socket.Replace(" ", "").ToUpperInvariant();
 
         if (s.Contains("AM5") || s.Contains("1851") || s.Contains("STR5"))
-            specs["MemoryType"] = "DDR5";
+            specs[Spec.MemoryType] = "DDR5";
         else if (s.Contains("1700"))
-            specs["MemoryType"] = "DDR5";
+            specs[Spec.MemoryType] = "DDR5";
         else if (s.Contains("AM4") || s.Contains("1200") || s.Contains("2066") ||
                  s.Contains("1151") || s.Contains("STR4") || s.Contains("STRX4") ||
                  s.Contains("2011-3"))
-            specs["MemoryType"] = "DDR4";
+            specs[Spec.MemoryType] = "DDR4";
         else if (s.Contains("1150") || s.Contains("1155") || s.Contains("AM3") ||
                  s.Contains("FM2") || s == "LGA2011")
-            specs["MemoryType"] = "DDR3";
+            specs[Spec.MemoryType] = "DDR3";
         else if (s.Contains("775") || s.Contains("AM2"))
-            specs["MemoryType"] = "DDR2";
+            specs[Spec.MemoryType] = "DDR2";
     }
 }

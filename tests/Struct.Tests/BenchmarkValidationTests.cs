@@ -1,9 +1,11 @@
+using Struct.BLL.Core;
 using System.Globalization;
 using System.Text.Json;
 using Struct.BLL.Core.Scoring;
 using Struct.BLL.Core.Scoring.Benchmarks;
 using Struct.DAL.Models;
 using Xunit.Abstractions;
+using Struct.BLL.Core.Specs;
 
 namespace Struct.Tests;
 
@@ -28,7 +30,7 @@ public class BenchmarkValidationTests
 
         var scorer = new PerformanceScorer();
         // Heuristic scores BEFORE enrichment (no BenchmarkScore spec ⇒ heuristic path).
-        var heuristic = components.ToDictionary(c => c, c => scorer.CalculateScore(c, "Gaming"));
+        var heuristic = components.ToDictionary(c => c, c => scorer.CalculateScore(c, Purpose.Gaming));
         bench.Enrich(components);
 
         double rhoCpu = SpearmanForCategory(components, heuristic, Category.Cpu, out int nCpu);
@@ -46,13 +48,13 @@ public class BenchmarkValidationTests
         List<Component> components, Dictionary<Component, double> heuristic, Category category, out int n)
     {
         var matched = components
-            .Where(c => c.Category == category && c.TechnicalSpecs.ContainsKey(BenchmarkScores.SpecKey))
+            .Where(c => c.Category == category && c.TechnicalSpecs.ContainsKey(Spec.BenchmarkScore))
             .ToList();
         n = matched.Count;
         if (n < 3) return 0;
 
         var h = matched.Select(c => heuristic[c]).ToArray();
-        var b = matched.Select(c => double.Parse(c.TechnicalSpecs[BenchmarkScores.SpecKey], CultureInfo.InvariantCulture)).ToArray();
+        var b = matched.Select(c => double.Parse(c.TechnicalSpecs[Spec.BenchmarkScore], CultureInfo.InvariantCulture)).ToArray();
         return Spearman(h, b);
     }
 

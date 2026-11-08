@@ -1,6 +1,6 @@
 import { Gamepad2, Briefcase, Building2, Cpu, type LucideIcon } from 'lucide-react'
 import type { Purpose } from '@/lib/types'
-import { MIN_BUDGET, PURPOSES } from '@/lib/api'
+import { PURPOSE_LABEL } from '@/lib/api'
 import { formatPln } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
@@ -8,16 +8,17 @@ import { cn } from '@/lib/utils'
 
 const MAX_BUDGET = 25000
 
-// `label` is the display name; the API value stays the Purpose key ('Work' → shown as 'Hybrid').
-const PURPOSE_META: Record<Purpose, { icon: LucideIcon; label: string; blurb: string }> = {
-  Gaming: { icon: Gamepad2, label: 'Gaming', blurb: 'GPU-first build tuned for high frame rates.' },
-  Work: { icon: Briefcase, label: 'Hybrid', blurb: 'Balanced cores, memory & GPU for work plus play.' },
-  Office: { icon: Building2, label: 'Office', blurb: 'Efficient, quiet everyday essentials.' },
+const PURPOSE_META: Record<Purpose, { icon: LucideIcon; blurb: string }> = {
+  Gaming: { icon: Gamepad2, blurb: 'GPU-first build tuned for high frame rates.' },
+  Work: { icon: Briefcase, blurb: 'Balanced cores, memory & GPU for work plus play.' },
+  Office: { icon: Building2, blurb: 'Efficient, quiet everyday essentials.' },
 }
 
 interface ControlPanelProps {
   budget: number
   purpose: Purpose
+  purposes: Purpose[]
+  minBudget: number
   loading: boolean
   onBudgetChange: (b: number) => void
   onPurposeChange: (p: Purpose) => void
@@ -27,12 +28,14 @@ interface ControlPanelProps {
 export function ControlPanel({
   budget,
   purpose,
+  purposes,
+  minBudget,
   loading,
   onBudgetChange,
   onPurposeChange,
   onSubmit,
 }: ControlPanelProps) {
-  const tooLow = budget < MIN_BUDGET
+  const tooLow = budget < minBudget
 
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(15,27,45,0.04),0_14px_38px_-20px_rgba(15,27,45,0.22)] sm:p-6">
@@ -42,7 +45,7 @@ export function ControlPanel({
           Purpose
         </legend>
         <div className="grid grid-cols-3 gap-2">
-          {PURPOSES.map((p) => {
+          {purposes.map((p) => {
             const Icon = PURPOSE_META[p].icon
             const active = p === purpose
             return (
@@ -72,7 +75,7 @@ export function ControlPanel({
                     active ? 'text-fg' : 'text-muted',
                   )}
                 >
-                  {PURPOSE_META[p].label}
+                  {PURPOSE_LABEL[p]}
                 </span>
               </button>
             )
@@ -100,19 +103,19 @@ export function ControlPanel({
         </div>
         <Slider
           value={budget}
-          min={MIN_BUDGET}
+          min={minBudget}
           max={MAX_BUDGET}
           step={100}
           onValueChange={onBudgetChange}
         />
         <div className="mt-1 flex justify-between font-mono text-[11px] text-faint tabular-nums">
-          <span>{formatPln(MIN_BUDGET)}</span>
+          <span>{formatPln(minBudget)}</span>
           <span>{formatPln(MAX_BUDGET)}</span>
         </div>
         <input
           id="budget"
           type="number"
-          min={MIN_BUDGET}
+          min={minBudget}
           max={MAX_BUDGET}
           step={100}
           value={budget}
@@ -121,7 +124,7 @@ export function ControlPanel({
         />
         {tooLow && (
           <p role="alert" className="mt-2 font-mono text-xs text-bad">
-            Minimum budget is {formatPln(MIN_BUDGET)} for a valid build.
+            Minimum budget is {formatPln(minBudget)} for a valid build.
           </p>
         )}
       </div>
