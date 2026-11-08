@@ -52,7 +52,7 @@ builder.Services.AddScoped<IBuildComponentService, BuildComponentService>();
 
 /* BLL CORE LOGIC */
 builder.Services.AddScoped<ICompatibilityEngine, CompatibilityEngine>();
-builder.Services.AddScoped<IPerformanceScorer, PerformanceScorer>();
+builder.Services.AddScoped<IPerformanceScorer>(_ => new CachingScorer(new PerformanceScorer()));
 builder.Services.AddScoped<IRecommendationEngine, RecommendationEngine>();
 builder.Services.AddSingleton(new Struct.BLL.Core.Recommendation.Models.ObjectiveSettings());
 builder.Services.AddScoped<Struct.BLL.Core.Recommendation.BuildObjective>();
