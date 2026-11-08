@@ -11,8 +11,8 @@ namespace Struct.Tests;
 public class ExactBuildSolverTests
 {
     private static ExactBuildSolver Solver() =>
-        new(new CompatibilityEngine(), new BuildObjective(new PerformanceScorer(), new ObjectiveSettings()),
-            new PerformanceScorer(), new ExactSolverSettings());
+        new(new CompatibilityEngine(TestConfig.Compatibility), new BuildObjective(new PerformanceScorer(), TestConfig.Objective),
+            new PerformanceScorer(), TestConfig.ExactSolver);
 
     private static Dictionary<Category, IReadOnlyList<Component>> Pools(IEnumerable<Component> catalog)
     {
@@ -28,8 +28,8 @@ public class ExactBuildSolverTests
     {
         var result = Solver().Solve(
             Pools(CatalogFactory.FullCoherentCatalog()),
-            RecommendationProfiles.Sequences[Purpose.Gaming],
-            RecommendationProfiles.Weights[Purpose.Gaming],
+            TestConfig.Recommendation.Profiles[Purpose.Gaming].Sequence,
+            TestConfig.Recommendation.Profiles[Purpose.Gaming].Weights,
             Purpose.Gaming, budget: 12000m);
 
         Assert.True(result.IsComplete);
@@ -41,23 +41,23 @@ public class ExactBuildSolverTests
     public async Task ExactSolver_IsAtLeastAsGoodAs_GreedyPlusLocalSearch()
     {
         var scorer = new PerformanceScorer();
-        var objective = new BuildObjective(scorer, new ObjectiveSettings());
-        var weights = RecommendationProfiles.Weights[Purpose.Gaming];
+        var objective = new BuildObjective(scorer, TestConfig.Objective);
+        var weights = TestConfig.Recommendation.Profiles[Purpose.Gaming].Weights;
 
         // Engine (greedy + local-search), re-scored with the same objective. Independent catalog
         // instance so the solver's id assignment doesn't mutate the engine's parts.
         var engineCatalog = CatalogFactory.GreedyTrapCatalog();
         var engine = new RecommendationEngine(new StubComponentRepository(engineCatalog),
-            new CompatibilityEngine(), scorer, objective);
+            new CompatibilityEngine(TestConfig.Compatibility), scorer, objective, TestConfig.Recommendation);
         var engineResult = await engine.GenerateRecommendationAsync(
             new RecommendationRequest { Budget = 9000m, Purpose = Purpose.Gaming });
         var engineBuild = BuildFromSlots(engineResult, engineCatalog);
         double engineObjective = objective.Evaluate(engineBuild, weights, Purpose.Gaming);
 
         // Exact solver on its own catalog instance.
-        var exact = new ExactBuildSolver(new CompatibilityEngine(), objective, scorer, new ExactSolverSettings())
+        var exact = new ExactBuildSolver(new CompatibilityEngine(TestConfig.Compatibility), objective, scorer, TestConfig.ExactSolver)
             .Solve(Pools(CatalogFactory.GreedyTrapCatalog()),
-                   RecommendationProfiles.Sequences[Purpose.Gaming], weights, Purpose.Gaming, 9000m);
+                   TestConfig.Recommendation.Profiles[Purpose.Gaming].Sequence, weights, Purpose.Gaming, 9000m);
 
         Assert.True(exact.IsComplete);
         Assert.True(exact.Objective >= engineObjective - 1e-9,

@@ -14,24 +14,27 @@ public class AlgorithmsController : ControllerBase
     private readonly IRecommendationEngine _recommendationEngine;
     private readonly ICompatibilityEngine _compatibilityEngine;
     private readonly IComponentService _componentService;
+    private readonly RecommendationSettings _settings;
 
     public AlgorithmsController(
         IRecommendationEngine recommendationEngine,
         ICompatibilityEngine compatibilityEngine,
-        IComponentService componentService)
+        IComponentService componentService,
+        RecommendationSettings settings)
     {
         _recommendationEngine = recommendationEngine;
         _compatibilityEngine = compatibilityEngine;
         _componentService = componentService;
+        _settings = settings;
     }
 
     [HttpPost("recommend")]
     public async Task<IActionResult> Recommend([FromBody] RecommendationRequest request)
     {
-        if (request.Budget < 2400)
+        if (request.Budget < _settings.MinBudget)
         {
             return BadRequest(
-                new { Message = "Budget is too low. Minimum budget for a valid PC build is 2400 PLN." });
+                new { Message = $"Budget is too low. Minimum budget for a valid PC build is {_settings.MinBudget} PLN." });
         }
 
         var result = await _recommendationEngine.GenerateRecommendationAsync(request);

@@ -42,8 +42,8 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 
 `RecommendationEngine.GenerateRecommendationAsync` is the orchestrator and the only place the three engines combine:
 
-1. A **weight matrix** and a **fill sequence** per purpose (`Gaming` / `Work` / `Office`) are hardcoded as static dictionaries. The sequence is deliberately ordered (e.g. GPU-first for Gaming) so that by the time the PSU slot is filled, CPU+GPU TDP is known, and by the case slot, GPU length is known.
-2. For each category slot it loads candidates, filters by an allocated **slot budget** (with 10% tolerance, capped by remaining global budget), filters by `CompatibilityEngine.CheckCompatibility` against the partial `BuildContext`, ranks survivors by `PerformanceScorer.CalculateScore`, and picks the best.
+1. A **weight matrix** and a **fill sequence** per purpose (`Gaming` / `Work` / `Office`) come from `appsettings.json` (`Engine:Recommendation:Profiles`), as do the slot tolerance, min budget, objective λ/θ, solver TopK and PSU formula. Settings are plain records bound once at startup (`ErrorOnUnknownConfiguration`); tests bind the same file via `TestConfig`. The sequence is deliberately ordered (e.g. GPU-first for Gaming) so that by the time the PSU slot is filled, CPU+GPU TDP is known, and by the case slot, GPU length is known.
+2. For each category slot it loads candidates, filters by an allocated **slot budget** (with `SlotBudgetTolerance`, capped by remaining global budget), filters by `CompatibilityEngine.CheckCompatibility` against the partial `BuildContext`, ranks survivors by `PerformanceScorer.CalculateScore`, and picks the best.
 3. **Budget redistribution**: leftover (or overspend) from a slot cascades proportionally onto the remaining slots' budgets by their weights.
 
 - `CompatibilityEngine` is **side-effect-free**: it clones the `BuildContext`, assigns the candidate, and runs socket / RAM / power / physical-clearance rules. A **missing spec means the check is skipped (silent pass)** — intentional, for dirty scraped data. Rules read string specs out of `TechnicalSpecs`.

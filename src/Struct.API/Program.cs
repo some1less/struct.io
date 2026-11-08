@@ -4,6 +4,7 @@ using Struct.API.Extensions.Seeding;
 using Struct.API.Extensions.Seeding.Parsers;
 using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation;
+using Struct.BLL.Core.Recommendation.Models;
 using Struct.BLL.Core.Scoring;
 using Struct.BLL.Services.Implementations;
 using Struct.BLL.Services.Interfaces;
@@ -51,11 +52,17 @@ builder.Services.AddScoped<ISavedBuildService, SavedBuildService>();
 builder.Services.AddScoped<IBuildComponentService, BuildComponentService>();
 
 /* BLL CORE LOGIC */
+T Bind<T>(string section) where T : class =>
+    builder.Configuration.GetSection(section).Get<T>(o => o.ErrorOnUnknownConfiguration = true)
+    ?? throw new InvalidOperationException($"Missing config section '{section}'.");
+
+builder.Services.AddSingleton(Bind<RecommendationSettings>("Engine:Recommendation"));
+builder.Services.AddSingleton(Bind<ObjectiveSettings>("Engine:Objective"));
+builder.Services.AddSingleton(Bind<CompatibilitySettings>("Engine:Compatibility"));
 builder.Services.AddScoped<ICompatibilityEngine, CompatibilityEngine>();
 builder.Services.AddScoped<IPerformanceScorer>(_ => new CachingScorer(new PerformanceScorer()));
 builder.Services.AddScoped<IRecommendationEngine, RecommendationEngine>();
-builder.Services.AddSingleton(new Struct.BLL.Core.Recommendation.Models.ObjectiveSettings());
-builder.Services.AddScoped<Struct.BLL.Core.Recommendation.BuildObjective>();
+builder.Services.AddScoped<BuildObjective>();
 
 
 /* DATA SEEDING - ONES AND FORALL*/

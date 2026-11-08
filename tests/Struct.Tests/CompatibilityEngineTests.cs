@@ -11,7 +11,7 @@ namespace Struct.Tests;
 /// </summary>
 public class CompatibilityEngineTests
 {
-    private readonly CompatibilityEngine _engine = new();
+    private readonly CompatibilityEngine _engine = new(TestConfig.Compatibility);
 
     // ---- Socket ---------------------------------------------------------
 
@@ -142,6 +142,20 @@ public class CompatibilityEngineTests
         Component psu = ComponentBuilder.New(Category.Psu, "Corsair 750W").Spec("Wattage", "750");
 
         Assert.True(_engine.CheckCompatibility(build, psu).IsCompatible);
+    }
+
+    [Fact]
+    public void Power_Headroom_ComesFromSettings()
+    {
+        var build = new BuildContext
+        {
+            Cpu = ComponentBuilder.New(Category.Cpu, "Ryzen 7 7800X3D").Spec("TDP", "120"),
+            Gpu = ComponentBuilder.New(Category.Gpu, "RTX 4070").Spec("TDP", "200")
+        };
+        Component psu = ComponentBuilder.New(Category.Psu, "Corsair 750W").Spec("Wattage", "750");
+        var strict = new CompatibilityEngine(TestConfig.Compatibility with { PsuHeadroom = 2.5 });
+
+        Assert.False(strict.CheckCompatibility(build, psu).IsCompatible); // (120 + 200 + 50) * 2.5 = 925
     }
 
     // ---- Physical clearance --------------------------------------------

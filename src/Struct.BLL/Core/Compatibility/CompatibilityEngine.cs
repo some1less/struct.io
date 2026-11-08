@@ -5,6 +5,10 @@ namespace Struct.BLL.Core.Compatibility;
 
 public class CompatibilityEngine : ICompatibilityEngine
 {
+    private readonly CompatibilitySettings _settings;
+
+    public CompatibilityEngine(CompatibilitySettings settings) => _settings = settings;
+
     public CompatibilityResult CheckCompatibility(BuildContext currentBuild, Component candidate)
     {
         var result = new CompatibilityResult();
@@ -133,8 +137,7 @@ public class CompatibilityEngine : ICompatibilityEngine
         double cpuTdp = SpecReader.GetNumber(build.Cpu?.TechnicalSpecs, Spec.Tdp, 65); // default if unknown
         double gpuTdp = SpecReader.GetNumber(build.Gpu?.TechnicalSpecs, Spec.Tdp, build.Gpu != null ? 200 : 0);
 
-        // formula: (CPU + GPU + 50W on mb/ram) * 1.3 (30% bonus place)
-        double requiredWattage = (cpuTdp + gpuTdp + 50) * 1.3;
+        double requiredWattage = (cpuTdp + gpuTdp + _settings.PsuBaseLoadWatts) * _settings.PsuHeadroom;
 
         if (psuWattage < requiredWattage)
         {
