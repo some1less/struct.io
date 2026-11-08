@@ -75,6 +75,7 @@ builder.Services.AddTransient<IComponentParser, CaseParser>();
 builder.Services.AddTransient<IComponentParser, StorageParser>();
 builder.Services.AddTransient<IComponentParser, CoolerParser>();
 
+builder.Services.AddSingleton(Bind<PriceBoundsSettings>("Seeding:PriceBounds"));
 builder.Services.AddTransient<DatabaseSeeder>();
 
 var app = builder.Build();

@@ -11,12 +11,14 @@ public class DatabaseSeeder
 {
     private readonly AppDbContext _context;
     private readonly IEnumerable<IComponentParser> _parsers;
+    private readonly PriceBoundsSettings _priceBounds;
     private const int BatchSize = 1000;
 
-    public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers)
+    public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers, PriceBoundsSettings priceBounds)
     {
         _context = context;
         _parsers = parsers;
+        _priceBounds = priceBounds;
     }
 
     public async Task SeedFromDirectoryAsync(string baseDirectoryPath, BenchmarkScores? benchmarks = null)
@@ -92,7 +94,7 @@ public class DatabaseSeeder
         Console.WriteLine($"[INFO] Seeded {uniqueComponents.Count} components (filtered {filteredCount} obsolete).");
     }
 
-    private static Component? ParseComponent(JsonNode root, IComponentParser parser)
+    private Component? ParseComponent(JsonNode root, IComponentParser parser)
     {
         var name = root["Name"]?.ToString() ?? "Unknown";
         var brand = root["Brand"]?.ToString() ?? "Unknown";
@@ -141,7 +143,8 @@ public class DatabaseSeeder
             pricePln = ComponentPriceCalculator.CalculatePricePLN(actualCategory.ToString(), brand, name, specs);
         }
 
-        pricePln = ComponentPriceCalculator.ClampToCategoryBounds(actualCategory, pricePln);
+        var bounds = _priceBounds.PerCategory.GetValueOrDefault(actualCategory, _priceBounds.Fallback);
+        pricePln = Math.Clamp(pricePln, bounds.Min, bounds.Max);
 
         return new Component
         {
