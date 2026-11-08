@@ -26,8 +26,8 @@ docker compose up --build
 npm run lint && npm test
 npm run test:e2e
 
-# Catalog: xlsx -> seed JSON, and its tests (from scraper/, deps in requirements.txt)
-python excel_to_catalog.py ../data/catalog.xlsx ../src/Struct.API/Extensions/Seeding/clean-db/clean_database.json --snapshot-date YYYY-MM-DD
+# Catalog: xlsx -> seed JSON, and its tests (from scraper/; requirements.txt is uv-locked with hashes from requirements.in)
+python excel_to_catalog.py --snapshot-date YYYY-MM-DD      # data/catalog.xlsx -> Seeding/clean-db/clean_database.json
 pytest
 
 # HTTP smoke checks against a running API

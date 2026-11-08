@@ -101,7 +101,7 @@ def test_main_writes_catalog(tmp_path, capsys):
     path = make_book(tmp_path, Ram=[header("Ram"), row("Fury 32GB", specs=["DDR5", 32, 6000, 2])])
     out = tmp_path / "clean_database.json"
 
-    assert main([str(path), str(out), "--snapshot-date", "2026-11-08"]) == 0
+    assert main(["--snapshot-date", "2026-11-08"], xlsx=path, output=out) == 0
 
     assert json.loads(out.read_text(encoding="utf-8"))[0]["TechnicalSpecs"]["Speed"] == "6000"
     assert "1 components" in capsys.readouterr().out
@@ -111,7 +111,7 @@ def test_main_fails_without_writing(tmp_path, capsys):
     path = make_book(tmp_path, Ram=[header("Ram"), row("Fury 32GB", price=None)])
     out = tmp_path / "clean_database.json"
 
-    assert main([str(path), str(out), "--snapshot-date", "2026-11-08"]) == 1
+    assert main(["--snapshot-date", "2026-11-08"], xlsx=path, output=out) == 1
 
     assert not out.exists()
     assert "Ram, row 2: PricePln must be > 0, got None" in capsys.readouterr().err

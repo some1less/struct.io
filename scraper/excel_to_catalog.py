@@ -1,16 +1,19 @@
 """Convert data/catalog.xlsx (one sheet per category) into the clean_database.json the C# seeder reads.
 
-Run from the repo root:
-  python scraper/excel_to_catalog.py data/catalog.xlsx \
-      src/Struct.API/Extensions/Seeding/clean-db/clean_database.json --snapshot-date 2026-11-08
+Run: python scraper/excel_to_catalog.py --snapshot-date 2026-11-08
 """
 import argparse
 import json
 import re
 import sys
 from datetime import date
+from pathlib import Path
 
 from openpyxl import load_workbook
+
+REPO = Path(__file__).resolve().parent.parent
+XLSX = REPO / "data" / "catalog.xlsx"
+OUTPUT = REPO / "src" / "Struct.API" / "Extensions" / "Seeding" / "clean-db" / "clean_database.json"
 
 COMMON = ["Name", "Brand", "PricePln", "PriceSource", "SourceUrl"]
 
@@ -129,21 +132,18 @@ def _number(value):
     return None
 
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(description="Convert catalog.xlsx into clean_database.json.")
-    parser.add_argument("xlsx")
-    parser.add_argument("output")
+def main(argv=None, xlsx=XLSX, output=OUTPUT):
+    parser = argparse.ArgumentParser(description=f"Convert {XLSX.name} into {OUTPUT.name}.")
     parser.add_argument("--snapshot-date", required=True, type=date.fromisoformat,
                         help="day the prices were collected, YYYY-MM-DD")
     args = parser.parse_args(argv)
     try:
-        catalog = convert(args.xlsx, args.snapshot_date)
+        catalog = convert(xlsx, args.snapshot_date)
     except CatalogError as e:
         print(e, file=sys.stderr)
         return 1
-    with open(args.output, "w", encoding="utf-8") as f:
-        json.dump(catalog, f, ensure_ascii=False, indent=2)
-    print(f"Wrote {len(catalog)} components to {args.output}")
+    output.write_text(json.dumps(catalog, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"Wrote {len(catalog)} components to {output}")
     return 0
 
 

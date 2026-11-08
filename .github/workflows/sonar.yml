@@ -43,7 +43,7 @@ jobs:
       - name: Scraper coverage (pytest)
         working-directory: scraper
         run: |
-          pip install -r requirements.txt
+          pip install --only-binary :all: --require-hashes -r requirements.txt
           pytest --cov=. --cov-branch --cov-report=xml:coverage.xml
       - name: Install scanner
         run: |
