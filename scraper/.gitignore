@@ -3,3 +3,6 @@ __pycache__/
 venv/
 .apify_token
 price_checklist.csv
+.pytest_cache/
+.coverage
+coverage.xml

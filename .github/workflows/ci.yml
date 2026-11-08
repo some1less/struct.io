@@ -25,6 +25,10 @@ jobs:
     name: Frontend
     uses: ./.github/workflows/frontend.yml
 
+  scraper:
+    name: Scraper
+    uses: ./.github/workflows/scraper.yml
+
   # Informational until the rules are calibrated, so it is not part of CI result.
   sonar:
     name: Sonar
@@ -40,7 +44,7 @@ jobs:
   result:
     name: CI result
     if: always()
-    needs: [secrets, backend, frontend, e2e]
+    needs: [secrets, backend, frontend, scraper, e2e]
     runs-on: ubuntu-latest
     steps:
       - name: Fail if any stage did not pass

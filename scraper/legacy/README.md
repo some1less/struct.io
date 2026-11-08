@@ -1,0 +1,1 @@
+Historical source of the catalog (PCPartPicker, Apify, Allegro, PassMark storage). Not used: the catalog now comes from `data/catalog.xlsx` via `../excel_to_catalog.py`. Paths inside assume the scripts sit in `scraper/`.
