@@ -1,3 +1,4 @@
+using Struct.BLL.Core;
 using Struct.BLL.Core.Scoring;
 using Struct.DAL.Models;
 using Struct.Tests.TestSupport;
@@ -10,10 +11,10 @@ public class CachingScorerTests
     {
         public int Calls;
 
-        public double CalculateScore(Component component, string purpose = "Gaming")
+        public double CalculateScore(Component component, Purpose purpose = Purpose.Gaming)
         {
             Calls++;
-            return component.Name.Length + (purpose == "Work" ? 100 : 0);
+            return component.Name.Length + (purpose == Purpose.Work ? 100 : 0);
         }
     }
 
@@ -24,8 +25,8 @@ public class CachingScorerTests
         var scorer = new CachingScorer(inner);
         Component cpu = ComponentBuilder.New(Category.Cpu, "Ryzen");
 
-        double first = scorer.CalculateScore(cpu, "Gaming");
-        double second = scorer.CalculateScore(cpu, "Gaming");
+        double first = scorer.CalculateScore(cpu, Purpose.Gaming);
+        double second = scorer.CalculateScore(cpu, Purpose.Gaming);
 
         Assert.Equal(first, second);
         Assert.Equal(1, inner.Calls);
@@ -38,7 +39,7 @@ public class CachingScorerTests
         var scorer = new CachingScorer(inner);
         Component cpu = ComponentBuilder.New(Category.Cpu, "Ryzen");
 
-        Assert.NotEqual(scorer.CalculateScore(cpu, "Gaming"), scorer.CalculateScore(cpu, "Work"));
+        Assert.NotEqual(scorer.CalculateScore(cpu, Purpose.Gaming), scorer.CalculateScore(cpu, Purpose.Work));
         Assert.Equal(2, inner.Calls);
     }
 

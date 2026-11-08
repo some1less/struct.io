@@ -26,7 +26,7 @@ public class RecommendationEngine : IRecommendationEngine
 
     public async Task<RecommendationResult> GenerateRecommendationAsync(RecommendationRequest request)
     {
-        var purpose = RecommendationProfiles.Weights.ContainsKey(request.Purpose) ? request.Purpose : "Gaming";
+        var purpose = request.Purpose;
         var sequence = RecommendationProfiles.Sequences[purpose];
         var weights = new Dictionary<Category, double>(RecommendationProfiles.Weights[purpose]);
 
@@ -120,7 +120,7 @@ public class RecommendationEngine : IRecommendationEngine
         Dictionary<Category, List<Component>> candidatesByCategory,
         List<Category> sequence,
         Dictionary<Category, double> weights,
-        string purpose,
+        Purpose purpose,
         decimal budget,
         ref decimal actualTotal)
     {

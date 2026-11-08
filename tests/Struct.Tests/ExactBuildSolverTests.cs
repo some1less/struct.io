@@ -1,3 +1,4 @@
+using Struct.BLL.Core;
 using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation;
 using Struct.BLL.Core.Recommendation.Models;
@@ -27,9 +28,9 @@ public class ExactBuildSolverTests
     {
         var result = Solver().Solve(
             Pools(CatalogFactory.FullCoherentCatalog()),
-            RecommendationProfiles.Sequences["Gaming"],
-            RecommendationProfiles.Weights["Gaming"],
-            "Gaming", budget: 12000m);
+            RecommendationProfiles.Sequences[Purpose.Gaming],
+            RecommendationProfiles.Weights[Purpose.Gaming],
+            Purpose.Gaming, budget: 12000m);
 
         Assert.True(result.IsComplete);
         Assert.NotNull(result.Build.Cpu);
@@ -41,7 +42,7 @@ public class ExactBuildSolverTests
     {
         var scorer = new PerformanceScorer();
         var objective = new BuildObjective(scorer, new ObjectiveSettings());
-        var weights = RecommendationProfiles.Weights["Gaming"];
+        var weights = RecommendationProfiles.Weights[Purpose.Gaming];
 
         // Engine (greedy + local-search), re-scored with the same objective. Independent catalog
         // instance so the solver's id assignment doesn't mutate the engine's parts.
@@ -49,14 +50,14 @@ public class ExactBuildSolverTests
         var engine = new RecommendationEngine(new StubComponentRepository(engineCatalog),
             new CompatibilityEngine(), scorer, objective);
         var engineResult = await engine.GenerateRecommendationAsync(
-            new RecommendationRequest { Budget = 9000m, Purpose = "Gaming" });
+            new RecommendationRequest { Budget = 9000m, Purpose = Purpose.Gaming });
         var engineBuild = BuildFromSlots(engineResult, engineCatalog);
-        double engineObjective = objective.Evaluate(engineBuild, weights, "Gaming");
+        double engineObjective = objective.Evaluate(engineBuild, weights, Purpose.Gaming);
 
         // Exact solver on its own catalog instance.
         var exact = new ExactBuildSolver(new CompatibilityEngine(), objective, scorer, new ExactSolverSettings())
             .Solve(Pools(CatalogFactory.GreedyTrapCatalog()),
-                   RecommendationProfiles.Sequences["Gaming"], weights, "Gaming", 9000m);
+                   RecommendationProfiles.Sequences[Purpose.Gaming], weights, Purpose.Gaming, 9000m);
 
         Assert.True(exact.IsComplete);
         Assert.True(exact.Objective >= engineObjective - 1e-9,

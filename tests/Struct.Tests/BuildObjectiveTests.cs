@@ -1,3 +1,4 @@
+using Struct.BLL.Core;
 using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation;
 using Struct.BLL.Core.Recommendation.Models;
@@ -30,7 +31,7 @@ public class BuildObjectiveTests
         var objective = new BuildObjective(scorer, new ObjectiveSettings());
 
         // Σ(0.5·0.8 + 0.5·0.8) = 0.80, gap 0 ≤ 0.15 ⇒ no penalty
-        Assert.Equal(0.80, objective.Evaluate(build, EqualWeights, "Gaming"), precision: 6);
+        Assert.Equal(0.80, objective.Evaluate(build, EqualWeights, Purpose.Gaming), precision: 6);
     }
 
     [Fact]
@@ -40,7 +41,7 @@ public class BuildObjectiveTests
         var objective = new BuildObjective(scorer, new ObjectiveSettings()); // λ=0.5, threshold=0.15
 
         // weighted = 0.5·0.8 + 0.5·0.5 = 0.65; gap 0.30 ⇒ penalty 0.5·(0.30−0.15)=0.075
-        Assert.Equal(0.575, objective.Evaluate(build, EqualWeights, "Gaming"), precision: 6);
+        Assert.Equal(0.575, objective.Evaluate(build, EqualWeights, Purpose.Gaming), precision: 6);
     }
 
     [Fact]
@@ -51,6 +52,6 @@ public class BuildObjectiveTests
         var objective = new BuildObjective(scorer, new ObjectiveSettings());
 
         // Only CPU present: 0.5·0.9 = 0.45, no penalty (GPU missing)
-        Assert.Equal(0.45, objective.Evaluate(build, EqualWeights, "Gaming"), precision: 6);
+        Assert.Equal(0.45, objective.Evaluate(build, EqualWeights, Purpose.Gaming), precision: 6);
     }
 }

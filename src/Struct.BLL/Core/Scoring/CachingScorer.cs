@@ -6,11 +6,11 @@ namespace Struct.BLL.Core.Scoring;
 public sealed class CachingScorer : IPerformanceScorer
 {
     private readonly IPerformanceScorer _inner;
-    private readonly Dictionary<(Component, string), double> _scores = new();
+    private readonly Dictionary<(Component, Purpose), double> _scores = new();
 
     public CachingScorer(IPerformanceScorer inner) => _inner = inner;
 
-    public double CalculateScore(Component component, string purpose = "Gaming")
+    public double CalculateScore(Component component, Purpose purpose = Purpose.Gaming)
     {
         if (!_scores.TryGetValue((component, purpose), out var score))
             _scores[(component, purpose)] = score = _inner.CalculateScore(component, purpose);

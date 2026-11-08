@@ -1,3 +1,4 @@
+using Struct.BLL.Core;
 using System.Globalization;
 using System.Text.Json;
 using Struct.BLL.Core.Scoring;
@@ -29,7 +30,7 @@ public class BenchmarkValidationTests
 
         var scorer = new PerformanceScorer();
         // Heuristic scores BEFORE enrichment (no BenchmarkScore spec ⇒ heuristic path).
-        var heuristic = components.ToDictionary(c => c, c => scorer.CalculateScore(c, "Gaming"));
+        var heuristic = components.ToDictionary(c => c, c => scorer.CalculateScore(c, Purpose.Gaming));
         bench.Enrich(components);
 
         double rhoCpu = SpearmanForCategory(components, heuristic, Category.Cpu, out int nCpu);

@@ -1,3 +1,4 @@
+using Struct.BLL.Core;
 using Struct.BLL.Core.Scoring;
 using Struct.DAL.Models;
 
@@ -9,6 +10,6 @@ public sealed class FixedScorer : IPerformanceScorer
     private readonly Dictionary<string, double> _scores;
     public FixedScorer(Dictionary<string, double> scores) => _scores = scores;
 
-    public double CalculateScore(Component component, string purpose = "Gaming") =>
+    public double CalculateScore(Component component, Purpose purpose = Purpose.Gaming) =>
         _scores.TryGetValue(component.Name, out var s) ? s : 0.0;
 }

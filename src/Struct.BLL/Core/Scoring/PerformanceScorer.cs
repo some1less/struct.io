@@ -6,12 +6,18 @@ namespace Struct.BLL.Core.Scoring;
 
 public class PerformanceScorer : IPerformanceScorer
 {
-    public double CalculateScore(Component component, string purpose = "Gaming")
+    public double CalculateScore(Component component, Purpose purpose = Purpose.Gaming)
     {
         if (component.TechnicalSpecs == null) return 0.0;
 
         string lowerName = component.Name.ToLowerInvariant();
-        bool isWork = purpose.Equals("Work", StringComparison.OrdinalIgnoreCase);
+        bool isWork = purpose switch
+        {
+            Purpose.Work => true,
+            // shortcut: Office reuses the Gaming rules, own rules come in plan step 4.3
+            Purpose.Gaming or Purpose.Office => false,
+            _ => throw new ArgumentOutOfRangeException(nameof(purpose), purpose, null)
+        };
 
         return component.Category switch
         {

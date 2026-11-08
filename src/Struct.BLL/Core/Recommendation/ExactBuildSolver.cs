@@ -30,7 +30,7 @@ public class ExactBuildSolver
         IReadOnlyDictionary<Category, IReadOnlyList<Component>> candidatesByCategory,
         IReadOnlyList<Category> categories,
         IReadOnlyDictionary<Category, double> weights,
-        string purpose,
+        Purpose purpose,
         decimal budget)
     {
         // Prune each category to its top-K by score (descending); record the best score per category.

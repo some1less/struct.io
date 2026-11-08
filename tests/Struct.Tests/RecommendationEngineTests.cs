@@ -1,3 +1,4 @@
+using Struct.BLL.Core;
 using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation;
 using Struct.BLL.Core.Recommendation.Models;
@@ -24,7 +25,7 @@ public class RecommendationEngineTests
     {
         var engine = EngineFor(CatalogFactory.FullCoherentCatalog());
 
-        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000, Purpose = "Gaming" });
+        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000, Purpose = Purpose.Gaming });
 
         Assert.True(result.IsSuccess, result.Message);
         Assert.Equal(8, result.Slots.Count);
@@ -40,7 +41,7 @@ public class RecommendationEngineTests
 
         foreach (var budget in new[] { 6000m, 8000m, 12000m, 20000m })
         {
-            var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = budget, Purpose = "Gaming" });
+            var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = budget, Purpose = Purpose.Gaming });
             if (result.IsSuccess)
                 Assert.True(result.ActualTotalPrice <= budget, $"Budget {budget}: spent {result.ActualTotalPrice}");
         }
@@ -54,7 +55,7 @@ public class RecommendationEngineTests
         var catalog = CatalogFactory.WithoutCategory(Category.Cooler);
         var engine = EngineFor(catalog);
 
-        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000, Purpose = "Gaming" });
+        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000, Purpose = Purpose.Gaming });
 
         Assert.False(result.IsSuccess);
         Assert.Equal(7, result.Slots.Count);                 // cooler slot still has no recommendation
@@ -73,7 +74,7 @@ public class RecommendationEngineTests
             .ToList();
         var engine = EngineFor(catalog);
 
-        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000, Purpose = "Gaming" });
+        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000, Purpose = Purpose.Gaming });
 
         Assert.False(result.IsSuccess);
         var failedCategories = result.FailedSlots.Select(f => f.Category).ToList();
@@ -95,22 +96,11 @@ public class RecommendationEngineTests
             .ToList();
         var engine = EngineFor(catalog);
 
-        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000, Purpose = "Gaming" });
+        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000, Purpose = Purpose.Gaming });
 
         Assert.All(result.Slots, slot =>
             Assert.All(slot.Recommendations, r => Assert.True(r.PerformanceScore <= 1.0,
                 $"{slot.Category} rank {r.Rank} score {r.PerformanceScore} exceeded 1.0")));
-    }
-
-    [Fact]
-    public async Task InvalidPurpose_SilentlyDefaultsToGaming_KnownWart()
-    {
-        // Feedback: Purpose = "banana" should be a 400, but silently becomes Gaming today.
-        var engine = EngineFor(CatalogFactory.FullCoherentCatalog());
-
-        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000, Purpose = "banana" });
-
-        Assert.Equal("Gaming", result.Purpose);
     }
 
     [Fact]
@@ -120,7 +110,7 @@ public class RecommendationEngineTests
         // The upgrade pass should swap up to the 4090 using leftover budget.
         var engine = EngineFor(CatalogFactory.UpgradableCatalog());
 
-        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 9000, Purpose = "Gaming" });
+        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 9000, Purpose = Purpose.Gaming });
 
         Assert.True(result.IsSuccess, result.Message);
         var gpuSlot = result.Slots.Single(s => s.Category == "Gpu");
@@ -137,7 +127,7 @@ public class RecommendationEngineTests
             compat, new PerformanceScorer(),
             new BuildObjective(new PerformanceScorer(), new ObjectiveSettings()));
 
-        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 9000, Purpose = "Gaming" });
+        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 9000, Purpose = Purpose.Gaming });
 
         Assert.True(result.ActualTotalPrice <= 9000m);
         // Re-validate every chosen component against the others in the final build.
