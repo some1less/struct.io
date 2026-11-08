@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Struct is a PJATK engineering-thesis project: an ASP.NET Core (.NET 9) Web API that recommends complete, compatible PC builds for a given budget and purpose. The **recommendation engine is the agreed core feature** — algorithm quality and its defensibility matter more than breadth of features. A Python scraper (`scraper/`) produces the component catalog; a C# seeder loads it into Postgres.
+Struct is a PJATK engineering-thesis project: an ASP.NET Core (.NET 9) Web API that recommends complete, compatible PC builds for a given budget and purpose. The **recommendation engine is the agreed core feature** — algorithm quality and its defensibility matter more than breadth of features. The component catalog is a hand-curated `data/catalog.xlsx`, converted to JSON by `scraper/excel_to_catalog.py`; a C# seeder loads it into Postgres.
 
 ## Commands
 
@@ -25,6 +25,10 @@ docker compose up --build
 # Frontend (from frontend/): lint, unit tests (vitest), E2E (Playwright; needs the API up via docker compose)
 npm run lint && npm test
 npm run test:e2e
+
+# Catalog: xlsx -> seed JSON, and its tests (from scraper/, deps in requirements.txt)
+python excel_to_catalog.py ../data/catalog.xlsx ../src/Struct.API/Extensions/Seeding/clean-db/clean_database.json --snapshot-date YYYY-MM-DD
+pytest
 
 # HTTP smoke checks against a running API
 scripts/smoke.sh [http://localhost:8080]
@@ -59,12 +63,12 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 
 ### Component catalog flow
 
-`scraper/generate_db.py` (PCPartPicker via the unofficial `pcpartpicker` lib, USD→PLN ×4, modern-socket filter) writes `clean_database.json`. At API startup, `Program.cs` runs `DatabaseSeeder.SeedFromDirectoryAsync` against `src/Struct.API/Extensions/Seeding/clean-db/clean_database.json`. The seeder dispatches each row to a per-category `IComponentParser` (`Parsers/`) that normalizes raw fields into the `TechnicalSpecs` dictionary the engines later read. **Seeding only runs into an empty `Components` table** — it must never delete existing components (saved builds reference them).
+`data/catalog.xlsx` (hand-curated, one sheet per category, PLN prices) is the source of truth; `scraper/excel_to_catalog.py` validates it and writes `clean_database.json` (`--snapshot-date` = the day prices were collected). The old PCPartPicker/Apify scrapers sit in `scraper/legacy/` for provenance only. At API startup, `Program.cs` runs `DatabaseSeeder.SeedFromDirectoryAsync` against `src/Struct.API/Extensions/Seeding/clean-db/clean_database.json`. The seeder dispatches each row to a per-category `IComponentParser` (`Parsers/`) that normalizes raw fields into the `TechnicalSpecs` dictionary the engines later read. **Seeding only runs into an empty `Components` table** — it must never delete existing components (saved builds reference them).
 
 ## Conventions
 
 - **Keep code comments minimal.** Comment only a short *why* the code can't show. No changelog/history comments ("fixed in…", "used to…"), no restating what the code does — the git diff is the record.
-- **GitHub flow:** work on a branch, open a PR into `main`, merge only when CI (`.github/workflows/ci.yml` orchestrates reusable `secrets.yml`, `backend.yml`, `frontend.yml`, `e2e.yml`; the single required check is `CI result`; `sonar.yml` (SonarQube Cloud, project `some1less_struct.io`) is informational and not part of it) is green. The user merges.
+- **GitHub flow:** work on a branch, open a PR into `main`, merge only when CI (`.github/workflows/ci.yml` orchestrates reusable `secrets.yml`, `backend.yml`, `frontend.yml`, `scraper.yml`, `e2e.yml`; the single required check is `CI result`; `sonar.yml` (SonarQube Cloud, project `some1less_struct.io`) is informational and not part of it) is green. The user merges.
 - **npm on macOS drops Linux-only optional deps (`@emnapi/*`) from `package-lock.json`**, which breaks `npm ci` in CI. After any `npm install`, regenerate the lock in Linux: `docker run --rm -v <copy-of-frontend>:/app -w /app node:24 npm install --package-lock-only`, then confirm `npm ci --dry-run` there.
 - **Commits: never add Claude as co-author.** No `Co-Authored-By: Claude` trailer and no "Generated with Claude Code" lines in commit messages or PR bodies.
 
