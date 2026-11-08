@@ -47,17 +47,16 @@ public class PerformanceScorer : IPerformanceScorer
         double effectiveCores = isWork ? cores : Math.Min(cores, 8);
         double effectiveThreads = isWork ? threads : Math.Min(threads, 16);
 
-        // Reduced clock weights, increased core/thread weights
         double coreWeight = isWork ? 30 : 20;
         double threadWeight = isWork ? 10 : 5;
-        double baseClockWeight = isWork ? 5 : 5; // drastically reduced
+        double baseClockWeight = 5;
         double boostClockWeight = isWork ? 15 : 25; // boost clock is better for gaming
 
         double rawScore = (effectiveCores * coreWeight) + (effectiveThreads * threadWeight) + 
                           (baseClock * baseClockWeight) + (boostClock * boostClockWeight);
         
         // Generational IPC scaling based on Socket
-        double genMultiplier = 0.8; // Old defaults
+        double genMultiplier = 0.8; // older sockets
         if (socket.Contains("1700") || socket.Contains("AM5") || socket.Contains("1851")) genMultiplier = 1.3;
         else if (socket.Contains("1200") || socket.Contains("AM4")) genMultiplier = 1.0;
         
@@ -70,7 +69,7 @@ public class PerformanceScorer : IPerformanceScorer
         else if (isWork && (name.Contains("threadripper") || name.Contains("xeon w")))
             rawScore += 500;
 
-        // Recalibrated max: Work builds can reach ~3500+ (Threadrippers), Gaming builds cap around ~850 (8 cores max + IPC + Clocks)
+        // Work builds reach ~3500+ (Threadrippers); Gaming caps around ~850 (8 cores max + IPC + clocks)
         double maxScore = isWork ? 4000 : 850;
         return Normalize(rawScore, 100, maxScore);
     }
@@ -103,7 +102,7 @@ public class PerformanceScorer : IPerformanceScorer
         if (tierBonus > 0 && (name.EndsWith(" ti") || name.Contains("-ti") || name.Contains("ti super") || name.Contains(" super") || name.Contains(" xt")))
             tierBonus += 100;
 
-        // Heavily nerfed coreClock impact (from 0.1 to 0.01) to prevent architecture speed bias
+        // Near-zero clock weight: clock speeds are not comparable across architectures
         double rawScore = (effectiveVram * 40) + (coreClock * 0.01) + tierBonus;
 
         if (!isWork && (name.Contains("pro w") || name.Contains("quadro") || name.Contains("rtx a") || 
@@ -112,7 +111,7 @@ public class PerformanceScorer : IPerformanceScorer
                         name.Contains("radeon pro")))
             rawScore *= 0.2;
 
-        // Recalibrated max: top GPUs (5090/4090) reach ~2200
+        // Top GPUs (5090/4090) reach ~2200
         return Normalize(rawScore, 200, 2400);
     }
 
@@ -139,19 +138,18 @@ public class PerformanceScorer : IPerformanceScorer
         
         string type = specs.TryGetValue(Spec.Type, out var t) ? t.ToUpperInvariant() : "";
         
-        // DDR5 bonus now scales with speed to avoid terrible DDR5 kits outscoring premium DDR4
+        // DDR5 bonus scales with speed so slow DDR5 kits don't outscore premium DDR4
         double typeBonus = type.Contains("DDR5") ? (speed > 4800 ? 150 + (speed - 4800) * 0.1 : 50) : type.Contains("DDR4") ? 100 : 20;
 
-        // Reduced capacity weight from 20 to 10. Added more weight to speed.
         double rawScore = (capacity * 10) + (speed * 0.05) + typeBonus;
 
-        // Increased dual-channel bonus from 150 to 300 to ensure 2x8GB beats 1x32GB for gaming
+        // Large enough that 2x8GB beats 1x32GB for gaming
         if (modules >= 2) rawScore += 300;
 
         // Penalize unusably small capacity for Gaming
         if (!isWork && capacity < 8) rawScore *= 0.15;
 
-        // Increased max to 2000 to prevent clamping for 64GB/128GB kits
+        // High enough that 64GB/128GB kits don't clamp
         return Normalize(rawScore, 100, 2000);
     }
 
@@ -188,7 +186,6 @@ public class PerformanceScorer : IPerformanceScorer
         // Cap HDD capacity points so a 4TB HDD doesn't beat an NVMe SSD for gaming
         double effectiveCapacity = isSsd ? capacity : Math.Min(capacity, 2000);
 
-        // Increased NVMe bonus from 150 to 350
         double rawScore = (effectiveCapacity * 0.1) + (isSsd ? 100 : 0) + (isNvme ? 350 : 0);
         return Normalize(rawScore, 50, 1000);
     }

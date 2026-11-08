@@ -18,7 +18,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddOpenApi();
 
 // Permissive dev CORS so the Vite frontend (the recommendation visualizer) can call the API directly.
 builder.Services.AddCors(options =>
@@ -84,35 +83,20 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
+    await services.GetRequiredService<AppDbContext>().Database.MigrateAsync();
 
-    try
-    {
-        var context = services.GetRequiredService<AppDbContext>();
-        await context.Database.MigrateAsync();
+    string pathToCleanDb = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "clean-db", "clean_database.json");
 
-        var buildCoresSeeder = services.GetRequiredService<DatabaseSeeder>();
+    string benchmarksDir = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "benchmarks");
+    var benchmarks = Struct.BLL.Core.Scoring.Benchmarks.BenchmarkScores.FromCsvFiles(
+        Path.Combine(benchmarksDir, "CPU_benchmark_v4.csv"),
+        Path.Combine(benchmarksDir, "GPU_benchmarks_v7.csv"));
 
-        string pathToCleanDb = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "clean-db", "clean_database.json");
-
-        string benchmarksDir = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "benchmarks");
-        var benchmarks = Struct.BLL.Core.Scoring.Benchmarks.BenchmarkScores.FromCsvFiles(
-            Path.Combine(benchmarksDir, "CPU_benchmark_v4.csv"),
-            Path.Combine(benchmarksDir, "GPU_benchmarks_v7.csv"));
-
-        await buildCoresSeeder.SeedFromDirectoryAsync(pathToCleanDb, benchmarks);
-
-        logger.LogInformation("Database seeded successfully.");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "Error during seeding.");
-    }
+    await services.GetRequiredService<DatabaseSeeder>().SeedFromDirectoryAsync(pathToCleanDb, benchmarks);
 }
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }

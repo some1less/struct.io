@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Struct.API\Struct.API.csproj" />
     <ProjectReference Include="..\..\src\Struct.BLL\Struct.BLL.csproj" />
     <ProjectReference Include="..\..\src\Struct.DAL\Struct.DAL.csproj" />
   </ItemGroup>

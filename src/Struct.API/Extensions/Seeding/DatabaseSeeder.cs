@@ -12,68 +12,30 @@ public class DatabaseSeeder
     private readonly AppDbContext _context;
     private readonly IEnumerable<IComponentParser> _parsers;
     private readonly PriceBoundsSettings _priceBounds;
+    private readonly ILogger<DatabaseSeeder> _logger;
     private const int BatchSize = 1000;
 
-    public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers, PriceBoundsSettings priceBounds)
+    // Catalog categories whose parser has a different TargetFolderName (lookups ignore case).
+    private static readonly Dictionary<string, string> ParserAliases = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Case"] = "PCCase", ["Cooler"] = "CPUCooler", ["Ssd"] = "Storage", ["Hdd"] = "Storage"
+    };
+
+    public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers, PriceBoundsSettings priceBounds,
+        ILogger<DatabaseSeeder> logger)
     {
         _context = context;
         _parsers = parsers;
         _priceBounds = priceBounds;
+        _logger = logger;
     }
 
     public async Task SeedFromDirectoryAsync(string baseDirectoryPath, BenchmarkScores? benchmarks = null)
     {
-        // Seed only when the catalog is empty. The previous wipe-and-reseed ran on every
-        // startup and, because BuildComponent → Component is DeleteBehavior.Cascade, it
-        // silently gutted every user's SavedBuild on each restart. Never delete here.
+        // Never delete here: BuildComponent → Component cascades, so a reseed would wipe every SavedBuild.
         if (_context.Components.Any()) return;
 
-        var componentsToAdd = new List<Component>();
-        var parsersByCategory = _parsers.ToDictionary(p => p.TargetFolderName, StringComparer.OrdinalIgnoreCase);
-        int filteredCount = 0;
-
-        if (!File.Exists(baseDirectoryPath)) return;
-
-        try
-        {
-            var jsonString = await File.ReadAllTextAsync(baseDirectoryPath);
-            var rootArray = JsonNode.Parse(jsonString)?.AsArray();
-            if (rootArray == null) return;
-
-            foreach (var root in rootArray)
-            {
-                if (root == null) continue;
-
-                var categoryStr = root["Category"]?.ToString();
-                if (categoryStr == null) continue;
-
-                // Map "Cpu" to "CPU", "Gpu" to "GPU", "Psu" to "PSU" to match TargetFolderName
-                if (categoryStr.Equals("Cpu", StringComparison.OrdinalIgnoreCase)) categoryStr = "CPU";
-                else if (categoryStr.Equals("Gpu", StringComparison.OrdinalIgnoreCase)) categoryStr = "GPU";
-                else if (categoryStr.Equals("Psu", StringComparison.OrdinalIgnoreCase)) categoryStr = "PSU";
-                else if (categoryStr.Equals("Case", StringComparison.OrdinalIgnoreCase)) categoryStr = "PCCase";
-                else if (categoryStr.Equals("Cooler", StringComparison.OrdinalIgnoreCase)) categoryStr = "CPUCooler";
-                else if (categoryStr.Equals("Ssd", StringComparison.OrdinalIgnoreCase)) categoryStr = "Storage";
-                else if (categoryStr.Equals("Hdd", StringComparison.OrdinalIgnoreCase)) categoryStr = "Storage";
-
-                if (!parsersByCategory.TryGetValue(categoryStr, out var parser)) continue;
-
-                var component = ParseComponent(root, parser);
-                if (component != null)
-                {
-                    componentsToAdd.Add(component);
-                }
-                else
-                {
-                    filteredCount++;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[ERROR] Failed to read database: {ex.Message}");
-            return;
-        }
+        var componentsToAdd = ParseCatalog(await File.ReadAllTextAsync(baseDirectoryPath));
 
         /* filter duplicates */
         var uniqueComponents = componentsToAdd
@@ -91,10 +53,29 @@ public class DatabaseSeeder
             await _context.SaveChangesAsync();
         }
 
-        Console.WriteLine($"[INFO] Seeded {uniqueComponents.Count} components (filtered {filteredCount} obsolete).");
+        _logger.LogInformation("Seeded {Count} components.", uniqueComponents.Count);
     }
 
-    private Component? ParseComponent(JsonNode root, IComponentParser parser)
+    public List<Component> ParseCatalog(string json)
+    {
+        var rootArray = JsonNode.Parse(json)?.AsArray()
+            ?? throw new InvalidDataException("Seed catalog must be a JSON array.");
+        var parsersByCategory = _parsers.ToDictionary(p => p.TargetFolderName, StringComparer.OrdinalIgnoreCase);
+        var components = new List<Component>();
+
+        foreach (var root in rootArray)
+        {
+            var category = root?["Category"]?.ToString();
+            if (category == null) continue;
+
+            if (parsersByCategory.TryGetValue(ParserAliases.GetValueOrDefault(category, category), out var parser))
+                components.Add(ParseComponent(root!, parser));
+        }
+
+        return components;
+    }
+
+    private Component ParseComponent(JsonNode root, IComponentParser parser)
     {
         var name = root["Name"]?.ToString() ?? "Unknown";
         var brand = root["Brand"]?.ToString() ?? "Unknown";
@@ -112,23 +93,13 @@ public class DatabaseSeeder
             InferCpuMemoryType(specs);
         }
 
-        // Price resolution, most-trusted source first:
-        //   1. PricePln — a real PLN price (manual Allegro collection / future live feed) wins outright.
-        //   2. Price    — the real PCPartPicker USD price, FX-converted (US list price -> PL retail,
-        //                 which includes ~23% VAT; ×4 is the documented proxy for that conversion).
-        //   3. heuristic — spec-based estimate, ONLY when no real price exists (e.g. storage has none).
-        // Then clamp to documented per-category sanity bounds so genuine garbage can't leak through.
-        // NOTE: the old "discard the scraped price if it differs >±50% from the heuristic" guard was
-        // backwards — it validated real data against a worse estimate and threw away correct prices
-        // (e.g. a real RX 9070 at ~3765 PLN was replaced by the heuristic's ~700 PLN). Removed.
+        // Most-trusted price first: real PLN, then PCPartPicker USD × 4 (US list price → PL retail incl. VAT;
+        // market effects such as the 2026 DRAM surge are real, not corrected), then the spec heuristic only
+        // when no real price exists. Clamp to per-category sanity bounds.
         const decimal UsdToPln = 4.0m;
         var inv = System.Globalization.CultureInfo.InvariantCulture;
         var anyNum = System.Globalization.NumberStyles.Any;
 
-        // Real PLN (e.g. Allegro storage) wins; else the real PCPartPicker USD price FX-converted — which
-        // already reflects current market conditions, INCLUDING the 2026 DRAM surge that makes RAM
-        // genuinely expensive (a real market effect, not a bug, so we do NOT "correct" it down); else the
-        // spec heuristic, only when no real price exists.
         decimal pricePln;
         if (root["PricePln"]?.ToString() is string plnStr && decimal.TryParse(plnStr, anyNum, inv, out var realPln) && realPln > 0)
         {
@@ -140,7 +111,7 @@ public class DatabaseSeeder
         }
         else
         {
-            pricePln = ComponentPriceCalculator.CalculatePricePLN(actualCategory.ToString(), brand, name, specs);
+            pricePln = ComponentPriceCalculator.CalculatePricePLN(actualCategory.ToString(), brand, name, specs, _logger);
         }
 
         var bounds = _priceBounds.PerCategory.GetValueOrDefault(actualCategory, _priceBounds.Fallback);
