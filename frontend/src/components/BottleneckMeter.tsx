@@ -4,7 +4,6 @@ import { Scale, Cpu, MonitorPlay } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
-  BOTTLENECK_THRESHOLD,
   STATUS_BLURB,
   STATUS_LABEL,
   type BottleneckReading,
@@ -17,7 +16,13 @@ function pct(n: number) {
   return `${Math.round(Math.max(0, Math.min(1, n)) * 100)}%`
 }
 
-export function BottleneckMeter({ reading }: { reading: BottleneckReading }) {
+export function BottleneckMeter({
+  reading,
+  threshold,
+}: {
+  reading: BottleneckReading
+  threshold: number
+}) {
   const { status, cpuScore, gpuScore, gap } = reading
   const tone = status === 'balanced' ? 'good' : status === 'unknown' ? 'neutral' : 'warn'
 
@@ -26,7 +31,7 @@ export function BottleneckMeter({ reading }: { reading: BottleneckReading }) {
   const gpu = gpuScore ?? 0
   const lean = Math.max(-1, Math.min(1, gpu - cpu)) // -1 (CPU stronger) .. +1 (GPU stronger)
   const pointerLeft = 50 + lean * 50
-  const bandHalf = BOTTLENECK_THRESHOLD * 50 // band half-width in %
+  const bandHalf = threshold * 50 // band half-width in %
 
   return (
     <Card className="p-5">
@@ -83,7 +88,7 @@ export function BottleneckMeter({ reading }: { reading: BottleneckReading }) {
         {status !== 'unknown' && (
           <span className="text-faint">
             {' '}
-            (gap {pct(gap)} vs {pct(BOTTLENECK_THRESHOLD)} threshold)
+            (gap {pct(gap)} vs {pct(threshold)} threshold)
           </span>
         )}
       </p>
