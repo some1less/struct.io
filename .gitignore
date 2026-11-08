@@ -239,3 +239,6 @@ scraper/venv
 # Apify API token (never commit secrets)
 scraper/.apify_token
 .apify_token
+
+# Hand-curated catalog: kept local, the repo is public.
+/data/

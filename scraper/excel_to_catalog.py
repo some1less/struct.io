@@ -1,4 +1,4 @@
-"""Convert data/catalog.xlsx (one sheet per category) into the clean_database.json the C# seeder reads.
+"""Convert data/catalog.xlsx (one sheet per category) into data/clean_database.json, the seeder's input format.
 
 Run: python scraper/excel_to_catalog.py --snapshot-date 2026-11-08
 """
@@ -13,7 +13,7 @@ from openpyxl import load_workbook
 
 REPO = Path(__file__).resolve().parent.parent
 XLSX = REPO / "data" / "catalog.xlsx"
-OUTPUT = REPO / "src" / "Struct.API" / "Extensions" / "Seeding" / "clean-db" / "clean_database.json"
+OUTPUT = REPO / "data" / "clean_database.json"
 
 COMMON = ["Name", "Brand", "PricePln", "PriceSource", "SourceUrl"]
 

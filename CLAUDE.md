@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Struct is a PJATK engineering-thesis project: an ASP.NET Core (.NET 9) Web API that recommends complete, compatible PC builds for a given budget and purpose. The **recommendation engine is the agreed core feature** — algorithm quality and its defensibility matter more than breadth of features. The component catalog is a hand-curated `data/catalog.xlsx`, converted to JSON by `scraper/excel_to_catalog.py`; a C# seeder loads it into Postgres.
+Struct is a PJATK engineering-thesis project: an ASP.NET Core (.NET 9) Web API that recommends complete, compatible PC builds for a given budget and purpose. The **recommendation engine is the agreed core feature** — algorithm quality and its defensibility matter more than breadth of features. The component catalog is a hand-curated `data/catalog.xlsx` (local only, not in git), converted to JSON by `scraper/excel_to_catalog.py`; a C# seeder loads it into Postgres.
 
 ## Commands
 
@@ -27,7 +27,7 @@ npm run lint && npm test
 npm run test:e2e
 
 # Catalog: xlsx -> seed JSON, and its tests (from scraper/; requirements.txt is uv-locked with hashes from requirements.in)
-python excel_to_catalog.py --snapshot-date YYYY-MM-DD      # data/catalog.xlsx -> Seeding/clean-db/clean_database.json
+python excel_to_catalog.py --snapshot-date YYYY-MM-DD      # data/catalog.xlsx -> data/clean_database.json
 pytest
 
 # HTTP smoke checks against a running API
@@ -63,7 +63,7 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 
 ### Component catalog flow
 
-`data/catalog.xlsx` (hand-curated, one sheet per category, PLN prices) is the source of truth; `scraper/excel_to_catalog.py` validates it and writes `clean_database.json` (`--snapshot-date` = the day prices were collected). The old PCPartPicker/Apify scrapers sit in `scraper/legacy/` for provenance only. At API startup, `Program.cs` runs `DatabaseSeeder.SeedFromDirectoryAsync` against `src/Struct.API/Extensions/Seeding/clean-db/clean_database.json`. The seeder dispatches each row to a per-category `IComponentParser` (`Parsers/`) that normalizes raw fields into the `TechnicalSpecs` dictionary the engines later read. **Seeding only runs into an empty `Components` table** — it must never delete existing components (saved builds reference them).
+`data/catalog.xlsx` (hand-curated, one sheet per category, PLN prices) is the source of truth. **`data/` is gitignored on purpose: the repo is public and the dataset is the author's own work — never commit it or anything generated from it.** `scraper/excel_to_catalog.py` validates it and writes `data/clean_database.json` (`--snapshot-date` = the day prices were collected). The committed `Seeding/clean-db/clean_database.json` is still the old scraped catalog. The old PCPartPicker/Apify scrapers sit in `scraper/legacy/` for provenance only. At API startup, `Program.cs` runs `DatabaseSeeder.SeedFromDirectoryAsync` against `src/Struct.API/Extensions/Seeding/clean-db/clean_database.json`. The seeder dispatches each row to a per-category `IComponentParser` (`Parsers/`) that normalizes raw fields into the `TechnicalSpecs` dictionary the engines later read. **Seeding only runs into an empty `Components` table** — it must never delete existing components (saved builds reference them).
 
 ## Conventions
 
