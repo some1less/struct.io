@@ -18,6 +18,6 @@ jobs:
           cache: pip
           cache-dependency-path: scraper/requirements.txt
       - name: Install
-        run: pip install --only-binary :all: --require-hashes -r requirements.txt
+        run: "pip install --only-binary=:all: --require-hashes -r requirements.txt"
       - name: Tests
         run: pytest
