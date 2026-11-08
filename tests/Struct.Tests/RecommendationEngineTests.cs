@@ -2,7 +2,6 @@ using Struct.BLL.Core;
 using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation;
 using Struct.BLL.Core.Recommendation.Models;
-using Struct.BLL.Core.Scoring;
 using Struct.DAL.Models;
 using Struct.Tests.TestSupport;
 
@@ -16,9 +15,7 @@ namespace Struct.Tests;
 /// </summary>
 public class RecommendationEngineTests
 {
-    private static RecommendationEngine EngineFor(IEnumerable<Component> catalog) =>
-        new(new StubComponentRepository(catalog), new CompatibilityEngine(TestConfig.Compatibility), new PerformanceScorer(),
-            new BuildObjective(new PerformanceScorer(), TestConfig.Objective), TestConfig.Recommendation);
+    private static RecommendationEngine EngineFor(IEnumerable<Component> catalog) => Engines.Recommendation(catalog);
 
     [Fact]
     public async Task FullCatalog_ProducesComplete8SlotBuild_WithinBudget()
@@ -122,10 +119,7 @@ public class RecommendationEngineTests
     public async Task UpgradePass_NeverExceedsBudget_NorBreaksCompatibility()
     {
         var compat = new CompatibilityEngine(TestConfig.Compatibility);
-        var engine = new RecommendationEngine(
-            new StubComponentRepository(CatalogFactory.UpgradableCatalog()),
-            compat, new PerformanceScorer(),
-            new BuildObjective(new PerformanceScorer(), TestConfig.Objective), TestConfig.Recommendation);
+        var engine = EngineFor(CatalogFactory.UpgradableCatalog());
 
         var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 9000, Purpose = Purpose.Gaming });
 

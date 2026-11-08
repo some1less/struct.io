@@ -1,8 +1,5 @@
 using Struct.BLL.Core;
-using Struct.BLL.Core.Compatibility;
-using Struct.BLL.Core.Recommendation;
 using Struct.BLL.Core.Recommendation.Models;
-using Struct.BLL.Core.Scoring;
 using Struct.Tests.TestSupport;
 
 namespace Struct.Tests;
@@ -27,10 +24,7 @@ public class EngineSettingsTests
     [Fact]
     public async Task SlotBudgetTolerance_ComesFromSettings()
     {
-        var engine = new RecommendationEngine(
-            new StubComponentRepository(CatalogFactory.FullCoherentCatalog()),
-            new CompatibilityEngine(TestConfig.Compatibility), new PerformanceScorer(),
-            new BuildObjective(new PerformanceScorer(), TestConfig.Objective),
+        var engine = Engines.Recommendation(CatalogFactory.FullCoherentCatalog(),
             TestConfig.Recommendation with { SlotBudgetTolerance = 0m });
 
         var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000 });
