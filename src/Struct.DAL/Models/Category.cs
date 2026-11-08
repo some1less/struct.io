@@ -10,7 +10,5 @@ public enum Category
     Ssd,
     Hdd,
     Cooler,
-    Fan,
-    Case,
-    Cable
+    Case
 }

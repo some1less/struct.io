@@ -5,7 +5,7 @@ namespace Struct.API.Extensions.Seeding;
 
 public static class ComponentPriceCalculator
 {
-    public static decimal CalculatePricePLN(string category, string brand, string name, Dictionary<string, string> specs)
+    public static decimal CalculatePricePLN(string category, string brand, string name, Dictionary<string, string> specs, ILogger logger)
     {
         try
         {
@@ -54,7 +54,7 @@ public static class ComponentPriceCalculator
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[WARN] Price calculation failed for '{name}': {ex.Message}");
+            logger.LogWarning(ex, "Price calculation failed for {Name}; using fallback price.", name);
             return 250m;
         }
     }
