@@ -63,7 +63,7 @@ public class ExactBuildSolver
                 if (obj > best.Objective)
                     best = new ExactBuildResult
                     {
-                        Build = BuildContextOps.Clone(partial),
+                        Build = partial.Clone(),
                         Objective = obj,
                         IsComplete = IsComplete(partial, categories)
                     };
@@ -80,8 +80,8 @@ public class ExactBuildSolver
                 if (spent + candidate.Price > budget) continue;
                 if (!_compat.CheckCompatibility(partial, candidate).IsCompatible) continue;
 
-                var next = BuildContextOps.Clone(partial);
-                BuildContextOps.Assign(next, candidate);
+                var next = partial.Clone();
+                next.Assign(candidate);
                 Recurse(idx + 1, next, spent + candidate.Price,
                     weightedSoFar + weights[cat] * _scorer.CalculateScore(candidate, purpose));
             }
@@ -96,5 +96,5 @@ public class ExactBuildSolver
     }
 
     private static bool IsComplete(BuildContext b, IReadOnlyList<Category> categories) =>
-        categories.All(c => BuildContextOps.Get(b, c) != null);
+        categories.All(c => b[c] != null);
 }

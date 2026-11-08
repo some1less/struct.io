@@ -25,7 +25,7 @@ public class BuildObjective
         double sum = 0;
         foreach (var (category, weight) in weights)
         {
-            var component = BuildContextOps.Get(build, category);
+            var component = build[category];
             if (component != null)
                 sum += weight * _scorer.CalculateScore(component, purpose);
         }

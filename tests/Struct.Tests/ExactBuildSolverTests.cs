@@ -70,7 +70,7 @@ public class ExactBuildSolverTests
         foreach (var slot in result.Slots)
         {
             var comp = catalog.First(c => c.Name == slot.Recommendations.First().Component.Name);
-            BuildContextOps.Assign(ctx, comp);
+            ctx.Assign(comp);
         }
         return ctx;
     }

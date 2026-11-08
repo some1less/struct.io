@@ -137,17 +137,7 @@ public class RecommendationEngineTests
             var comp = CatalogFactory.UpgradableCatalog()
                 .First(c => c.Name == slot.Recommendations.First().Component.Name);
             Assert.True(compat.CheckCompatibility(ctx, comp).IsCompatible, $"{slot.Category} incompatible");
-            switch (comp.Category)
-            {
-                case Category.Cpu: ctx.Cpu = comp; break;
-                case Category.Gpu: ctx.Gpu = comp; break;
-                case Category.Motherboard: ctx.Motherboard = comp; break;
-                case Category.Ram: ctx.Ram = comp; break;
-                case Category.Psu: ctx.Psu = comp; break;
-                case Category.Case: ctx.Case = comp; break;
-                case Category.Cooler: ctx.Cooler = comp; break;
-                case Category.Ssd: case Category.Hdd: ctx.Storage = comp; break;
-            }
+            ctx.Assign(comp);
         }
     }
 }
