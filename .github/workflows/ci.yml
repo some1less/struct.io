@@ -14,69 +14,32 @@ concurrency:
 
 jobs:
   secrets:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Gitleaks (full history)
-        run: docker run --rm -v "$PWD":/repo ghcr.io/gitleaks/gitleaks:v8.30.1 git /repo --redact --no-banner -v
+    name: Secret scan
+    uses: ./.github/workflows/secrets.yml
 
   backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-      - run: dotnet build Struct.sln
-      - run: dotnet test Struct.sln --no-build
+    name: Backend
+    uses: ./.github/workflows/backend.yml
 
   frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run build
-      - run: npm test
+    name: Frontend
+    uses: ./.github/workflows/frontend.yml
 
   e2e:
+    name: E2E
     needs: [backend, frontend]
+    uses: ./.github/workflows/e2e.yml
+
+  result:
+    name: CI result
+    if: always()
+    needs: [secrets, backend, frontend, e2e]
     runs-on: ubuntu-latest
-    env:
-      POSTGRES_DB: struct_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
     steps:
       - uses: actions/checkout@v4
-      - run: docker compose up --build -d
-      - name: Smoke (API)
-        run: scripts/smoke.sh
-      - uses: actions/setup-node@v4
         with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - name: E2E (UI)
-        working-directory: frontend
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
-          npm run test:e2e
-      - name: API logs
-        if: failure()
-        run: docker compose logs struct.api
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: frontend/playwright-report
+          sparse-checkout: .github/scripts
+      - name: Summary
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: python3 .github/scripts/ci_summary.py result

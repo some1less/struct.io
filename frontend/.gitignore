@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 playwright-report
+reports
 test-results
 dist
 dist-ssr
