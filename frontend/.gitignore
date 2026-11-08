@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 playwright-report
 reports
+coverage
 test-results
 dist
 dist-ssr

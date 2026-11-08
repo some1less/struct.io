@@ -25,6 +25,13 @@ jobs:
     name: Frontend
     uses: ./.github/workflows/frontend.yml
 
+  # Informational until the rules are calibrated, so it is not part of CI result.
+  sonar:
+    name: Sonar
+    uses: ./.github/workflows/sonar.yml
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   e2e:
     name: E2E
     needs: [backend, frontend]

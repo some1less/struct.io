@@ -14,5 +14,11 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      // Paths relative to the repo root, where Sonar resolves them.
+      reporter: ['text-summary', ['lcov', { projectRoot: '..' }]],
+    },
   },
 })

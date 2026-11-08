@@ -5,12 +5,15 @@
   ci_summary.py tests <title> <report-glob>...          TRX (dotnet) or JUnit XML (vitest, Playwright)
   ci_summary.py gitleaks <log> <report.json> <image>    secret-scan result
   ci_summary.py result                                  overall table from $NEEDS; exits 1 unless all passed
+  ci_summary.py sonar <project-key> [pull-request]      quality gate and project metrics from SonarQube Cloud
 """
 import glob
 import json
 import os
 import re
 import sys
+import urllib.parse
+import urllib.request
 import xml.etree.ElementTree as ET
 
 LABEL = {"success": "passed", "failure": "failed", "cancelled": "cancelled", "skipped": "skipped"}
@@ -104,6 +107,54 @@ def gitleaks(log_path, report_path, image):
     write(lines)
 
 
+SONAR = "https://sonarcloud.io"
+SONAR_METRICS = {
+    "ncloc": "Lines of code",
+    "coverage": "Coverage (%)",
+    "duplicated_lines_density": "Duplications (%)",
+    "software_quality_security_issues": "Security issues",
+    "software_quality_reliability_issues": "Reliability issues",
+    "software_quality_maintainability_issues": "Maintainability issues",
+    "security_hotspots": "Security hotspots",
+}
+GATE = {"OK": "passed", "ERROR": "failed", "NONE": "not computed"}
+COMPARATOR = {"GT": ">", "LT": "<"}
+
+
+def sonar_get(path, **params):
+    token = os.environ.get("SONAR_TOKEN")
+    request = urllib.request.Request(f"{SONAR}/api/{path}?{urllib.parse.urlencode(params)}",
+                                     headers={"Authorization": f"Bearer {token}"} if token else {})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        return json.load(response)
+
+
+def sonar(project, pull_request=""):
+    scope = {"pullRequest": pull_request} if pull_request else {"branch": "main"}
+    link = (f"{SONAR}/summary/new_code?id={project}&pullRequest={pull_request}" if pull_request
+            else f"{SONAR}/summary/overall?id={project}&branch=main")
+    lines = ["### SonarQube Cloud", ""]
+    try:
+        gate = sonar_get("qualitygates/project_status", projectKey=project, **scope)["projectStatus"]
+        measures = sonar_get("measures/component", component=project, branch="main",
+                             metricKeys=",".join(SONAR_METRICS))["component"]["measures"]
+    except Exception as error:  # an unreachable API must not hide the analysis step's own result
+        write(lines + [f"Could not read results from SonarQube Cloud ({error}). [Open dashboard]({link})"])
+        return
+    where = f"pull request #{pull_request}" if pull_request else "main"
+    lines.append(f"Quality gate on {where}: **{GATE.get(gate['status'], gate['status'].lower())}**. "
+                 f"[Open dashboard]({link})")
+    if gate["conditions"]:
+        lines += ["", "| Condition | Actual | Fails when | Result |", "|---|---:|---:|---|"]
+        lines += [f"| {c['metricKey'].replace('_', ' ')} | {c.get('actualValue', '-')} "
+                  f"| {COMPARATOR.get(c.get('comparator'), '')} {c.get('errorThreshold', '')} "
+                  f"| {GATE.get(c['status'], c['status'].lower())} |" for c in gate["conditions"]]
+    values = {m["metric"]: m.get("value", "-") for m in measures}
+    lines += ["", "Whole project (main):", "", "| Metric | Value |", "|---|---:|"]
+    lines += [f"| {name} | {values.get(key, '-')} |" for key, name in SONAR_METRICS.items()]
+    write(lines)
+
+
 def result():
     needs = json.loads(os.environ["NEEDS"])
     ok = all(v["result"] == "success" for v in needs.values())
@@ -116,4 +167,4 @@ def result():
 
 if __name__ == "__main__":
     command, *args = sys.argv[1:]
-    {"steps": steps, "tests": tests, "gitleaks": gitleaks, "result": result}[command](*args)
+    {"steps": steps, "tests": tests, "gitleaks": gitleaks, "result": result, "sonar": sonar}[command](*args)
