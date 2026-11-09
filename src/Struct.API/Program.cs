@@ -58,10 +58,16 @@ T Bind<T>(string section) where T : class =>
 builder.Services.AddSingleton(Bind<RecommendationSettings>("Engine:Recommendation"));
 builder.Services.AddSingleton(Bind<ObjectiveSettings>("Engine:Objective"));
 builder.Services.AddSingleton(Bind<CompatibilitySettings>("Engine:Compatibility"));
+builder.Services.AddSingleton(Bind<ExactSolverSettings>("Engine:ExactSolver"));
 builder.Services.AddScoped<ICompatibilityEngine, CompatibilityEngine>();
 builder.Services.AddScoped<IPerformanceScorer>(_ => new CachingScorer(new PerformanceScorer()));
-builder.Services.AddScoped<IRecommendationEngine, RecommendationEngine>();
 builder.Services.AddScoped<BuildObjective>();
+builder.Services.AddScoped<GreedySolver>();
+builder.Services.AddScoped<GreedyLocalSearchSolver>();
+builder.Services.AddScoped<ExactBuildSolver>();
+// The live API runs greedy + local search; the evaluation harness resolves each solver by its type.
+builder.Services.AddScoped<IBuildSolver>(sp => sp.GetRequiredService<GreedyLocalSearchSolver>());
+builder.Services.AddScoped<IRecommendationEngine, RecommendationEngine>();
 
 
 /* DATA SEEDING - ONES AND FORALL*/

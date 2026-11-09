@@ -1,5 +1,4 @@
 using Mapster;
-using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation.Models;
 using Struct.BLL.Core.Scoring;
 using Struct.BLL.DTOs;
@@ -8,95 +7,52 @@ using Struct.DAL.Repositories.Interfaces;
 
 namespace Struct.BLL.Core.Recommendation;
 
+/// <summary>Loads the candidates for the purpose's profile, runs the build solver and shapes the API result.</summary>
 public class RecommendationEngine : IRecommendationEngine
 {
     private readonly IComponentRepository _repository;
-    private readonly ICompatibilityEngine _compatibilityEngine;
+    private readonly IBuildSolver _solver;
     private readonly IPerformanceScorer _scorer;
-    private readonly BuildObjective _objective;
     private readonly RecommendationSettings _settings;
 
-    public RecommendationEngine(IComponentRepository repository, ICompatibilityEngine compatibilityEngine,
-        IPerformanceScorer scorer, BuildObjective objective, RecommendationSettings settings)
+    public RecommendationEngine(IComponentRepository repository, IBuildSolver solver, IPerformanceScorer scorer,
+        RecommendationSettings settings)
     {
         _repository = repository;
-        _compatibilityEngine = compatibilityEngine;
+        _solver = solver;
         _scorer = scorer;
-        _objective = objective;
         _settings = settings;
     }
 
     public async Task<RecommendationResult> GenerateRecommendationAsync(RecommendationRequest request)
     {
         var purpose = request.Purpose;
-        var sequence = _settings.Profiles[purpose].Sequence;
-        var weights = new Dictionary<Category, double>(_settings.Profiles[purpose].Weights);
+        var profile = _settings.Profiles[purpose];
 
-        var allocatedBudgets = weights.ToDictionary(k => k.Key, v => request.Budget * (decimal)v.Value);
+        var candidates = new Dictionary<Category, IReadOnlyList<Component>>();
+        foreach (var category in profile.Sequence)
+            candidates[category] = (await _repository.GetByCategoryAsync(category, 1, 5000)).ToList();
 
-        var result = new RecommendationResult { Purpose = purpose, TotalBudget = request.Budget, IsSuccess = true };
-        var currentBuild = new BuildContext();
-        var candidatesByCategory = new Dictionary<Category, List<Component>>();
-        decimal actualTotal = 0;
+        var solution = _solver.Solve(new BuildProblem(candidates, profile, purpose, request.Budget));
 
-        // ---- Greedy construction (baseline) ----
-        foreach (var category in sequence)
+        var result = new RecommendationResult
         {
-            decimal slotBudget = allocatedBudgets[category];
+            Purpose = purpose,
+            TotalBudget = request.Budget,
+            ActualTotalPrice = solution.TotalPrice,
+            IsSuccess = solution.FailedSlots.Count == 0,
+            FailedSlots = solution.FailedSlots
+        };
 
-            var candidates = (await _repository.GetByCategoryAsync(category, 1, 5000)).ToList();
-            candidatesByCategory[category] = candidates;
-
-            decimal maxAllowedPrice = slotBudget * _settings.SlotBudgetTolerance;
-            decimal remainingGlobalBudget = request.Budget - actualTotal;
-            if (maxAllowedPrice > remainingGlobalBudget) maxAllowedPrice = remainingGlobalBudget;
-            if (maxAllowedPrice < 0) maxAllowedPrice = 0;
-
-            var compatible = candidates
-                .Where(c => c.Price <= maxAllowedPrice)
-                .Where(c => _compatibilityEngine.CheckCompatibility(currentBuild, c).IsCompatible)
-                .ToList();
-
-            if (!compatible.Any())
-            {
-                result.IsSuccess = false;
-                result.FailedSlots.Add(new FailedSlot
-                {
-                    Category = category.ToString(),
-                    Reason = $"Could not find a compatible {category} within {slotBudget:F2} PLN."
-                });
-                continue;
-            }
-
-            var best = compatible.OrderByDescending(c => _scorer.CalculateScore(c, purpose)).First();
-
-            currentBuild.Assign(best);
-            actualTotal += best.Price;
-
-            decimal savings = slotBudget - best.Price;
-            var remainingCategories = sequence.Skip(sequence.IndexOf(category) + 1).ToList();
-            if (savings != 0 && remainingCategories.Any())
-            {
-                double remainingWeightSum = remainingCategories.Sum(c => weights[c]);
-                if (remainingWeightSum > 0)
-                    foreach (var remCat in remainingCategories)
-                        allocatedBudgets[remCat] += savings * (decimal)(weights[remCat] / remainingWeightSum);
-            }
-        }
-
-        // ---- Local-search upgrade pass (spends leftover budget + rebalances) ----
-        RunUpgradePass(currentBuild, candidatesByCategory, sequence, weights, purpose, request.Budget, ref actualTotal);
-
-        // ---- Build result slots from the final build (rank-1 only) ----
-        foreach (var category in sequence)
+        foreach (var category in profile.Sequence)
         {
-            var chosen = currentBuild[category];
+            var chosen = solution.Build[category];
             if (chosen == null) continue;
 
             result.Slots.Add(new SlotRecommendation
             {
                 Category = category.ToString(),
-                AllocatedBudget = Math.Round(allocatedBudgets[category], 2, MidpointRounding.AwayFromZero),
+                AllocatedBudget = Math.Round(solution.AllocatedBudgets[category], 2, MidpointRounding.AwayFromZero),
                 Recommendations = new List<RankedComponent>
                 {
                     new RankedComponent
@@ -109,70 +65,10 @@ public class RecommendationEngine : IRecommendationEngine
             });
         }
 
-        result.ActualTotalPrice = actualTotal;
         result.Message = result.IsSuccess
             ? "Build generated successfully."
             : $"Incomplete build: could not fill {string.Join(", ", result.FailedSlots.Select(f => f.Category))}.";
 
         return result;
     }
-
-    private void RunUpgradePass(
-        BuildContext build,
-        Dictionary<Category, List<Component>> candidatesByCategory,
-        List<Category> sequence,
-        Dictionary<Category, double> weights,
-        Purpose purpose,
-        decimal budget,
-        ref decimal actualTotal)
-    {
-        bool improved = true;
-        while (improved)
-        {
-            improved = false;
-            double currentObjective = _objective.Evaluate(build, weights, purpose);
-            double bestDelta = 0;
-            Category bestCategory = default;
-            Component? bestSwap = null;
-
-            foreach (var category in sequence)
-            {
-                var chosen = build[category];
-                if (chosen == null) continue; // failed slot — nothing to upgrade
-                if (!candidatesByCategory.TryGetValue(category, out var pool)) continue;
-
-                foreach (var candidate in pool)
-                {
-                    if (candidate.Id == chosen.Id) continue;
-
-                    decimal newTotal = actualTotal - chosen.Price + candidate.Price;
-                    if (newTotal > budget) continue; // must stay within total budget
-
-                    // Compatibility against the full build (CheckCompatibility clones then overwrites
-                    // this category with the candidate, so the rest of the build is held fixed).
-                    if (!_compatibilityEngine.CheckCompatibility(build, candidate).IsCompatible) continue;
-
-                    var trial = build.Clone();
-                    trial.Assign(candidate);
-                    double delta = _objective.Evaluate(trial, weights, purpose) - currentObjective;
-
-                    if (delta > bestDelta)
-                    {
-                        bestDelta = delta;
-                        bestCategory = category;
-                        bestSwap = candidate;
-                    }
-                }
-            }
-
-            if (bestSwap != null)
-            {
-                var old = build[bestCategory]!;
-                actualTotal = actualTotal - old.Price + bestSwap.Price;
-                build.Assign(bestSwap);
-                improved = true; // objective strictly increased; loop is bounded ⇒ terminates
-            }
-        }
-    }
-
 }

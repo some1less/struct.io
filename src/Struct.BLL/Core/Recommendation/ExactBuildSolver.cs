@@ -7,10 +7,10 @@ namespace Struct.BLL.Core.Recommendation;
 
 /// <summary>
 /// Branch-and-bound solver: finds the build maximizing <see cref="BuildObjective"/> subject to a
-/// total budget and pairwise compatibility, over the top-K candidates per category. An evaluation
-/// tool to benchmark the greedy+local-search engine; not wired into the live API.
+/// total budget and pairwise compatibility, over the top-K candidates per category. The reference
+/// optimum the evaluation harness measures the other solvers against.
 /// </summary>
-public class ExactBuildSolver
+public class ExactBuildSolver : IBuildSolver
 {
     private readonly ICompatibilityEngine _compat;
     private readonly BuildObjective _objective;
@@ -26,13 +26,12 @@ public class ExactBuildSolver
         _settings = settings;
     }
 
-    public ExactBuildResult Solve(
-        IReadOnlyDictionary<Category, IReadOnlyList<Component>> candidatesByCategory,
-        IReadOnlyList<Category> categories,
-        IReadOnlyDictionary<Category, double> weights,
-        Purpose purpose,
-        decimal budget)
+    public BuildSolution Solve(BuildProblem problem)
     {
+        var (candidatesByCategory, profile, purpose, budget) = problem;
+        var categories = profile.Sequence;
+        var weights = profile.Weights;
+
         // Prune each category to its top-K by score (descending); record the best score per category.
         var pools = new Dictionary<Category, List<Component>>();
         var bestScore = new Dictionary<Category, double>();
@@ -53,26 +52,25 @@ public class ExactBuildSolver
         for (int i = n - 1; i >= 0; i--)
             suffix[i] = suffix[i + 1] + weights[categories[i]] * bestScore[categories[i]];
 
-        var best = new ExactBuildResult { Build = new BuildContext(), Objective = double.NegativeInfinity, IsComplete = false };
+        var bestBuild = new BuildContext();
+        double bestObjective = double.NegativeInfinity;
 
         void Recurse(int idx, BuildContext partial, decimal spent, double weightedSoFar)
         {
             if (idx == n)
             {
                 double obj = _objective.Evaluate(partial, weights, purpose);
-                if (obj > best.Objective)
-                    best = new ExactBuildResult
-                    {
-                        Build = partial.Clone(),
-                        Objective = obj,
-                        IsComplete = IsComplete(partial, categories)
-                    };
+                if (obj > bestObjective)
+                {
+                    bestObjective = obj;
+                    bestBuild = partial.Clone();
+                }
                 return;
             }
 
             // Optimistic upper bound: even if every remaining slot scored its best and no penalty
             // applied, this branch could not beat the incumbent ⇒ prune.
-            if (weightedSoFar + suffix[idx] <= best.Objective) return;
+            if (weightedSoFar + suffix[idx] <= bestObjective) return;
 
             var cat = categories[idx];
             foreach (var candidate in pools[cat])
@@ -92,9 +90,17 @@ public class ExactBuildSolver
         }
 
         Recurse(0, new BuildContext(), 0m, 0.0);
-        return best;
+        return new BuildSolution
+        {
+            Build = bestBuild,
+            AllocatedBudgets = weights.ToDictionary(w => w.Key, w => budget * (decimal)w.Value),
+            FailedSlots = categories.Where(c => bestBuild[c] == null)
+                .Select(c => new FailedSlot
+                {
+                    Category = c.ToString(),
+                    Reason = $"No compatible {c} fits within {budget:F2} PLN alongside the rest of the build."
+                })
+                .ToList()
+        };
     }
-
-    private static bool IsComplete(BuildContext b, IReadOnlyList<Category> categories) =>
-        categories.All(c => b[c] != null);
 }
