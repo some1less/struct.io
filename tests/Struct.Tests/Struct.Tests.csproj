@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\Struct.API\Struct.API.csproj" />
     <ProjectReference Include="..\..\src\Struct.BLL\Struct.BLL.csproj" />
     <ProjectReference Include="..\..\src\Struct.DAL\Struct.DAL.csproj" />
+    <ProjectReference Include="..\..\tools\Struct.Evaluation\Struct.Evaluation.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -32,6 +32,17 @@ public class RecommendationEngineTests
     }
 
     [Fact]
+    public async Task EverySlot_ReportsItsShareOfTheTotalPrice()
+    {
+        var engine = EngineFor(CatalogFactory.FullCoherentCatalog());
+
+        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000 });
+
+        Assert.Equal(Math.Round(2600m / 7250m, 3), result.Slots.Single(s => s.Category == "Gpu").PriceShare);
+        Assert.Equal(1m, result.Slots.Sum(s => s.PriceShare), precision: 2);
+    }
+
+    [Fact]
     public async Task BudgetIsNeverExceeded_AcrossRangeOfBudgets()
     {
         var engine = EngineFor(CatalogFactory.FullCoherentCatalog());

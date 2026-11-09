@@ -121,7 +121,7 @@ public class BenchmarkValidationTests
         return (vx == 0 || vy == 0) ? 0 : cov / Math.Sqrt(vx * vy);
     }
 
-    private static string RepoRoot()
+    internal static string RepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Struct.sln")))
