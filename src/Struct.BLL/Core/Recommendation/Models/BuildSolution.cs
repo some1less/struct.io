@@ -12,5 +12,8 @@ public class BuildSolution
 
     public List<FailedSlot> FailedSlots { get; init; } = new();
 
+    /// <summary>Exact solver hit its time limit: the build is the best found, not a proven optimum.</summary>
+    public bool TimedOut { get; init; }
+
     public decimal TotalPrice => Build.Components.Sum(c => c.Price);
 }
