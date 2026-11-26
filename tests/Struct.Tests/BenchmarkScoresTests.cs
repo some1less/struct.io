@@ -49,6 +49,33 @@ public class BenchmarkScoresTests
     }
 
     [Fact]
+    public void FromCsvFiles_ReadsThreadMark_AndEnrichWritesSingleThreadScore()
+    {
+        var dir = Directory.CreateTempSubdirectory().FullName;
+        try
+        {
+            var cpuCsv = Path.Combine(dir, "cpu.csv");
+            var gpuCsv = Path.Combine(dir, "gpu.csv");
+            File.WriteAllText(cpuCsv, "cpuName,cpuMark,threadMark\nAMD Ryzen 9 5950X,46000,3000\nIntel Core i5-10400,12000,4000\n");
+            File.WriteAllText(gpuCsv, "gpuName,G3Dmark\n");
+            var manyCores = ComponentBuilder.New(Category.Cpu, "AMD Ryzen 9 5950X").Build();
+            var fastCore = ComponentBuilder.New(Category.Cpu, "Intel Core i5-10400").Build();
+
+            BenchmarkScores.FromCsvFiles(cpuCsv, gpuCsv).Enrich(new[] { manyCores, fastCore });
+
+            double Score(Component c, string spec) =>
+                double.Parse(c.TechnicalSpecs[spec], System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Equal(1.0, Score(manyCores, "BenchmarkScore"), 6);
+            Assert.Equal(3000.0 / 4000.0, Score(manyCores, "SingleThreadScore"), 6);
+            Assert.Equal(1.0, Score(fastCore, "SingleThreadScore"), 6);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
     public void Enrich_MatchesCpu_ByContainment_PickingTheSpecificModelInAMarketingName()
     {
         // Scraped catalog names carry extra text ("4.2 GHz 8-Core Processor"); the benchmark key is the

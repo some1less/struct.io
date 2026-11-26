@@ -6,26 +6,32 @@ using Struct.BLL.Core.Specs;
 namespace Struct.BLL.Core.Scoring.Benchmarks;
 
 /// <summary>
-/// PassMark benchmark scores (CPU Mark / G3D Mark) keyed by normalized model name. Matches catalog
-/// components by name (CPU) or by the chip in parentheses (GPU), and enriches each matched component
-/// with a per-category 0..1 <c>BenchmarkScore</c> spec consumed by <see cref="PerformanceScorer"/>.
-/// Unmatched components are left untouched and fall back to the heuristic scorer.
+/// PassMark benchmark scores (CPU Mark + single-thread rating / G3D Mark) keyed by normalized model name.
+/// Matches catalog components by name (CPU) or by the chip in parentheses (GPU), and enriches each matched
+/// component with per-category 0..1 <c>BenchmarkScore</c> / <c>SingleThreadScore</c> specs consumed by
+/// <see cref="PerformanceScorer"/>. Unmatched components are left untouched and fall back to the heuristic scorer.
 /// </summary>
 public class BenchmarkScores
 {
 
     private readonly Dictionary<string, double> _cpu;
+    private readonly Dictionary<string, double> _cpuSingle;
     private readonly Dictionary<string, double> _gpu;
     private readonly string[] _cpuKeys; // normalized keys, longest first (for containment matching)
+    private readonly string[] _cpuSingleKeys;
     private readonly string[] _gpuKeys;
 
     /// <param name="cpuMarks">Raw CPU name → CPU Mark.</param>
     /// <param name="gpuMarks">Raw GPU chip name → G3D Mark.</param>
-    public BenchmarkScores(IReadOnlyDictionary<string, double> cpuMarks, IReadOnlyDictionary<string, double> gpuMarks)
+    /// <param name="cpuSingleThreadMarks">Raw CPU name → single-thread rating.</param>
+    public BenchmarkScores(IReadOnlyDictionary<string, double> cpuMarks, IReadOnlyDictionary<string, double> gpuMarks,
+        IReadOnlyDictionary<string, double>? cpuSingleThreadMarks = null)
     {
         _cpu = BuildMap(cpuMarks);
+        _cpuSingle = BuildMap(cpuSingleThreadMarks ?? new Dictionary<string, double>());
         _gpu = BuildMap(gpuMarks);
         _cpuKeys = _cpu.Keys.OrderByDescending(k => k.Length).ToArray();
+        _cpuSingleKeys = _cpuSingle.Keys.OrderByDescending(k => k.Length).ToArray();
         _gpuKeys = _gpu.Keys.OrderByDescending(k => k.Length).ToArray();
     }
 
@@ -61,8 +67,9 @@ public class BenchmarkScores
     /// </summary>
     public void Enrich(IReadOnlyList<Component> components)
     {
-        EnrichCategory(components, Category.Cpu, c => MatchMark(_cpu, _cpuKeys, c.Name));
-        EnrichCategory(components, Category.Gpu, c =>
+        EnrichCategory(components, Category.Cpu, Spec.BenchmarkScore, c => MatchMark(_cpu, _cpuKeys, c.Name));
+        EnrichCategory(components, Category.Cpu, Spec.SingleThreadScore, c => MatchMark(_cpuSingle, _cpuSingleKeys, c.Name));
+        EnrichCategory(components, Category.Gpu, Spec.BenchmarkScore, c =>
         {
             // New catalogs carry the chip in the Chipset spec (names are full board-partner strings
             // with no parentheses); older catalogs put it in parentheses in the name. Prefer the spec.
@@ -93,7 +100,8 @@ public class BenchmarkScores
         return null;
     }
 
-    private static void EnrichCategory(IReadOnlyList<Component> components, Category category, Func<Component, double?> lookup)
+    private static void EnrichCategory(IReadOnlyList<Component> components, Category category, string spec,
+        Func<Component, double?> lookup)
     {
         var matched = new List<(Component component, double mark)>();
         foreach (var c in components.Where(c => c.Category == category))
@@ -107,15 +115,16 @@ public class BenchmarkScores
         if (max <= 0) return;
 
         foreach (var (component, mark) in matched)
-            component.TechnicalSpecs[Spec.BenchmarkScore] = (mark / max).ToString(CultureInfo.InvariantCulture);
+            component.TechnicalSpecs[spec] = (mark / max).ToString(CultureInfo.InvariantCulture);
     }
 
-    /// <summary>Loads the two PassMark CSVs (cpuName,cpuMark / gpuName,G3Dmark).</summary>
+    /// <summary>Loads the two PassMark CSVs (cpuName,cpuMark,threadMark / gpuName,G3Dmark).</summary>
     public static BenchmarkScores FromCsvFiles(string cpuCsvPath, string gpuCsvPath)
     {
         return new BenchmarkScores(
             ReadCsv(cpuCsvPath, "cpuName", "cpuMark"),
-            ReadCsv(gpuCsvPath, "gpuName", "G3Dmark"));
+            ReadCsv(gpuCsvPath, "gpuName", "G3Dmark"),
+            ReadCsv(cpuCsvPath, "cpuName", "threadMark"));
     }
 
     private static Dictionary<string, double> ReadCsv(string path, string nameColumn, string markColumn)

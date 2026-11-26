@@ -29,32 +29,38 @@ public class BenchmarkValidationTests
             Path.Combine(seedDir, "benchmarks", "GPU_benchmarks_v7.csv"));
 
         var scorer = new PerformanceScorer();
-        // Heuristic scores BEFORE enrichment (no BenchmarkScore spec ⇒ heuristic path).
-        var heuristic = components.ToDictionary(c => c, c => scorer.CalculateScore(c, Purpose.Gaming));
+        // Heuristic scores BEFORE enrichment (no benchmark specs ⇒ heuristic path).
+        var gaming = components.ToDictionary(c => c, c => scorer.CalculateScore(c, Purpose.Gaming));
+        var work = components.ToDictionary(c => c, c => scorer.CalculateScore(c, Purpose.Work));
         bench.Enrich(components);
 
-        double rhoCpu = SpearmanForCategory(components, heuristic, Category.Cpu, out int nCpu);
-        double rhoGpu = SpearmanForCategory(components, heuristic, Category.Gpu, out int nGpu);
+        // Each purpose is checked against the benchmark it is scored by: Gaming caps cores at 8 on purpose,
+        // so against multi-thread CPU Mark the 14 Threadrippers alone would sink rho.
+        double rhoCpuWork = SpearmanForCategory(components, work, Category.Cpu, Spec.BenchmarkScore, out int nWork);
+        double rhoCpuGaming = SpearmanForCategory(components, gaming, Category.Cpu, Spec.SingleThreadScore, out int nGaming);
+        double rhoGpu = SpearmanForCategory(components, gaming, Category.Gpu, Spec.BenchmarkScore, out int nGpu);
 
-        _out.WriteLine($"CPU: matched {nCpu}, Spearman rho = {rhoCpu:F3}");
+        _out.WriteLine($"CPU Work vs CPU Mark: matched {nWork}, Spearman rho = {rhoCpuWork:F3}");
+        _out.WriteLine($"CPU Gaming vs single-thread: matched {nGaming}, Spearman rho = {rhoCpuGaming:F3}");
         _out.WriteLine($"GPU: matched {nGpu}, Spearman rho = {rhoGpu:F3}");
 
         // Defensible invariant: the hand-tuned heuristic is positively correlated with real benchmarks.
-        Assert.True(rhoCpu > 0.3, $"CPU rho {rhoCpu:F3} too low");
+        Assert.True(rhoCpuWork > 0.3, $"CPU Work rho {rhoCpuWork:F3} too low");
+        Assert.True(rhoCpuGaming > 0.3, $"CPU Gaming rho {rhoCpuGaming:F3} too low");
         Assert.True(rhoGpu > 0.3, $"GPU rho {rhoGpu:F3} too low");
     }
 
     private static double SpearmanForCategory(
-        List<Component> components, Dictionary<Component, double> heuristic, Category category, out int n)
+        List<Component> components, Dictionary<Component, double> heuristic, Category category, string spec, out int n)
     {
         var matched = components
-            .Where(c => c.Category == category && c.TechnicalSpecs.ContainsKey(Spec.BenchmarkScore))
+            .Where(c => c.Category == category && c.TechnicalSpecs.ContainsKey(spec))
             .ToList();
         n = matched.Count;
         if (n < 3) return 0;
 
         var h = matched.Select(c => heuristic[c]).ToArray();
-        var b = matched.Select(c => double.Parse(c.TechnicalSpecs[Spec.BenchmarkScore], CultureInfo.InvariantCulture)).ToArray();
+        var b = matched.Select(c => double.Parse(c.TechnicalSpecs[spec], CultureInfo.InvariantCulture)).ToArray();
         return Spearman(h, b);
     }
 
