@@ -1,5 +1,9 @@
-import pytest
+import json
 
+import pytest
+from openpyxl import load_workbook
+
+import xkom_to_catalog as xk
 from excel_to_catalog import _check_row, COMMON, SHEETS
 from xkom_to_catalog import form_factor, num, socket, to_row
 
@@ -78,3 +82,23 @@ def test_aio_is_a_cooler_with_radiator_class_from_its_fans(features, radiator):
 ])
 def test_unusable_records_are_dropped_with_reason(cat, rec, reason):
     assert to_row(cat, rec) == (None, reason)
+
+
+def test_main_writes_every_sheet_drops_duplicates_and_backs_up_once(monkeypatch, tmp_path):
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    cpu = {"Gniazdo procesora (socket)": "Socket AM5", "Pobór mocy (TDP)": "65 W"}
+    rows = [record(cpu, fullName=name) for name in ("Ryzen A", "Ryzen A", "Ryzen B")]
+    (raw / "Cpu.jsonl").write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8")
+    xlsx, backup = tmp_path / "catalog.xlsx", tmp_path / "catalog.pcpp.xlsx"
+    xlsx.write_bytes(b"previous workbook")
+    monkeypatch.setattr(xk, "RAW", raw)
+    monkeypatch.setattr(xk, "XLSX", xlsx)
+    monkeypatch.setattr(xk, "BACKUP", backup)
+
+    xk.main()
+
+    wb = load_workbook(xlsx)
+    assert backup.read_bytes() == b"previous workbook"
+    assert wb.sheetnames == list(SHEETS)
+    assert [r[0] for r in wb["Cpu"].iter_rows(min_row=2, values_only=True)] == ["Ryzen A", "Ryzen B"]
