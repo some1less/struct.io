@@ -40,9 +40,42 @@ def test_cpu_row_passes_converter_validation():
     assert set(row) == set(COMMON + SHEETS["Cpu"])
 
 
-def test_gpu_tdp_prefers_longest_chip_name():
-    row, _ = to_row("Gpu", record({"Układ graficzny": "GeForce RTX 5060 Ti", "Pamięć": "16 GB"}))
-    assert row["TDP"] == 180
+@pytest.mark.parametrize("chip, tdp", [("GeForce RTX 5060 Ti", 180), ("GeForce RTX 5060", 145),
+                                       ("Radeon™ RX 9070 GRE", 220)])
+def test_gpu_tdp_falls_back_to_the_exact_chip(chip, tdp):
+    row, _ = to_row("Gpu", record({"Układ graficzny": chip, "Długość": "240 mm"}))
+    assert row["TDP"] == tdp
+
+
+@pytest.mark.parametrize("chip", ["Radeon RX 6600 XT", "GeForce GTX 1650 SUPER"])
+def test_gpu_variant_missing_from_the_table_has_no_tdp(chip):
+    assert to_row("Gpu", record({"Układ graficzny": chip, "Długość": "240 mm"})) == (None, "missing TDP")
+
+
+def test_cpu_power_prefers_intel_max_turbo():
+    row, _ = to_row("Cpu", record({"Gniazdo procesora (socket)": "Socket 1700", "Pobór mocy (TDP)": "125 W",
+                                   "Maksymalna Moc Turbo (MTP)": "253 W"}))
+    assert (row["Socket"], row["TDP"]) == ("LGA1700", 253)
+
+
+@pytest.mark.parametrize("cabling, modular", [("Modularny", "Full"), ("Pół modularny", "Semi"), ("Niemodularny", "No")])
+def test_psu_cabling_and_certificate(cabling, modular):
+    row, _ = to_row("Psu", record({"Moc maksymalna": "750 W", "Typ okablowania": cabling, "Standard": "ATX",
+                                   "Certyfikat": "Cybenetics Platinum, 80 PLUS Gold"}))
+    assert (row["Wattage"], row["Modular"], row["Efficiency"], row["FormFactor"]) == (750, modular, "80+ Gold", "ATX")
+
+
+@pytest.mark.parametrize("cat, features", [
+    ("Motherboard", {"Gniazdo procesora": "Socket AM5", "Format": "Micro-ATX", "Typ obsługiwanej pamięci": "DDR5-6000 (OC)",
+                     "Maksymalna wielkość pamięci RAM": "192 GB", "Liczba banków pamięci": "4 x DIMM"}),
+    ("Ram", {"Rodzaj pamięci": "DDR5", "Pojemność całkowita": "32 GB", "Taktowanie": "6000 MHz", "Liczba modułów": "2"}),
+    ("Ssd", {"Pojemność": "1000 GB", "Format": "M.2", "Interfejs": "PCIe NVMe 4.0 x4"}),
+    ("Hdd", {"Pojemność": "2000 GB", "Format": "3.5 \"", "Interfejs": "SATA III"}),
+])
+def test_mapped_rows_pass_converter_validation(cat, features):
+    row, reason = to_row(cat, record(features))
+    assert reason is None
+    assert _check_row(row, SHEETS[cat], f"{cat}, row 2", {}) == []
 
 
 def test_case_and_cooler_sockets_normalised():
@@ -77,6 +110,7 @@ def test_aio_is_a_cooler_with_radiator_class_from_its_fans(features, radiator):
     ("Cpu", record({}, price=None), "no price"),
     ("Motherboard", record({"Gniazdo procesora": "Socket AM5"}), "missing RamType, FormFactor"),
     ("Cpu", record({"Gniazdo procesora (socket)": "Socket AM5"}), "missing TDP"),
+    ("Gpu", record({"Układ graficzny": "GeForce RTX 5060"}), "missing Length"),
     ("Case", record({"Standard płyty głównej": "ATX"}), "missing MaxGpuLength, MaxCoolerHeight"),
     ("Cooler", record({"Kompatybilność": "AM5"}, category="Chłodzenie procesora"), "missing Height"),
 ])

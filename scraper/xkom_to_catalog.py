@@ -66,7 +66,8 @@ def cpu(f, _r):
     return {"Cores": num(first(f, "Liczba rdzeni fizycznych", "Liczba rdzeni")),
             "Threads": num(f.get("Liczba wątków")),
             "BaseClock": clocks[0] if clocks else None, "BoostClock": clocks[-1] if clocks else None,
-            "TDP": num(first(f, "Pobór mocy (TDP)", "TDP")),
+            # Intel's base TDP is well under its sustained turbo draw (MTP), which is what the PSU has to carry
+            "TDP": num(first(f, "Maksymalna Moc Turbo (MTP)", "Pobór mocy (TDP)", "TDP")),
             "Socket": socket(first(f, "Gniazdo procesora (socket)", "Gniazdo procesora")),
             "MemoryType": ddr(f.get("Rodzaj obsługiwanej pamięci"))}
 
@@ -75,9 +76,10 @@ def gpu(f, _r):
     chip = first(f, "Układ graficzny")
     tdp = num(first(f, "Pobór mocy (TDP)", "Pobór mocy"))
     if tdp is None and chip:
-        # longest key first so 'RTX 5060 Ti' wins over 'RTX 5060'
+        # longest key first so 'RTX 5060 Ti' wins over 'RTX 5060'; a variant suffix the table lacks
+        # ('RX 6600 XT', 'GTX 1650 SUPER') must not inherit the base chip's lower power, so it stays unknown
         tdp = next((w for k, w in sorted(GPU_TDP.items(), key=lambda kv: -len(kv[0]))
-                    if k.lower() in chip.lower()), None)
+                    if re.search(rf"(?<!\w){re.escape(k)}(?!\w)(?!\s+(?:ti|super|xtx|xt|gre)\b)", chip, re.I)), None)
     return {"Chipset": chip, "VRAM": num(f.get("Pamięć")),
             "CoreClock": num(first(f, "Taktowanie rdzenia w trybie boost", "Taktowanie rdzenia")),
             "Length": num(f.get("Długość")), "TDP": tdp, "Interface": f.get("Rodzaj złącza")}
@@ -100,7 +102,7 @@ def psu(f, _r):
     std = f.get("Standard") or ""
     cert = re.search(r"80\s*PLUS\s*(\w+)?", f.get("Certyfikat") or "", re.I)
     cabling = (f.get("Typ okablowania") or "").lower()
-    modular = "Semi" if "częściowo" in cabling or "semi" in cabling else (
+    modular = "Semi" if any(s in cabling for s in ("pół", "częściowo", "semi")) else (
         "No" if "niemodu" in cabling or "stał" in cabling else ("Full" if "modu" in cabling else None))
     return {"Wattage": num(f.get("Moc maksymalna")),
             "FormFactor": "SFX-L" if "SFX-L" in std.upper() else ("SFX" if "SFX" in std.upper() else "ATX"),
@@ -136,7 +138,7 @@ def storage(f, _r):
 MAPPERS = {"Cpu": cpu, "Gpu": gpu, "Motherboard": motherboard, "Ram": ram, "Psu": psu, "Case": case,
            "Cooler": cooler, "Ssd": storage, "Hdd": storage}
 # Without these the compatibility rules would silently pass garbage builds.
-CRITICAL = {"Cpu": ["Socket", "TDP"], "Gpu": ["Chipset", "TDP"], "Motherboard": ["Socket", "RamType", "FormFactor"],
+CRITICAL = {"Cpu": ["Socket", "TDP"], "Gpu": ["Chipset", "TDP", "Length"], "Motherboard": ["Socket", "RamType", "FormFactor"],
             "Ram": ["Type", "Capacity"], "Psu": ["Wattage"], "Case": ["MaxGpuLength", "MaxCoolerHeight"],
             "Cooler": ["CpuSockets", "Height"], "Ssd": ["Capacity"], "Hdd": ["Capacity"]}
 
@@ -167,7 +169,10 @@ def main():
         columns = COMMON + SHEETS[cat]
         ws.append(columns)
         path = RAW / f"{cat}.jsonl"
-        records = [json.loads(line) for line in path.open(encoding="utf-8") if line.strip()] if path.exists() else []
+        records = []
+        if path.exists():
+            with path.open(encoding="utf-8") as f:
+                records = [json.loads(line) for line in f if line.strip()]
         names, dropped = set(), {}
         for r in records:
             row, reason = to_row(cat, r)

@@ -40,8 +40,11 @@ def state(path):
             m = re.search(r"window\.__INITIAL_STATE__\['app'\] = ", html)
             return json.JSONDecoder().raw_decode(html[m.end():])[0]
         except Exception as e:
-            print(f"  retry {attempt + 1} {path}: {e}", file=sys.stderr, flush=True)
-            time.sleep(DELAY * 5 * (attempt + 1))
+            print(f"  attempt {attempt + 1} {path}: {e}", file=sys.stderr, flush=True)
+            if getattr(e, "code", None) == 404:
+                return None  # the product is gone; retrying will not bring it back
+            if attempt < 2:
+                time.sleep(DELAY * 5 * (attempt + 1))
         finally:
             time.sleep(DELAY)
     return None
@@ -54,10 +57,12 @@ def listing(path, n):
         s = state(f"{path}?page={page}")
         if not s:
             break
-        ids = [x["id"] for x in s["productsLists"].get("listingContainer", [])]
+        ids = [x["id"] for x in (s.get("productsLists") or {}).get("listingContainer", [])]
+        products = s.get("products") or {}
         for i in ids:
-            found.setdefault(i, s["products"][i]["webUrl"])
-        if not ids or page >= s["listing"].get("totalPages", page):
+            if "webUrl" in (products.get(i) or {}):
+                found.setdefault(i, products[i]["webUrl"])
+        if not ids or page >= (s.get("listing") or {}).get("totalPages", page):
             break
         page += 1
     return list(found.items())[:n]
@@ -81,6 +86,25 @@ def record(pid, p):
     }
 
 
+def saved_ids(out):
+    """Ids already in out. A crash mid-write leaves a torn last line; it is dropped so the file stays valid
+    jsonl and new records start on a clean line, and that product is fetched again."""
+    if not os.path.exists(out):
+        return set()
+    with open(out, encoding="utf-8") as f:
+        lines = [line for line in f if line.strip()]
+    good = []
+    for line in lines:
+        try:
+            good.append(json.loads(line))
+        except ValueError:
+            pass
+    if len(good) < len(lines) or (lines and not lines[-1].endswith("\n")):
+        with open(out, "w", encoding="utf-8") as f:
+            f.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in good)
+    return {r["id"] for r in good}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--per-cat", type=int, default=100)
@@ -88,10 +112,7 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     for cat, sources in CATEGORIES.items():
         out = os.path.join(OUT, f"{cat}.jsonl")
-        done = set()
-        if os.path.exists(out):
-            with open(out, encoding="utf-8") as f:
-                done = {json.loads(line)["id"] for line in f if line.strip()}
+        done = saved_ids(out)
         with open(out, "a", encoding="utf-8") as f:
             for path, share in sources:
                 todo = [(i, url) for i, url in listing(path, round(args.per_cat * share)) if i not in done]
