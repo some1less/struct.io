@@ -14,7 +14,8 @@ test('first load: controls come from /api/config and a complete build renders', 
     'aria-valuemin',
     String(config.minBudget),
   )
-  await expect(page.getByRole('button', { name: 'Gaming' })).toHaveAttribute('aria-pressed', 'true')
+  // exact: build rows are buttons too, and part names like "TUF GAMING" would match
+  await expect(page.getByRole('button', { name: 'Gaming', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByText('Complete build')).toBeVisible()
   await expect(page.getByRole('heading', { name: /the build · 8 parts/i })).toBeVisible()
 })
