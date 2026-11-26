@@ -11,15 +11,6 @@ public class RamParser : IComponentParser
 
     public Category DetermineCategory(JsonNode root) => Category.Ram;
 
-    public Dictionary<string, string> ParseSpecs(JsonNode root)
-    {
-        var ts = root["TechnicalSpecs"];
-        return new Dictionary<string, string>
-        {
-            { Spec.Type, ts?[Spec.Type]?.ToString() ?? "Unknown" },
-            { Spec.Capacity, ts?[Spec.Capacity]?.ToString() ?? "0" },
-            { Spec.Speed, ts?[Spec.Speed]?.ToString() ?? "0" },
-            { Spec.Modules, ts?[Spec.Modules]?.ToString() ?? "1" }
-        };
-    }
+    public Dictionary<string, string> ParseSpecs(JsonNode root) =>
+        SpecCopy.Present(root, Spec.Type, Spec.Capacity, Spec.Speed, Spec.Modules);
 }

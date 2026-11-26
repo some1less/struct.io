@@ -13,7 +13,7 @@ public class DatabaseSeederTests
     // ParseCatalog never touches the database, so the context needs no provider.
     private static readonly DatabaseSeeder Seeder = new(
         new AppDbContext(new DbContextOptions<AppDbContext>()),
-        [new CpuParser(), new StorageParser()],
+        [new CpuParser(), new GpuParser(), new StorageParser()],
         new PriceBoundsSettings { Fallback = new PriceRange { Min = 1, Max = 100_000 } },
         NullLogger<DatabaseSeeder>.Instance);
 
@@ -23,7 +23,7 @@ public class DatabaseSeederTests
         const string json = """
             [
               { "Category": "Cpu", "Name": "AMD Ryzen 5 7600", "Brand": "AMD", "PricePln": "899",
-                "TechnicalSpecs": { "Socket": "AM5" } },
+                "SourceUrl": "https://www.x-kom.pl/p/1.html", "TechnicalSpecs": { "Socket": "AM5" } },
               { "Category": "Hdd", "Name": "Seagate 2TB", "PricePln": "250",
                 "TechnicalSpecs": { "Type": "HDD", "Capacity": "2000" } },
               { "Category": "Fan", "Name": "Some Fan" },
@@ -39,7 +39,26 @@ public class DatabaseSeederTests
         Assert.Equal(Category.Cpu, cpu.Category);
         Assert.Equal(899m, cpu.Price);
         Assert.Equal("DDR5", cpu.TechnicalSpecs[Spec.MemoryType]);
+        Assert.Equal("https://www.x-kom.pl/p/1.html", cpu.SourceUrl);
         Assert.Equal(Category.Hdd, components[1].Category);
+        Assert.Null(components[1].SourceUrl);
+    }
+
+    [Fact]
+    public void ParseCatalog_KeepsGpuChipset_AndLeavesMissingSpecsOut()
+    {
+        const string json = """
+            [
+              { "Category": "Gpu", "Name": "Zotac GeForce RTX 5060 AMP Core 8GB", "Brand": "Zotac", "PricePln": "2399",
+                "TechnicalSpecs": { "Chipset": "GeForce RTX 5060", "VRAM": "8", "TDP": "145", "CoreClock": "" } }
+            ]
+            """;
+
+        var specs = Seeder.ParseCatalog(json).Single().TechnicalSpecs;
+
+        // BenchmarkScores matches PassMark by Chipset first; an absent Length must stay absent, not become "0".
+        Assert.Equal("GeForce RTX 5060", specs[Spec.Chipset]);
+        Assert.Equal([Spec.Chipset, Spec.Vram, Spec.Tdp], specs.Keys);
     }
 
     [Fact]

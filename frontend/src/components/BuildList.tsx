@@ -11,11 +11,12 @@ import {
   Fan,
   ChevronDown,
   Layers,
+  ExternalLink,
   type LucideIcon,
 } from 'lucide-react'
 import type { SlotRecommendation } from '@/lib/types'
 import { SpecSheet } from '@/components/SpecSheet'
-import { categoryLabel, formatPln } from '@/lib/format'
+import { categoryLabel, formatPln, productUrl } from '@/lib/format'
 
 const ICONS: Record<string, LucideIcon> = {
   Cpu,
@@ -78,6 +79,7 @@ function BuildRow({ slot, index }: { slot: SlotRecommendation; index: number }) 
   const color = BAR_COLOR[slot.category] ?? 'var(--accent)'
   const c = top.component
   const pct = Math.round(top.performanceScore * 100)
+  const url = productUrl(c.sourceUrl)
 
   return (
     <motion.li
@@ -142,6 +144,17 @@ function BuildRow({ slot, index }: { slot: SlotRecommendation; index: number }) 
             </div>
 
             <SpecSheet category={slot.category} specs={c.technicalSpecs} />
+
+            {url && (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 font-mono text-[11px] text-fg underline-offset-2 hover:underline"
+              >
+                <ExternalLink size={12} /> View in store
+              </a>
+            )}
 
             {alts.length > 0 && (
               <div>

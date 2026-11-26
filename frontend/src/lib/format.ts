@@ -10,6 +10,11 @@ export function formatPln(value: number): string {
   return plnFmt.format(Math.round(value))
 }
 
+// Components can be created through the open CRUD API, so only plain https links are rendered.
+export function productUrl(url?: string | null): string | null {
+  return url?.startsWith('https://') ? url : null
+}
+
 // Canonical fill order used by the engine (GPU-first for gaming, etc.).
 export const CATEGORY_ORDER = [
   'Cpu',

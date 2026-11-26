@@ -123,7 +123,8 @@ public class DatabaseSeeder
             Category = actualCategory,
             Brand = brand,
             TechnicalSpecs = specs,
-            Price = pricePln
+            Price = pricePln,
+            SourceUrl = root["SourceUrl"]?.ToString() is { Length: > 0 } url ? url : null
         };
     }
 
