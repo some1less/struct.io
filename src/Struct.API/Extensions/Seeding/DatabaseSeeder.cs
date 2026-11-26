@@ -33,13 +33,7 @@ public class DatabaseSeeder
         // Never delete here: BuildComponent → Component cascades, so a reseed would wipe every SavedBuild.
         if (_context.Components.Any()) return;
 
-        if (!File.Exists(baseDirectoryPath))
-            throw new FileNotFoundException(
-                $"Seed catalog not found at '{baseDirectoryPath}'. Generate data/clean_database.json " +
-                "(scraper/xkom_to_catalog.py, then scraper/excel_to_catalog.py) or point Seeding:CatalogPath at one.",
-                baseDirectoryPath);
-
-        var uniqueComponents = PrepareCatalog(await File.ReadAllTextAsync(baseDirectoryPath), benchmarks);
+        var uniqueComponents = PrepareCatalog(await ReadCatalogAsync(baseDirectoryPath), benchmarks);
 
         /* save in batches to prevent database lockups */
         for (int i = 0; i < uniqueComponents.Count; i += BatchSize)
@@ -50,6 +44,16 @@ public class DatabaseSeeder
         }
 
         _logger.LogInformation("Seeded {Count} components.", uniqueComponents.Count);
+    }
+
+    public static async Task<string> ReadCatalogAsync(string path)
+    {
+        if (!File.Exists(path))
+            throw new FileNotFoundException(
+                $"Seed catalog not found at '{path}'. Generate data/clean_database.json " +
+                "(scraper/xkom_to_catalog.py, then scraper/excel_to_catalog.py) or point Seeding:CatalogPath at one.",
+                path);
+        return await File.ReadAllTextAsync(path);
     }
 
     /// <summary>Parsed, de-duplicated by name, PassMark-enriched (the heuristic scores unmatched parts): what gets seeded.</summary>

@@ -89,4 +89,33 @@ public class DatabaseSeederTests
         Assert.Throws<InvalidDataException>(() =>
             Seeder.PrepareCatalog("""[{ "Category": "Gpu", "Name": "No price", "TechnicalSpecs": {} }]""", null));
     }
+
+    [Fact]
+    public void ParseCatalog_RowWithoutTechnicalSpecs_GetsNoSpecs()
+    {
+        var gpu = Seeder.ParseCatalog("""[{ "Category": "Gpu", "Name": "Bare", "PricePln": "999" }]""").Single();
+
+        Assert.Empty(gpu.TechnicalSpecs);
+    }
+
+    [Fact]
+    public async Task ReadCatalogAsync_MissingFile_SaysWhereItLookedAndHowToFixIt()
+    {
+        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "clean_database.json");
+
+        var error = await Assert.ThrowsAsync<FileNotFoundException>(() => DatabaseSeeder.ReadCatalogAsync(path));
+
+        Assert.Contains(path, error.Message);
+        Assert.Contains("Seeding:CatalogPath", error.Message);
+    }
+
+    [Fact]
+    public async Task ReadCatalogAsync_ReturnsTheFileText()
+    {
+        var path = Path.GetTempFileName();
+        await File.WriteAllTextAsync(path, "[]");
+
+        Assert.Equal("[]", await DatabaseSeeder.ReadCatalogAsync(path));
+        File.Delete(path);
+    }
 }
