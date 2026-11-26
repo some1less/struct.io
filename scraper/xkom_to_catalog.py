@@ -120,7 +120,7 @@ def case(f, _r):
 
 def cooler(f, r):
     water = "wodn" in (r.get("category") or "").lower()
-    fans = re.search(r"(\d+)\s*x\s*(\d+)\s*mm", f.get("Liczba wentylatorów") or "")
+    fans = re.search(r"(\d+) ?x ?(\d+) ?mm", f.get("Liczba wentylatorów") or "")
     if water and not (f.get("Rozmiar radiatora") or fans):
         return None  # custom-loop parts (blocks, pumps, fittings) are not a CPU cooler on their own
     sockets = [socket(s) for s in re.split(r"[,;/]", f.get("Kompatybilność") or "")]
