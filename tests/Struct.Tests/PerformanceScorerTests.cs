@@ -100,11 +100,22 @@ public class PerformanceScorerTests
     // ---- Benchmark-backed scoring (Phase 3a part 2) ----
 
     [Fact]
-    public void Cpu_WithBenchmarkScore_UsesIt_OverHeuristic()
+    public void Cpu_WithBenchmarkScores_Work_UsesMultiThread_GamingAndOffice_UseSingleThread()
     {
-        // BenchmarkScore is a pre-normalized 0..1 ratio; the scorer applies the √ curve for UX parity.
-        Component c = ComponentBuilder.New(Category.Cpu, "anything").Spec("BenchmarkScore", "0.25");
-        Assert.Equal(0.5, _scorer.CalculateScore(c, Purpose.Gaming), precision: 6); // sqrt(0.25)
+        // Both are pre-normalized 0..1 ratios; the scorer applies the √ curve for UX parity.
+        Component c = ComponentBuilder.New(Category.Cpu, "anything")
+            .Spec("BenchmarkScore", "0.25").Spec("SingleThreadScore", "0.81");
+        Assert.Equal(0.5, _scorer.CalculateScore(c, Purpose.Work), precision: 6);   // sqrt(0.25)
+        Assert.Equal(0.9, _scorer.CalculateScore(c, Purpose.Gaming), precision: 6); // sqrt(0.81)
+        Assert.Equal(0.9, _scorer.CalculateScore(c, Purpose.Office), precision: 6);
+    }
+
+    [Fact]
+    public void Cpu_Gaming_WithoutSingleThreadScore_IgnoresMultiThread_FallsBackToHeuristic()
+    {
+        var c = X3dCpu();
+        c.TechnicalSpecs["BenchmarkScore"] = "0.01";
+        Assert.Equal(_scorer.CalculateScore(X3dCpu(), Purpose.Gaming), _scorer.CalculateScore(c, Purpose.Gaming), precision: 6);
     }
 
     [Fact]

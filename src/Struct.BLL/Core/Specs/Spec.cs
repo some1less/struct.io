@@ -55,4 +55,7 @@ public static class Spec
 
     /// <summary>Per-category 0..1 PassMark ratio written at seed time by <c>BenchmarkScores</c>.</summary>
     public const string BenchmarkScore = "BenchmarkScore";
+
+    /// <summary>CPU-only 0..1 PassMark single-thread ratio written at seed time by <c>BenchmarkScores</c>.</summary>
+    public const string SingleThreadScore = "SingleThreadScore";
 }

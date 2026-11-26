@@ -36,7 +36,8 @@ public class PerformanceScorer : IPerformanceScorer
 
     private double ScoreCpu(Dictionary<string, string> specs, string name, bool isWork)
     {
-        if (TryBenchmarkScore(specs, out var benchmark)) return benchmark;
+        // Games and office apps lean on per-core speed, Work (render/compile) on all cores.
+        if (TryBenchmarkScore(specs, isWork ? Spec.BenchmarkScore : Spec.SingleThreadScore, out var benchmark)) return benchmark;
 
         double cores = SpecReader.GetNumber(specs, Spec.Cores, 4);
         double threads = SpecReader.GetNumber(specs, Spec.Threads, 4);
@@ -76,7 +77,7 @@ public class PerformanceScorer : IPerformanceScorer
 
     private double ScoreGpu(Dictionary<string, string> specs, string name, bool isWork)
     {
-        if (TryBenchmarkScore(specs, out var benchmark)) return benchmark;
+        if (TryBenchmarkScore(specs, Spec.BenchmarkScore, out var benchmark)) return benchmark;
 
         double vram = SpecReader.GetNumber(specs, Spec.Vram, 4);
         if (vram == 0) vram = 4; // Fallback for strict minimum VRAM
@@ -224,10 +225,10 @@ public class PerformanceScorer : IPerformanceScorer
 
     // Benchmark-backed score: a pre-normalized 0..1 PassMark ratio stored at seed time. The √ curve
     // matches the heuristic's Normalize so matched and (rare) unmatched parts stay roughly comparable.
-    private static bool TryBenchmarkScore(Dictionary<string, string> specs, out double score)
+    private static bool TryBenchmarkScore(Dictionary<string, string> specs, string spec, out double score)
     {
         score = 0;
-        if (specs.TryGetValue(Spec.BenchmarkScore, out var raw) &&
+        if (specs.TryGetValue(spec, out var raw) &&
             double.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, out var ratio))
         {
             score = Math.Sqrt(Math.Clamp(ratio, 0.0, 1.0));
