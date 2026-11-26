@@ -19,6 +19,30 @@ public class BuildSolverTests
         Assert.Empty(solution.FailedSlots);
         Assert.Equal(8, solution.Build.Components.Count());
         Assert.True(solution.TotalPrice <= problem.Budget);
+        Assert.False(solution.TimedOut);
+    }
+
+    [Fact]
+    public void Exact_PrefersACompleteBuild_OverAHigherScoringPartialOne()
+    {
+        // At 8500 the 4090 only fits if the case is dropped; a build without a case is not a PC.
+        var problem = Engines.Problem(CatalogFactory.UpgradableCatalog(), 8500m);
+
+        var solution = Engines.Exact().Solve(problem);
+
+        Assert.Empty(solution.FailedSlots);
+        Assert.Contains("4060", solution.Build.Gpu!.Name);
+    }
+
+    [Fact]
+    public void Exact_PastItsTimeLimit_StopsAndFlagsTheSolution()
+    {
+        var problem = Engines.Problem(CatalogFactory.FullCoherentCatalog(), 12000m);
+
+        var solution = Engines.Exact(TestConfig.ExactSolver with { TimeLimit = TimeSpan.Zero }).Solve(problem);
+
+        Assert.True(solution.TimedOut);
+        Assert.Empty(solution.Build.Components);
     }
 
     [Fact]

@@ -22,7 +22,8 @@ public static class Engines
     public static GreedyLocalSearchSolver GreedyLocalSearch(RecommendationSettings? settings = null) =>
         new(Greedy(settings), Compat(), Objective());
 
-    public static ExactBuildSolver Exact() => new(Compat(), Objective(), Scorer, TestConfig.ExactSolver);
+    public static ExactBuildSolver Exact(ExactSolverSettings? settings = null) =>
+        new(Compat(), Objective(), Scorer, settings ?? TestConfig.ExactSolver);
 
     public static RecommendationEngine Recommendation(IEnumerable<Component> catalog, RecommendationSettings? settings = null) =>
         new(new StubComponentRepository(catalog), GreedyLocalSearch(settings), Scorer, settings ?? TestConfig.Recommendation);

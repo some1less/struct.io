@@ -30,6 +30,9 @@ npm run test:e2e
 python excel_to_catalog.py --snapshot-date YYYY-MM-DD      # data/catalog.xlsx -> data/clean_database.json
 pytest
 
+# Evaluation harness: greedy vs greedy+LS vs exact grid + TopK/λ sweeps → data/eval/*.csv (gitignored)
+dotnet run -c Release --project tools/Struct.Evaluation [path/to/clean_database.json]
+
 # HTTP smoke checks against a running API
 scripts/smoke.sh [http://localhost:8080]
 

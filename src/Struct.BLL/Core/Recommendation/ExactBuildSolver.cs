@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation.Models;
 using Struct.BLL.Core.Scoring;
@@ -53,24 +54,38 @@ public class ExactBuildSolver : IBuildSolver
             suffix[i] = suffix[i + 1] + weights[categories[i]] * bestScore[categories[i]];
 
         var bestBuild = new BuildContext();
+        int bestFilled = -1;
         double bestObjective = double.NegativeInfinity;
+        var clock = Stopwatch.StartNew();
+        bool timedOut = false;
 
-        void Recurse(int idx, BuildContext partial, decimal spent, double weightedSoFar)
+        void Recurse(int idx, BuildContext partial, decimal spent, double weightedSoFar, int filled)
         {
+            if (timedOut || clock.Elapsed >= _settings.TimeLimit)
+            {
+                timedOut = true;
+                return;
+            }
+
+            // A missing slot outweighs any score: builds rank by filled slots first, objective second.
+            int reachable = filled + n - idx;
+            if (reachable < bestFilled) return;
+
+            // Optimistic upper bound: even if every remaining slot scored its best and no penalty
+            // applied, this branch could not beat the incumbent ⇒ prune.
+            if (reachable == bestFilled && weightedSoFar + suffix[idx] <= bestObjective) return;
+
             if (idx == n)
             {
                 double obj = _objective.Evaluate(partial, weights, purpose);
-                if (obj > bestObjective)
+                if (filled > bestFilled || obj > bestObjective)
                 {
+                    bestFilled = filled;
                     bestObjective = obj;
                     bestBuild = partial.Clone();
                 }
                 return;
             }
-
-            // Optimistic upper bound: even if every remaining slot scored its best and no penalty
-            // applied, this branch could not beat the incumbent ⇒ prune.
-            if (weightedSoFar + suffix[idx] <= bestObjective) return;
 
             var cat = categories[idx];
             foreach (var candidate in pools[cat])
@@ -81,18 +96,19 @@ public class ExactBuildSolver : IBuildSolver
                 var next = partial.Clone();
                 next.Assign(candidate);
                 Recurse(idx + 1, next, spent + candidate.Price,
-                    weightedSoFar + weights[cat] * _scorer.CalculateScore(candidate, purpose));
+                    weightedSoFar + weights[cat] * _scorer.CalculateScore(candidate, purpose), filled + 1);
             }
 
-            // Leave this category empty: only ever wins when no candidate is feasible, keeping the
-            // solver robust enough to return the best partial build when a full build is impossible.
-            Recurse(idx + 1, partial, spent, weightedSoFar);
+            // Leave this category empty: wins only when no build fills more slots, so an unaffordable
+            // budget still returns the best partial build.
+            Recurse(idx + 1, partial, spent, weightedSoFar, filled);
         }
 
-        Recurse(0, new BuildContext(), 0m, 0.0);
+        Recurse(0, new BuildContext(), 0m, 0.0, 0);
         return new BuildSolution
         {
             Build = bestBuild,
+            TimedOut = timedOut,
             AllocatedBudgets = weights.ToDictionary(w => w.Key, w => budget * (decimal)w.Value),
             FailedSlots = categories.Where(c => bestBuild[c] == null)
                 .Select(c => new FailedSlot

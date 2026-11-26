@@ -35,15 +35,7 @@ public class DatabaseSeeder
         // Never delete here: BuildComponent → Component cascades, so a reseed would wipe every SavedBuild.
         if (_context.Components.Any()) return;
 
-        var componentsToAdd = ParseCatalog(await File.ReadAllTextAsync(baseDirectoryPath));
-
-        /* filter duplicates */
-        var uniqueComponents = componentsToAdd
-            .DistinctBy(c => c.Name)
-            .ToList();
-
-        /* enrich CPU/GPU with real PassMark scores (heuristic stays as fallback for unmatched parts) */
-        benchmarks?.Enrich(uniqueComponents);
+        var uniqueComponents = PrepareCatalog(await File.ReadAllTextAsync(baseDirectoryPath), benchmarks);
 
         /* save in batches to prevent database lockups */
         for (int i = 0; i < uniqueComponents.Count; i += BatchSize)
@@ -54,6 +46,14 @@ public class DatabaseSeeder
         }
 
         _logger.LogInformation("Seeded {Count} components.", uniqueComponents.Count);
+    }
+
+    /// <summary>Parsed, de-duplicated by name, PassMark-enriched (the heuristic scores unmatched parts): what gets seeded.</summary>
+    public List<Component> PrepareCatalog(string json, BenchmarkScores? benchmarks)
+    {
+        var components = ParseCatalog(json).DistinctBy(c => c.Name).ToList();
+        benchmarks?.Enrich(components);
+        return components;
     }
 
     public List<Component> ParseCatalog(string json)
