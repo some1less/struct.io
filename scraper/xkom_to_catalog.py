@@ -62,7 +62,9 @@ def first(f, *keys):
 
 
 def cpu(f, _r):
-    clocks = [num(c) for c in re.findall(r"\d+(?:[.,]\d+)?\s*GHz", first(f, "Taktowanie rdzenia") or "")]
+    # the number right before each 'GHz': '4.2 GHz (5.0 GHz w trybie turbo)' -> [4.2, 5.0]
+    before_ghz = (first(f, "Taktowanie rdzenia") or "").split("GHz")[:-1]
+    clocks = [c for c in (num(p.split()[-1]) for p in before_ghz if p.split()) if c is not None]
     return {"Cores": num(first(f, "Liczba rdzeni fizycznych", "Liczba rdzeni")),
             "Threads": num(f.get("Liczba wątków")),
             "BaseClock": clocks[0] if clocks else None, "BoostClock": clocks[-1] if clocks else None,
@@ -120,14 +122,16 @@ def case(f, _r):
 
 def cooler(f, r):
     water = "wodn" in (r.get("category") or "").lower()
-    fans = re.search(r"(\d+) ?x ?(\d+) ?mm", f.get("Liczba wentylatorów") or "")
-    if water and not (f.get("Rozmiar radiatora") or fans):
+    # radiator class from its fans ('3x 120 mm' -> 360); x-kom's radiator size is the outer dimension (396 mm)
+    count, _, size = (f.get("Liczba wentylatorów") or "").partition("x")
+    count, size = num(count), num(size)
+    radiator = count * size if count and size else None
+    if water and not (f.get("Rozmiar radiatora") or radiator):
         return None  # custom-loop parts (blocks, pumps, fittings) are not a CPU cooler on their own
     sockets = [socket(s) for s in re.split(r"[,;/]", f.get("Kompatybilność") or "")]
-    # radiator class from its fans ('3x 120 mm' -> 360); x-kom's radiator size is the outer dimension (396 mm)
     return {"CpuSockets": ", ".join(dict.fromkeys(s for s in sockets if s)) or None,
             "Height": None if water else num(f.get("Wysokość")),
-            "WaterCooled": water, "RadiatorSize": int(fans[1]) * int(fans[2]) if water and fans else None}
+            "WaterCooled": water, "RadiatorSize": radiator if water else None}
 
 
 def storage(f, _r):
