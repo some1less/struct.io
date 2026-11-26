@@ -22,6 +22,9 @@ public static class Engines
     public static GreedyLocalSearchSolver GreedyLocalSearch(RecommendationSettings? settings = null) =>
         new(Greedy(settings), Compat(), Objective());
 
+    public static GreedyLocalSearchSolver GreedyLocalSearch(IPerformanceScorer scorer) =>
+        new(new GreedySolver(Compat(), scorer, TestConfig.Recommendation), Compat(), new BuildObjective(scorer, TestConfig.Objective));
+
     public static ExactBuildSolver Exact(ExactSolverSettings? settings = null) =>
         new(Compat(), Objective(), Scorer, settings ?? TestConfig.ExactSolver);
 

@@ -5,8 +5,9 @@ using Struct.DAL.Models;
 namespace Struct.BLL.Core.Recommendation;
 
 /// <summary>
-/// Greedy construction, then an upgrade pass: repeatedly applies the single slot swap that most increases
-/// <see cref="BuildObjective"/> while the build stays within budget and compatible. Spends what greedy left over.
+/// Greedy construction, then an upgrade pass: repeatedly applies the slot swap that raises <see cref="BuildObjective"/>
+/// most per extra złoty while the build stays within budget and compatible. A swap that costs nothing extra is a pure
+/// win and goes first. Spends what greedy left over where it buys the most, not on one pricey part with a tiny gain.
 /// </summary>
 public class GreedyLocalSearchSolver : IBuildSolver
 {
@@ -33,7 +34,7 @@ public class GreedyLocalSearchSolver : IBuildSolver
         {
             improved = false;
             double currentObjective = _objective.Evaluate(build, weights, problem.Purpose);
-            double bestDelta = 0;
+            (int Free, double Gain) bestRank = default;
             Component? bestSwap = null;
 
             foreach (var category in problem.Profile.Sequence)
@@ -52,10 +53,13 @@ public class GreedyLocalSearchSolver : IBuildSolver
                     var trial = build.Clone();
                     trial.Assign(candidate);
                     double delta = _objective.Evaluate(trial, weights, problem.Purpose) - currentObjective;
+                    if (delta <= 0) continue;
 
-                    if (delta > bestDelta)
+                    decimal extra = candidate.Price - chosen.Price;
+                    var rank = extra <= 0 ? (1, delta) : (0, delta / (double)extra);
+                    if (rank.CompareTo(bestRank) > 0)
                     {
-                        bestDelta = delta;
+                        bestRank = rank;
                         bestSwap = candidate;
                     }
                 }
