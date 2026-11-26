@@ -71,9 +71,13 @@ def fetch(kind):
     return kept
 
 
-if __name__ == "__main__":
+def main(kinds):
     print("=== Refreshing PassMark benchmark CSVs (live, current) ===")
     os.makedirs(OUT_DIR, exist_ok=True)
-    for kind in sys.argv[1:] or ("cpu", "gpu"):
+    for kind in kinds or ("cpu", "gpu"):
         fetch(kind)
     print("=== DONE ===")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
