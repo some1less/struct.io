@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Struct.DAL.Models;
 using Struct.BLL.Core.Specs;
 
@@ -204,5 +203,5 @@ public class CompatibilityEngine : ICompatibilityEngine
     }
 
     // "Micro-ATX", "Micro ATX" and a list-repr entry like "['Micro ATX'" all become "MICROATX".
-    private static string FormFactorKey(string s) => Regex.Replace(s, "[^A-Za-z0-9]", "").ToUpperInvariant();
+    private static string FormFactorKey(string s) => new string(s.Where(char.IsLetterOrDigit).ToArray()).ToUpperInvariant();
 }
