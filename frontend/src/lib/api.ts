@@ -44,7 +44,8 @@ export async function getRecommendation(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req),
     })
-    if (!res.ok) {
+    // 422 carries a partial build (failedSlots), not an error
+    if (!res.ok && res.status !== 422) {
       const body = await res.json().catch(() => ({}))
       throw new Error(body?.message ?? `Request failed (${res.status})`)
     }
