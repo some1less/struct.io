@@ -10,7 +10,7 @@ export function formatPln(value: number): string {
   return plnFmt.format(Math.round(value))
 }
 
-// Components can be created through the open CRUD API, so only plain https links are rendered.
+// Rendered as a link, so anything but https (e.g. a javascript: URL in a hand-edited catalog) is dropped.
 export function productUrl(url?: string | null): string | null {
   return url?.startsWith('https://') ? url : null
 }

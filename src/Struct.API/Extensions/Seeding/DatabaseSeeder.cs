@@ -33,6 +33,12 @@ public class DatabaseSeeder
         // Never delete here: BuildComponent → Component cascades, so a reseed would wipe every SavedBuild.
         if (_context.Components.Any()) return;
 
+        if (!File.Exists(baseDirectoryPath))
+            throw new FileNotFoundException(
+                $"Seed catalog not found at '{baseDirectoryPath}'. Generate data/clean_database.json " +
+                "(scraper/xkom_to_catalog.py, then scraper/excel_to_catalog.py) or point Seeding:CatalogPath at one.",
+                baseDirectoryPath);
+
         var uniqueComponents = PrepareCatalog(await File.ReadAllTextAsync(baseDirectoryPath), benchmarks);
 
         /* save in batches to prevent database lockups */
@@ -50,6 +56,9 @@ public class DatabaseSeeder
     public List<Component> PrepareCatalog(string json, BenchmarkScores? benchmarks)
     {
         var components = ParseCatalog(json).DistinctBy(c => c.Name).ToList();
+        // An API that starts on an empty catalog looks healthy and then fails every recommendation.
+        if (components.Count == 0)
+            throw new InvalidDataException("Seed catalog has no usable rows: each needs a known Category and a PricePln > 0.");
         benchmarks?.Enrich(components);
         return components;
     }

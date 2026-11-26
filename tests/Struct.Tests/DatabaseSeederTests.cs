@@ -82,4 +82,11 @@ public class DatabaseSeederTests
     {
         Assert.Throws<InvalidDataException>(() => Seeder.ParseCatalog("null"));
     }
+
+    [Fact]
+    public void PrepareCatalog_WithNoUsableRows_Throws()
+    {
+        Assert.Throws<InvalidDataException>(() =>
+            Seeder.PrepareCatalog("""[{ "Category": "Gpu", "Name": "No price", "TechnicalSpecs": {} }]""", null));
+    }
 }
