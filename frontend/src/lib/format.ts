@@ -10,6 +10,11 @@ export function formatPln(value: number): string {
   return plnFmt.format(Math.round(value))
 }
 
+// Rendered as a link, so anything but https (e.g. a javascript: URL in a hand-edited catalog) is dropped.
+export function productUrl(url?: string | null): string | null {
+  return url?.startsWith('https://') ? url : null
+}
+
 // Canonical fill order used by the engine (GPU-first for gaming, etc.).
 export const CATEGORY_ORDER = [
   'Cpu',

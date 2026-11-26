@@ -11,6 +11,7 @@ jobs:
       POSTGRES_DB: struct_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      STRUCT_CATALOG_DIR: ./tests/fixtures
     steps:
       - uses: actions/checkout@v4
       - name: Start API and database

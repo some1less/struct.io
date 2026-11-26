@@ -22,15 +22,6 @@ public class StorageParser : IComponentParser
         return Category.Ssd;
     }
 
-    public Dictionary<string, string> ParseSpecs(JsonNode root)
-    {
-        var ts = root["TechnicalSpecs"];
-        return new Dictionary<string, string>
-        {
-            { Spec.Capacity, ts?[Spec.Capacity]?.ToString() ?? "0" },
-            { Spec.FormFactor, ts?[Spec.FormFactor]?.ToString() ?? "Unknown" },
-            { Spec.Interface, ts?[Spec.Interface]?.ToString() ?? "Unknown" },
-            { Spec.Type, ts?[Spec.Type]?.ToString() ?? "Unknown" }
-        };
-    }
+    public Dictionary<string, string> ParseSpecs(JsonNode root) =>
+        SpecCopy.Present(root, Spec.Capacity, Spec.FormFactor, Spec.Interface, Spec.Type);
 }

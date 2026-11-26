@@ -10,15 +10,6 @@ public class CoolerParser : IComponentParser
 
     public Category DetermineCategory(JsonNode root) => Category.Cooler;
 
-    public Dictionary<string, string> ParseSpecs(JsonNode root)
-    {
-        var ts = root["TechnicalSpecs"];
-        return new Dictionary<string, string>
-        {
-            { Spec.CpuSockets, ts?[Spec.CpuSockets]?.ToString() ?? "Unknown" },
-            { Spec.Height, ts?[Spec.Height]?.ToString() ?? "0" },
-            { Spec.WaterCooled, ts?[Spec.WaterCooled]?.ToString() ?? "False" },
-            { Spec.RadiatorSize, ts?[Spec.RadiatorSize]?.ToString() ?? "0" }
-        };
-    }
+    public Dictionary<string, string> ParseSpecs(JsonNode root) =>
+        SpecCopy.Present(root, Spec.CpuSockets, Spec.Height, Spec.WaterCooled, Spec.RadiatorSize);
 }

@@ -20,6 +20,7 @@ export interface ComponentDto {
   category: string
   brand: string
   price: number
+  sourceUrl?: string | null
   technicalSpecs: Record<string, string>
 }
 

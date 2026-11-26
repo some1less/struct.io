@@ -16,6 +16,9 @@ public class Component
 
     public decimal Price { get; set; }
 
+    /// <summary>Shop product page the price was taken from; null for parts added by hand.</summary>
+    public string? SourceUrl { get; set; }
+
     /* reversed connection */
     public ICollection<BuildComponent> BuildComponents { get; set; } = new List<BuildComponent>();
 }

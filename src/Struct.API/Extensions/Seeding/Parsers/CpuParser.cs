@@ -10,20 +10,6 @@ public class CpuParser : IComponentParser
 
     public Category DetermineCategory(JsonNode root) => Category.Cpu;
 
-    public Dictionary<string, string> ParseSpecs(JsonNode root)
-    {
-        var ts = root["TechnicalSpecs"];
-        var memoryType = ts?[Spec.MemoryType]?.ToString() ?? "Unknown";
-
-        return new Dictionary<string, string>
-        {
-            { Spec.Cores, ts?[Spec.Cores]?.ToString() ?? "0" },
-            { Spec.Threads, ts?[Spec.Threads]?.ToString() ?? "0" },
-            { Spec.BaseClock, ts?[Spec.BaseClock]?.ToString() ?? "0" },
-            { Spec.BoostClock, ts?[Spec.BoostClock]?.ToString() ?? "0" },
-            { Spec.Tdp, ts?[Spec.Tdp]?.ToString() ?? "0" },
-            { Spec.Socket, ts?[Spec.Socket]?.ToString() ?? "Unknown" },
-            { Spec.MemoryType, memoryType }
-        };
-    }
+    public Dictionary<string, string> ParseSpecs(JsonNode root) =>
+        SpecCopy.Present(root, Spec.Cores, Spec.Threads, Spec.BaseClock, Spec.BoostClock, Spec.Tdp, Spec.Socket, Spec.MemoryType);
 }

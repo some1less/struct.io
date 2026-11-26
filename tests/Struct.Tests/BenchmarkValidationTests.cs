@@ -18,12 +18,12 @@ public class BenchmarkValidationTests
     private readonly ITestOutputHelper _out;
     public BenchmarkValidationTests(ITestOutputHelper output) => _out = output;
 
-    [Fact]
+    [LocalCatalogFact]
     public void Heuristic_PositivelyCorrelatesWith_PassMark_ForCpusAndGpus()
     {
         var root = RepoRoot();
         var seedDir = Path.Combine(root, "src", "Struct.API", "Extensions", "Seeding");
-        var components = LoadCatalog(Path.Combine(seedDir, "clean-db", "clean_database.json"));
+        var components = LoadCatalog(LocalCatalogFactAttribute.CatalogPath);
         var bench = BenchmarkScores.FromCsvFiles(
             Path.Combine(seedDir, "benchmarks", "CPU_benchmark_v4.csv"),
             Path.Combine(seedDir, "benchmarks", "GPU_benchmarks_v7.csv"));
@@ -127,5 +127,16 @@ public class BenchmarkValidationTests
         while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Struct.sln")))
             dir = dir.Parent;
         return dir?.FullName ?? throw new DirectoryNotFoundException("Could not locate repo root (Struct.sln).");
+    }
+}
+
+/// <summary>A fact over the real catalog: data/ is the author's dataset and stays out of git, so CI skips it.</summary>
+public sealed class LocalCatalogFactAttribute : FactAttribute
+{
+    public static string CatalogPath => Path.Combine(BenchmarkValidationTests.RepoRoot(), "data", "clean_database.json");
+
+    public LocalCatalogFactAttribute()
+    {
+        if (!File.Exists(CatalogPath)) Skip = "needs the local catalog data/clean_database.json";
     }
 }

@@ -11,16 +11,6 @@ public class GpuParser : IComponentParser
 
     public Category DetermineCategory(JsonNode root) => Category.Gpu;
 
-    public Dictionary<string, string> ParseSpecs(JsonNode root)
-    {
-        var ts = root["TechnicalSpecs"];
-        return new Dictionary<string, string>
-        {
-            { Spec.Vram, ts?[Spec.Vram]?.ToString() ?? "0" },
-            { Spec.CoreClock, ts?[Spec.CoreClock]?.ToString() ?? "0" },
-            { Spec.Length, ts?[Spec.Length]?.ToString() ?? "0" },
-            { Spec.Tdp, ts?[Spec.Tdp]?.ToString() ?? "0" },
-            { Spec.Interface, ts?[Spec.Interface]?.ToString() ?? "Unknown" }
-        };
-    }
+    public Dictionary<string, string> ParseSpecs(JsonNode root) =>
+        SpecCopy.Present(root, Spec.Chipset, Spec.Vram, Spec.CoreClock, Spec.Length, Spec.Tdp, Spec.Interface);
 }
