@@ -74,6 +74,8 @@ The catalog comes from x-kom.pl: `scraper/fetch_xkom.py` crawls it into `data/xk
 - **GitHub flow:** work on a branch, open a PR into `main`, merge only when CI (`.github/workflows/ci.yml` orchestrates reusable `secrets.yml`, `backend.yml`, `frontend.yml`, `scraper.yml`, `e2e.yml`; the single required check is `CI result`; `sonar.yml` (SonarQube Cloud, project `some1less_struct.io`) is informational and not part of it) is green. The user merges.
 - **npm on macOS drops Linux-only optional deps (`@emnapi/*`) from `package-lock.json`**, which breaks `npm ci` in CI. After any `npm install`, regenerate the lock in Linux: `docker run --rm -v <copy-of-frontend>:/app -w /app node:24 npm install --package-lock-only`, then confirm `npm ci --dry-run` there.
 - **Commits: never add Claude as co-author.** No `Co-Authored-By: Claude` trailer and no "Generated with Claude Code" lines in commit messages or PR bodies.
+- **PR descriptions:** plain sections `What`, `Why`, `Not Done` (optional), `Out of Scope` (optional), `Next`. Short bullets, nothing else.
+- **Replies: ~80% ASD-STE100, ~20% softening.** Write in the style of ASD-STE100 Simplified Technical English (short sentences, one idea per sentence, active voice, simple words, no idioms), in the language the user writes in. Use about a fifth for softening: a friendly connector or a short human note.
 
 ## Active refactoring context
 
