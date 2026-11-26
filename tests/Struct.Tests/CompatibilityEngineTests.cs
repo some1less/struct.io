@@ -174,6 +174,22 @@ public class CompatibilityEngineTests
         Assert.True(_engine.CheckCompatibility(build, pcCase).IsCompatible);
     }
 
+    [Theory]
+    [InlineData("ATX", "Micro ATX, Mini ITX", false)]   // "MICROATX" contains "ATX": a substring test let this through
+    [InlineData("EATX", "Micro ATX, Mini ITX", false)]
+    [InlineData("Micro ATX", "ATX, Micro-ATX, Mini-ITX", true)]
+    [InlineData("Mini ITX", "['ATX', 'Micro ATX', 'Mini ITX']", true)]
+    public void Clearance_BoardFormFactor_MatchesWholeCaseEntries(string board, string caseBoards, bool fits)
+    {
+        var build = new BuildContext
+        {
+            Motherboard = ComponentBuilder.New(Category.Motherboard, "Board").Spec("FormFactor", board)
+        };
+        Component pcCase = ComponentBuilder.New(Category.Case, "Case").Spec("SupportedMotherboards", caseBoards);
+
+        Assert.Equal(fits, _engine.CheckCompatibility(build, pcCase).IsCompatible);
+    }
+
     [Fact]
     public void Clearance_GpuLongerThanCase_IsRejected()
     {

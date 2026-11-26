@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Struct.DAL.Models;
 using Struct.BLL.Core.Specs;
 
@@ -183,25 +184,16 @@ public class CompatibilityEngine : ICompatibilityEngine
 
             if (moboForm != null && caseSupported != null)
             {
+                // Whole entries only: a substring test let an ATX board into a case listing just "Micro ATX".
                 var supported = caseSupported.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(s => s.Replace(" ", "").ToUpperInvariant())
-                    .ToList();
-                
-                string cleanMoboForm = moboForm.Replace(" ", "").ToUpperInvariant();
-                
-                if (!supported.Contains(cleanMoboForm) && !caseSupported.Replace(" ", "").ToUpperInvariant().Contains(cleanMoboForm))
-                {
-                    // Special case for EATX: database doesn't explicitly mark cases with EATX support, 
-                    // so we allow EATX boards to fit in any ATX case to avoid bricking high-end builds.
-                    if (cleanMoboForm == "EATX" && caseSupported.ToUpperInvariant().Contains("ATX"))
-                    {
-                        // Allow
-                    }
-                    else
-                    {
-                        result.Violations.Add($"Form Factor mismatch: Case does not support {moboForm} motherboards.");
-                    }
-                }
+                    .Select(FormFactorKey)
+                    .ToHashSet();
+                string cleanMoboForm = FormFactorKey(moboForm);
+
+                // EATX boards are allowed into any ATX case: the data rarely marks EATX support explicitly.
+                bool fits = supported.Contains(cleanMoboForm) || (cleanMoboForm == "EATX" && supported.Contains("ATX"));
+                if (!fits)
+                    result.Violations.Add($"Form Factor mismatch: Case does not support {moboForm} motherboards.");
             }
         }
     }
@@ -210,4 +202,7 @@ public class CompatibilityEngine : ICompatibilityEngine
     {
         return s1.Replace(" ", "").Equals(s2.Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
     }
+
+    // "Micro-ATX", "Micro ATX" and a list-repr entry like "['Micro ATX'" all become "MICROATX".
+    private static string FormFactorKey(string s) => Regex.Replace(s, "[^A-Za-z0-9]", "").ToUpperInvariant();
 }
