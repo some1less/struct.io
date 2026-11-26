@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json.Nodes;
 using Struct.API.Extensions.Seeding.Parsers;
 using Struct.BLL.Core.Scoring.Benchmarks;
@@ -11,7 +12,6 @@ public class DatabaseSeeder
 {
     private readonly AppDbContext _context;
     private readonly IEnumerable<IComponentParser> _parsers;
-    private readonly PriceBoundsSettings _priceBounds;
     private readonly ILogger<DatabaseSeeder> _logger;
     private const int BatchSize = 1000;
 
@@ -21,12 +21,10 @@ public class DatabaseSeeder
         ["Case"] = "PCCase", ["Cooler"] = "CPUCooler", ["Ssd"] = "Storage", ["Hdd"] = "Storage"
     };
 
-    public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers, PriceBoundsSettings priceBounds,
-        ILogger<DatabaseSeeder> logger)
+    public DatabaseSeeder(AppDbContext context, IEnumerable<IComponentParser> parsers, ILogger<DatabaseSeeder> logger)
     {
         _context = context;
         _parsers = parsers;
-        _priceBounds = priceBounds;
         _logger = logger;
     }
 
@@ -68,14 +66,15 @@ public class DatabaseSeeder
             var category = root?["Category"]?.ToString();
             if (category == null) continue;
 
-            if (parsersByCategory.TryGetValue(ParserAliases.GetValueOrDefault(category, category), out var parser))
-                components.Add(ParseComponent(root!, parser));
+            if (parsersByCategory.TryGetValue(ParserAliases.GetValueOrDefault(category, category), out var parser)
+                && ParseComponent(root!, parser) is { } component)
+                components.Add(component);
         }
 
         return components;
     }
 
-    private Component ParseComponent(JsonNode root, IComponentParser parser)
+    private Component? ParseComponent(JsonNode root, IComponentParser parser)
     {
         var name = root["Name"]?.ToString() ?? "Unknown";
         var brand = root["Brand"]?.ToString() ?? "Unknown";
@@ -93,29 +92,14 @@ public class DatabaseSeeder
             InferCpuMemoryType(specs);
         }
 
-        // Most-trusted price first: real PLN, then PCPartPicker USD × 4 (US list price → PL retail incl. VAT;
-        // market effects such as the 2026 DRAM surge are real, not corrected), then the spec heuristic only
-        // when no real price exists. Clamp to per-category sanity bounds.
-        const decimal UsdToPln = 4.0m;
-        var inv = System.Globalization.CultureInfo.InvariantCulture;
-        var anyNum = System.Globalization.NumberStyles.Any;
-
-        decimal pricePln;
-        if (root["PricePln"]?.ToString() is string plnStr && decimal.TryParse(plnStr, anyNum, inv, out var realPln) && realPln > 0)
+        // Only the shop's real price is used: no conversion, estimate or clamp, so a row without one is left out.
+        if (root["PricePln"]?.ToString() is not string plnStr
+            || !decimal.TryParse(plnStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var pricePln)
+            || pricePln <= 0)
         {
-            pricePln = realPln;
+            _logger.LogWarning("Skipping {Name}: no PricePln.", name);
+            return null;
         }
-        else if (root["Price"]?.ToString() is string usdStr && decimal.TryParse(usdStr, anyNum, inv, out var usd) && usd > 0)
-        {
-            pricePln = usd * UsdToPln;
-        }
-        else
-        {
-            pricePln = ComponentPriceCalculator.CalculatePricePLN(actualCategory.ToString(), brand, name, specs, _logger);
-        }
-
-        var bounds = _priceBounds.PerCategory.GetValueOrDefault(actualCategory, _priceBounds.Fallback);
-        pricePln = Math.Clamp(pricePln, bounds.Min, bounds.Max);
 
         return new Component
         {

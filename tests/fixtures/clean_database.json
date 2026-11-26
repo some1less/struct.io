@@ -1,0 +1,40 @@
+[
+  {"Category": "Cpu", "Name": "AMD Ryzen 5 7600", "Brand": "AMD", "PricePln": 799, "PriceSource": "fixture", "TechnicalSpecs": {"Cores": "6", "Threads": "12", "BaseClock": "3.8", "BoostClock": "5.1", "TDP": "65", "Socket": "AM5", "MemoryType": "DDR5"}},
+  {"Category": "Cpu", "Name": "AMD Ryzen 7 7800X3D", "Brand": "AMD", "PricePln": 1699, "PriceSource": "fixture", "TechnicalSpecs": {"Cores": "8", "Threads": "16", "BaseClock": "4.2", "BoostClock": "5", "TDP": "120", "Socket": "AM5", "MemoryType": "DDR5"}},
+  {"Category": "Cpu", "Name": "AMD Ryzen 9 9950X", "Brand": "AMD", "PricePln": 2899, "PriceSource": "fixture", "TechnicalSpecs": {"Cores": "16", "Threads": "32", "BaseClock": "4.3", "BoostClock": "5.7", "TDP": "170", "Socket": "AM5", "MemoryType": "DDR5"}},
+  {"Category": "Cpu", "Name": "Intel Core i5-14400F", "Brand": "Intel", "PricePln": 699, "PriceSource": "fixture", "TechnicalSpecs": {"Cores": "10", "Threads": "16", "BaseClock": "2.5", "BoostClock": "4.7", "TDP": "65", "Socket": "LGA1700", "MemoryType": "DDR4, DDR5"}},
+
+  {"Category": "Gpu", "Name": "MSI GeForce GTX 1650 D6 Ventus XS OC 4GB", "Brand": "MSI", "PricePln": 649, "PriceSource": "fixture", "TechnicalSpecs": {"Chipset": "GeForce GTX 1650", "VRAM": "4", "CoreClock": "1620", "Length": "177", "TDP": "75", "Interface": "PCIe 3.0 x16"}},
+  {"Category": "Gpu", "Name": "Gigabyte GeForce RTX 4060 Eagle OC 8GB", "Brand": "Gigabyte", "PricePln": 1349, "PriceSource": "fixture", "TechnicalSpecs": {"Chipset": "GeForce RTX 4060", "VRAM": "8", "CoreClock": "2505", "Length": "272", "TDP": "115", "Interface": "PCIe 4.0 x8"}},
+  {"Category": "Gpu", "Name": "Sapphire Radeon RX 7800 XT Pulse 16GB", "Brand": "Sapphire", "PricePln": 2299, "PriceSource": "fixture", "TechnicalSpecs": {"Chipset": "Radeon RX 7800 XT", "VRAM": "16", "CoreClock": "2430", "Length": "280", "TDP": "263", "Interface": "PCIe 4.0 x16"}},
+  {"Category": "Gpu", "Name": "ASUS GeForce RTX 4070 SUPER Dual OC 12GB", "Brand": "ASUS", "PricePln": 2799, "PriceSource": "fixture", "TechnicalSpecs": {"Chipset": "GeForce RTX 4070 SUPER", "VRAM": "12", "CoreClock": "2550", "Length": "267", "TDP": "220", "Interface": "PCIe 4.0 x16"}},
+  {"Category": "Gpu", "Name": "MSI GeForce RTX 4080 SUPER Ventus 3X OC 16GB", "Brand": "MSI", "PricePln": 4999, "PriceSource": "fixture", "TechnicalSpecs": {"Chipset": "GeForce RTX 4080 SUPER", "VRAM": "16", "CoreClock": "2595", "Length": "322", "TDP": "320", "Interface": "PCIe 4.0 x16"}},
+
+  {"Category": "Motherboard", "Name": "ASRock B650M-HDV/M.2", "Brand": "ASRock", "PricePln": 449, "PriceSource": "fixture", "TechnicalSpecs": {"Socket": "AM5", "FormFactor": "Micro ATX", "RamType": "DDR5", "MaxRam": "128", "RamSlots": "2"}},
+  {"Category": "Motherboard", "Name": "MSI PRO B650M-A WIFI", "Brand": "MSI", "PricePln": 599, "PriceSource": "fixture", "TechnicalSpecs": {"Socket": "AM5", "FormFactor": "Micro ATX", "RamType": "DDR5", "MaxRam": "192", "RamSlots": "4"}},
+  {"Category": "Motherboard", "Name": "Gigabyte B650 EAGLE AX", "Brand": "Gigabyte", "PricePln": 749, "PriceSource": "fixture", "TechnicalSpecs": {"Socket": "AM5", "FormFactor": "ATX", "RamType": "DDR5", "MaxRam": "192", "RamSlots": "4"}},
+  {"Category": "Motherboard", "Name": "ASUS TUF GAMING X670E-PLUS", "Brand": "ASUS", "PricePln": 1299, "PriceSource": "fixture", "TechnicalSpecs": {"Socket": "AM5", "FormFactor": "ATX", "RamType": "DDR5", "MaxRam": "192", "RamSlots": "4"}},
+  {"Category": "Motherboard", "Name": "MSI PRO B760M-A WIFI DDR5", "Brand": "MSI", "PricePln": 649, "PriceSource": "fixture", "TechnicalSpecs": {"Socket": "LGA1700", "FormFactor": "Micro ATX", "RamType": "DDR5", "MaxRam": "192", "RamSlots": "4"}},
+
+  {"Category": "Ram", "Name": "Kingston FURY Beast 16GB (2x8GB) 5600MHz CL36", "Brand": "Kingston", "PricePln": 299, "PriceSource": "fixture", "TechnicalSpecs": {"Type": "DDR5", "Capacity": "16", "Speed": "5600", "Modules": "2"}},
+  {"Category": "Ram", "Name": "G.SKILL Trident Z5 RGB 32GB (2x16GB) 6000MHz CL30", "Brand": "G.SKILL", "PricePln": 549, "PriceSource": "fixture", "TechnicalSpecs": {"Type": "DDR5", "Capacity": "32", "Speed": "6000", "Modules": "2"}},
+  {"Category": "Ram", "Name": "Corsair Vengeance 64GB (2x32GB) 6000MHz CL30", "Brand": "Corsair", "PricePln": 1099, "PriceSource": "fixture", "TechnicalSpecs": {"Type": "DDR5", "Capacity": "64", "Speed": "6000", "Modules": "2"}},
+
+  {"Category": "Psu", "Name": "be quiet! System Power 10 550W", "Brand": "be quiet!", "PricePln": 249, "PriceSource": "fixture", "TechnicalSpecs": {"Wattage": "550", "FormFactor": "ATX", "Efficiency": "80+ Bronze", "Modular": "No"}},
+  {"Category": "Psu", "Name": "Corsair RM750e 750W", "Brand": "Corsair", "PricePln": 449, "PriceSource": "fixture", "TechnicalSpecs": {"Wattage": "750", "FormFactor": "ATX", "Efficiency": "80+ Gold", "Modular": "Full"}},
+  {"Category": "Psu", "Name": "Seasonic Focus GX-850 850W", "Brand": "Seasonic", "PricePln": 599, "PriceSource": "fixture", "TechnicalSpecs": {"Wattage": "850", "FormFactor": "ATX", "Efficiency": "80+ Gold", "Modular": "Full"}},
+
+  {"Category": "Case", "Name": "Zalman T8", "Brand": "Zalman", "PricePln": 179, "PriceSource": "fixture", "TechnicalSpecs": {"FormFactor": "Midi Tower", "MaxGpuLength": "320", "MaxCoolerHeight": "160", "SupportedMotherboards": "ATX, Micro ATX, Mini ITX", "SidePanel": "Acrylic"}},
+  {"Category": "Case", "Name": "Phanteks XT PRO", "Brand": "Phanteks", "PricePln": 349, "PriceSource": "fixture", "TechnicalSpecs": {"FormFactor": "Midi Tower", "MaxGpuLength": "415", "MaxCoolerHeight": "184", "SupportedMotherboards": "EATX, ATX, Micro ATX, Mini ITX", "SidePanel": "Tempered Glass"}},
+  {"Category": "Case", "Name": "Fractal Design North", "Brand": "Fractal Design", "PricePln": 649, "PriceSource": "fixture", "TechnicalSpecs": {"FormFactor": "Midi Tower", "MaxGpuLength": "355", "MaxCoolerHeight": "170", "SupportedMotherboards": "ATX, Micro ATX, Mini ITX", "SidePanel": "Tempered Glass"}},
+
+  {"Category": "Cooler", "Name": "SilentiumPC Spartan 5 MAX", "Brand": "SilentiumPC", "PricePln": 69, "PriceSource": "fixture", "TechnicalSpecs": {"CpuSockets": "LGA1700, LGA1851, AM4, AM5", "Height": "152", "WaterCooled": "False"}},
+  {"Category": "Cooler", "Name": "Thermalright Peerless Assassin 120 SE", "Brand": "Thermalright", "PricePln": 169, "PriceSource": "fixture", "TechnicalSpecs": {"CpuSockets": "LGA1700, LGA1851, AM4, AM5", "Height": "155", "WaterCooled": "False"}},
+  {"Category": "Cooler", "Name": "Arctic Liquid Freezer III 240", "Brand": "Arctic", "PricePln": 399, "PriceSource": "fixture", "TechnicalSpecs": {"CpuSockets": "LGA1700, LGA1851, AM4, AM5", "WaterCooled": "True", "RadiatorSize": "240"}},
+
+  {"Category": "Ssd", "Name": "Lexar NM620 512GB M.2 NVMe", "Brand": "Lexar", "PricePln": 169, "PriceSource": "fixture", "TechnicalSpecs": {"Capacity": "512", "FormFactor": "M.2", "Interface": "PCIe 3.0 NVMe", "Type": "SSD"}},
+  {"Category": "Ssd", "Name": "Samsung 990 PRO 1TB M.2 NVMe", "Brand": "Samsung", "PricePln": 449, "PriceSource": "fixture", "TechnicalSpecs": {"Capacity": "1000", "FormFactor": "M.2", "Interface": "PCIe 4.0 NVMe", "Type": "SSD"}},
+  {"Category": "Ssd", "Name": "Kingston NV3 2TB M.2 NVMe", "Brand": "Kingston", "PricePln": 549, "PriceSource": "fixture", "TechnicalSpecs": {"Capacity": "2000", "FormFactor": "M.2", "Interface": "PCIe 4.0 NVMe", "Type": "SSD"}},
+
+  {"Category": "Hdd", "Name": "Seagate BarraCuda 2TB", "Brand": "Seagate", "PricePln": 299, "PriceSource": "fixture", "TechnicalSpecs": {"Capacity": "2000", "FormFactor": "3.5\"", "Interface": "SATA III", "Type": "HDD"}}
+]

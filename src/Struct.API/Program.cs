@@ -80,7 +80,6 @@ builder.Services.AddTransient<IComponentParser, CaseParser>();
 builder.Services.AddTransient<IComponentParser, StorageParser>();
 builder.Services.AddTransient<IComponentParser, CoolerParser>();
 
-builder.Services.AddSingleton(Bind<PriceBoundsSettings>("Seeding:PriceBounds"));
 builder.Services.AddTransient<DatabaseSeeder>();
 
 var app = builder.Build();
@@ -91,7 +90,9 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     await services.GetRequiredService<AppDbContext>().Database.MigrateAsync();
 
-    string pathToCleanDb = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "clean-db", "clean_database.json");
+    // The catalog is the author's own dataset and stays out of git (data/); Docker mounts it, CI mounts a fixture.
+    string pathToCleanDb = Path.Combine(app.Environment.ContentRootPath,
+        app.Configuration["Seeding:CatalogPath"] ?? throw new InvalidOperationException("Missing config 'Seeding:CatalogPath'."));
 
     string benchmarksDir = Path.Combine(app.Environment.ContentRootPath, "Extensions", "Seeding", "benchmarks");
     var benchmarks = Struct.BLL.Core.Scoring.Benchmarks.BenchmarkScores.FromCsvFiles(

@@ -13,7 +13,7 @@ namespace Struct.Evaluation;
 /// <summary>Builds the harness from the API's shipped settings and a catalog run through the seeder's pipeline, with no database.</summary>
 public static class EvaluationSetup
 {
-    public const string DefaultCatalog = "src/Struct.API/Extensions/Seeding/clean-db/clean_database.json";
+    public const string DefaultCatalog = "data/clean_database.json";
 
     public static EvaluationHarness FromRepo(string repoRoot, string catalogPath)
     {
@@ -28,7 +28,7 @@ public static class EvaluationSetup
         var seeder = new DatabaseSeeder(new AppDbContext(new DbContextOptions<AppDbContext>()),
             [new CpuParser(), new GpuParser(), new MotherboardParser(), new RamParser(),
              new PsuParser(), new CaseParser(), new StorageParser(), new CoolerParser()],
-            Bind<PriceBoundsSettings>("Seeding:PriceBounds"), NullLogger<DatabaseSeeder>.Instance);
+            NullLogger<DatabaseSeeder>.Instance);
 
         var benchmarksDir = Path.Combine(apiDir, "Extensions", "Seeding", "benchmarks");
         var benchmarks = BenchmarkScores.FromCsvFiles(

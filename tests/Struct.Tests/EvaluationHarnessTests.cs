@@ -75,9 +75,23 @@ public class EvaluationHarnessTests
     }
 
     [Fact]
-    public void FromRepo_LoadsTheShippedCatalog_ThroughTheSeederPipeline()
+    public void CiFixture_GivesTheLiveSolverAFullBuild_AtTheSmokeAndE2eBudgets()
     {
-        var catalog = EvaluationSetup.FromRepo(BenchmarkValidationTests.RepoRoot(), EvaluationSetup.DefaultCatalog).Catalog;
+        // smoke.sh asks for 12000 zł per purpose; the e2e test opens Gaming at 9000 zł
+        var harness = EvaluationSetup.FromRepo(BenchmarkValidationTests.RepoRoot(), CiFixture);
+
+        var live = harness.Grid([9000m, 12000m]).Where(r => r.Solver == "greedy+ls").ToList();
+
+        Assert.NotEmpty(live);
+        Assert.All(live, r => Assert.True(r.Complete, $"{r.Purpose} @ {r.Budget}: {r.Filled} slots"));
+    }
+
+    private const string CiFixture = "tests/fixtures/clean_database.json";
+
+    [Fact]
+    public void FromRepo_LoadsTheCiFixture_ThroughTheSeederPipeline()
+    {
+        var catalog = EvaluationSetup.FromRepo(BenchmarkValidationTests.RepoRoot(), CiFixture).Catalog;
 
         Assert.Equal(Enum.GetValues<Category>().Length, catalog.Select(c => c.Category).Distinct().Count());
         Assert.Equal(catalog.Count, catalog.Select(c => c.Id).Distinct().Count());

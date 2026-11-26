@@ -14,7 +14,6 @@ public class DatabaseSeederTests
     private static readonly DatabaseSeeder Seeder = new(
         new AppDbContext(new DbContextOptions<AppDbContext>()),
         [new CpuParser(), new GpuParser(), new StorageParser()],
-        new PriceBoundsSettings { Fallback = new PriceRange { Min = 1, Max = 100_000 } },
         NullLogger<DatabaseSeeder>.Instance);
 
     [Fact]
@@ -59,6 +58,23 @@ public class DatabaseSeederTests
         // BenchmarkScores matches PassMark by Chipset first; an absent Length must stay absent, not become "0".
         Assert.Equal("GeForce RTX 5060", specs[Spec.Chipset]);
         Assert.Equal([Spec.Chipset, Spec.Vram, Spec.Tdp], specs.Keys);
+    }
+
+    [Fact]
+    public void ParseCatalog_SkipsRowsWithoutARealPrice_AndKeepsTheShopPriceAsIs()
+    {
+        const string json = """
+            [
+              { "Category": "Gpu", "Name": "MSI GeForce RTX 5090 Gaming Trio OC 32GB", "PricePln": "45999",
+                "TechnicalSpecs": { "Chipset": "GeForce RTX 5090" } },
+              { "Category": "Gpu", "Name": "Old USD-only row", "Price": "499", "TechnicalSpecs": {} },
+              { "Category": "Gpu", "Name": "Zero price", "PricePln": "0", "TechnicalSpecs": {} }
+            ]
+            """;
+
+        var component = Seeder.ParseCatalog(json).Single();
+
+        Assert.Equal(45999m, component.Price);
     }
 
     [Fact]
