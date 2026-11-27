@@ -17,47 +17,75 @@ public class ExactBuildSolver : IBuildSolver
     private readonly BuildObjective _objective;
     private readonly IPerformanceScorer _scorer;
     private readonly ExactSolverSettings _settings;
+    private readonly IBuildSolver? _seed;
 
+    /// <param name="seed">Its build is the first incumbent, so the search only has to prove it optimal or beat it.</param>
     public ExactBuildSolver(ICompatibilityEngine compat, BuildObjective objective,
-        IPerformanceScorer scorer, ExactSolverSettings settings)
+        IPerformanceScorer scorer, ExactSolverSettings settings, IBuildSolver? seed = null)
     {
         _compat = compat;
         _objective = objective;
         _scorer = scorer;
         _settings = settings;
+        _seed = seed;
     }
 
     public BuildSolution Solve(BuildProblem problem)
     {
         var (candidatesByCategory, profile, purpose, budget) = problem;
-        var categories = profile.Sequence;
+        // CPU and GPU first: once both are decided the bottleneck penalty is fixed, so the bound can count it.
+        var categories = profile.Sequence.OrderBy(c => c is Category.Cpu or Category.Gpu ? 0 : 1).ToList();
+        int penaltyKnownAt = categories.Count(c => c is Category.Cpu or Category.Gpu);
         var weights = profile.Weights;
+        int n = categories.Count;
 
-        // Prune each category to its top-K by score (descending); record the best score per category.
-        var pools = new Dictionary<Category, List<Component>>();
-        var bestScore = new Dictionary<Category, double>();
-        foreach (var cat in categories)
+        // Each category's top-K by score, best first, and its cheapest price.
+        var pools = new List<(Component Part, double Score)>[n];
+        var minPrice = new decimal[n];
+        for (int i = 0; i < n; i++)
         {
-            var list = (candidatesByCategory.TryGetValue(cat, out var raw) ? raw : Array.Empty<Component>())
-                .OrderByDescending(c => _scorer.CalculateScore(c, purpose))
+            pools[i] = (candidatesByCategory.TryGetValue(categories[i], out var raw) ? raw : Array.Empty<Component>())
+                .Select(c => (Part: c, Score: _scorer.CalculateScore(c, purpose)))
+                .OrderByDescending(p => p.Score)
                 .Take(_settings.TopKPerCategory)
                 .ToList();
-            pools[cat] = list;
-            bestScore[cat] = list.Count > 0 ? _scorer.CalculateScore(list[0], purpose) : 0.0;
+            minPrice[i] = pools[i].Count > 0 ? pools[i].Min(p => p.Part.Price) : 0m;
         }
-
-        int n = categories.Count;
-        // suffix[i] = optimistic Σ weight·bestScore for categories[i..]. Ignores the always-non-negative
-        // bottleneck penalty, so it is a valid (admissible) upper bound on the true objective.
-        var suffix = new double[n + 1];
-        for (int i = n - 1; i >= 0; i--)
-            suffix[i] = suffix[i + 1] + weights[categories[i]] * bestScore[categories[i]];
+        var minSuffix = new decimal[n + 1];
+        for (int i = n - 1; i >= 0; i--) minSuffix[i] = minSuffix[i + 1] + minPrice[i];
 
         var bestBuild = new BuildContext();
         int bestFilled = -1;
         double bestObjective = double.NegativeInfinity;
+        if (_seed != null)
+        {
+            bestBuild = _seed.Solve(problem).Build;
+            bestFilled = bestBuild.Components.Count();
+            bestObjective = _objective.Evaluate(bestBuild, weights, purpose);
+        }
         var clock = Stopwatch.StartNew();
         bool timedOut = false;
+
+        // Optimistic Σ weight·score over categories[idx..]: per slot the best part the money left can still buy, and
+        // no bottleneck penalty (never negative), so no real completion of the branch can score higher.
+        double Bound(int idx, decimal spent)
+        {
+            // Against a complete incumbent a branch only counts if it fills every remaining slot, so each part
+            // must also leave room for the cheapest part of every other remaining slot.
+            bool fillAll = bestFilled == n;
+            double bound = 0;
+            for (int i = idx; i < n; i++)
+            {
+                decimal cap = budget - spent - (fillAll ? minSuffix[idx] - minPrice[i] : 0m);
+                foreach (var (part, score) in pools[i])
+                {
+                    if (part.Price > cap) continue;
+                    bound += weights[categories[i]] * score;
+                    break;
+                }
+            }
+            return bound;
+        }
 
         void Recurse(int idx, BuildContext partial, decimal spent, double weightedSoFar, int filled)
         {
@@ -70,10 +98,11 @@ public class ExactBuildSolver : IBuildSolver
             // A missing slot outweighs any score: builds rank by filled slots first, objective second.
             int reachable = filled + n - idx;
             if (reachable < bestFilled) return;
-
-            // Optimistic upper bound: even if every remaining slot scored its best and no penalty
-            // applied, this branch could not beat the incumbent ⇒ prune.
-            if (reachable == bestFilled && weightedSoFar + suffix[idx] <= bestObjective) return;
+            if (reachable == bestFilled)
+            {
+                double soFar = idx >= penaltyKnownAt ? _objective.Evaluate(partial, weights, purpose) : weightedSoFar;
+                if (soFar + Bound(idx, spent) <= bestObjective) return;
+            }
 
             if (idx == n)
             {
@@ -88,15 +117,14 @@ public class ExactBuildSolver : IBuildSolver
             }
 
             var cat = categories[idx];
-            foreach (var candidate in pools[cat])
+            foreach (var (candidate, score) in pools[idx])
             {
                 if (spent + candidate.Price > budget) continue;
                 if (!_compat.CheckCompatibility(partial, candidate).IsCompatible) continue;
 
                 var next = partial.Clone();
                 next.Assign(candidate);
-                Recurse(idx + 1, next, spent + candidate.Price,
-                    weightedSoFar + weights[cat] * _scorer.CalculateScore(candidate, purpose), filled + 1);
+                Recurse(idx + 1, next, spent + candidate.Price, weightedSoFar + weights[cat] * score, filled + 1);
             }
 
             // Leave this category empty: wins only when no build fills more slots, so an unaffordable
@@ -110,11 +138,13 @@ public class ExactBuildSolver : IBuildSolver
             Build = bestBuild,
             TimedOut = timedOut,
             AllocatedBudgets = weights.ToDictionary(w => w.Key, w => budget * (decimal)w.Value),
-            FailedSlots = categories.Where(c => bestBuild[c] == null)
+            FailedSlots = profile.Sequence.Where(c => bestBuild[c] == null)
                 .Select(c => new FailedSlot
                 {
                     Category = c.ToString(),
-                    Reason = $"No compatible {c} fits within {budget:F2} PLN alongside the rest of the build."
+                    Reason = timedOut && candidatesByCategory.GetValueOrDefault(c)?.Count > 0
+                        ? $"The search stopped at its time limit before it found a {c} that fits."
+                        : $"No compatible {c} fits within {budget:F2} PLN alongside the rest of the build."
                 })
                 .ToList()
         };

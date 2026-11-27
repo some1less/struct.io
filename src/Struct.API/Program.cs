@@ -64,7 +64,9 @@ builder.Services.AddScoped<IPerformanceScorer>(_ => new CachingScorer(new Perfor
 builder.Services.AddScoped<BuildObjective>();
 builder.Services.AddScoped<GreedySolver>();
 builder.Services.AddScoped<GreedyLocalSearchSolver>();
-builder.Services.AddScoped<ExactBuildSolver>();
+builder.Services.AddScoped(sp => new ExactBuildSolver(sp.GetRequiredService<ICompatibilityEngine>(),
+    sp.GetRequiredService<BuildObjective>(), sp.GetRequiredService<IPerformanceScorer>(),
+    sp.GetRequiredService<ExactSolverSettings>(), seed: sp.GetRequiredService<MultiStartSolver>()));
 // A factory, not a type: MultiStartSolver takes an IBuildSolver and would resolve itself.
 builder.Services.AddScoped(sp => new MultiStartSolver(
     sp.GetRequiredService<GreedyLocalSearchSolver>(), sp.GetRequiredService<BuildObjective>()));

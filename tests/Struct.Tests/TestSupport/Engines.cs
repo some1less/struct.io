@@ -31,8 +31,8 @@ public static class Engines
     public static MultiStartSolver MultiStart(IPerformanceScorer scorer) =>
         new(GreedyLocalSearch(scorer), new BuildObjective(scorer, TestConfig.Objective));
 
-    public static ExactBuildSolver Exact(ExactSolverSettings? settings = null) =>
-        new(Compat(), Objective(), Scorer, settings ?? TestConfig.ExactSolver);
+    public static ExactBuildSolver Exact(ExactSolverSettings? settings = null, IBuildSolver? seed = null) =>
+        new(Compat(), Objective(), Scorer, settings ?? TestConfig.ExactSolver, seed);
 
     public static RecommendationEngine Recommendation(IEnumerable<Component> catalog, RecommendationSettings? settings = null) =>
         new(new StubComponentRepository(catalog), MultiStart(settings), Scorer, settings ?? TestConfig.Recommendation);
