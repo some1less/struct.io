@@ -65,8 +65,11 @@ builder.Services.AddScoped<BuildObjective>();
 builder.Services.AddScoped<GreedySolver>();
 builder.Services.AddScoped<GreedyLocalSearchSolver>();
 builder.Services.AddScoped<ExactBuildSolver>();
-// The live API runs greedy + local search; the evaluation harness resolves each solver by its type.
-builder.Services.AddScoped<IBuildSolver>(sp => sp.GetRequiredService<GreedyLocalSearchSolver>());
+// A factory, not a type: MultiStartSolver takes an IBuildSolver and would resolve itself.
+builder.Services.AddScoped(sp => new MultiStartSolver(
+    sp.GetRequiredService<GreedyLocalSearchSolver>(), sp.GetRequiredService<BuildObjective>()));
+// The live API runs greedy + local search from every platform; the evaluation harness resolves each solver by its type.
+builder.Services.AddScoped<IBuildSolver>(sp => sp.GetRequiredService<MultiStartSolver>());
 builder.Services.AddScoped<IRecommendationEngine, RecommendationEngine>();
 
 

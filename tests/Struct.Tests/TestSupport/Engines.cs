@@ -25,11 +25,17 @@ public static class Engines
     public static GreedyLocalSearchSolver GreedyLocalSearch(IPerformanceScorer scorer) =>
         new(new GreedySolver(Compat(), scorer, TestConfig.Recommendation), Compat(), new BuildObjective(scorer, TestConfig.Objective));
 
+    public static MultiStartSolver MultiStart(RecommendationSettings? settings = null) =>
+        new(GreedyLocalSearch(settings), Objective());
+
+    public static MultiStartSolver MultiStart(IPerformanceScorer scorer) =>
+        new(GreedyLocalSearch(scorer), new BuildObjective(scorer, TestConfig.Objective));
+
     public static ExactBuildSolver Exact(ExactSolverSettings? settings = null) =>
         new(Compat(), Objective(), Scorer, settings ?? TestConfig.ExactSolver);
 
     public static RecommendationEngine Recommendation(IEnumerable<Component> catalog, RecommendationSettings? settings = null) =>
-        new(new StubComponentRepository(catalog), GreedyLocalSearch(settings), Scorer, settings ?? TestConfig.Recommendation);
+        new(new StubComponentRepository(catalog), MultiStart(settings), Scorer, settings ?? TestConfig.Recommendation);
 
     /// <summary>Candidates per sequence category with unique ids, as the engine loads them from the repository.</summary>
     public static BuildProblem Problem(IEnumerable<Component> catalog, decimal budget, Purpose purpose = Purpose.Gaming)

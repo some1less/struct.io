@@ -30,7 +30,7 @@ npm run test:e2e
 python excel_to_catalog.py --snapshot-date YYYY-MM-DD      # data/catalog.xlsx -> data/clean_database.json
 pytest
 
-# Evaluation harness: greedy vs greedy+LS vs exact grid + TopK/λ sweeps → data/eval/*.csv (gitignored)
+# Evaluation harness: greedy vs greedy+LS vs multi-start vs exact grid + TopK/λ sweeps → data/eval/*.csv (gitignored)
 dotnet run -c Release --project tools/Struct.Evaluation [path/to/clean_database.json]
 
 # HTTP smoke checks against a running API
@@ -55,7 +55,7 @@ Classic 3-layer split, each a separate project referenced one direction only (`A
 
 ### How the engines fit together
 
-`RecommendationEngine.GenerateRecommendationAsync` loads candidates for every slot of the purpose's profile, hands them to an `IBuildSolver` as a `BuildProblem`, and shapes the `BuildSolution` into the API result. Three solvers, all in DI: `GreedySolver` (baseline), `GreedyLocalSearchSolver` (greedy + upgrade pass; the one the live API uses via `IBuildSolver`), `ExactBuildSolver` (branch-and-bound over top-K, the reference optimum for evaluation). The greedy path:
+`RecommendationEngine.GenerateRecommendationAsync` loads candidates for every slot of the purpose's profile, hands them to an `IBuildSolver` as a `BuildProblem`, and shapes the `BuildSolution` into the API result. Four solvers, all in DI: `GreedySolver` (baseline), `GreedyLocalSearchSolver` (greedy + completion/repair + upgrade pass), `MultiStartSolver` (greedy+LS once unrestricted and once per platform = board socket + RamType, keeps the best by (filled, objective); the one the live API uses via `IBuildSolver`), `ExactBuildSolver` (branch-and-bound over top-K, the reference optimum for evaluation). The greedy path:
 
 1. A **weight matrix** and a **fill sequence** per purpose (`Gaming` / `Work` / `Office`) come from `appsettings.json` (`Engine:Recommendation:Profiles`), as do the slot tolerance, min budget, objective λ/θ, solver TopK and PSU formula. Settings are plain records bound once at startup (`ErrorOnUnknownConfiguration`); tests bind the same file via `TestConfig`. The sequence is deliberately ordered (e.g. GPU-first for Gaming) so that by the time the PSU slot is filled, CPU+GPU TDP is known, and by the case slot, GPU length is known.
 2. For each category slot it filters candidates by an allocated **slot budget** (with `SlotBudgetTolerance`, capped by remaining global budget), filters by `CompatibilityEngine.CheckCompatibility` against the partial `BuildContext`, ranks survivors by `PerformanceScorer.CalculateScore`, and picks the best.
