@@ -20,17 +20,17 @@ test('first load: controls come from /api/config and a complete build renders', 
   await expect(page.getByRole('heading', { name: /the build · 8 parts/i })).toBeVisible()
 })
 
-test('Hybrid sends purpose Work and renders the new build', async ({ page }) => {
+test('Work sends purpose Work and renders the new build', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByText('Complete build')).toBeVisible()
 
-  const hybrid = page.getByText('Hybrid', { exact: true })
-  await expect(hybrid).toHaveCount(1) // only the purpose button; the result badge still says Gaming
+  const work = page.getByText('Work', { exact: true })
+  await expect(work).toHaveCount(1) // only the purpose button; the result chip still says Gaming
 
-  await page.getByRole('button', { name: 'Hybrid' }).click()
+  await page.getByRole('button', { name: 'Work', exact: true }).click()
   const response = page.waitForResponse('**/api/algorithms/recommend')
   await page.getByRole('button', { name: 'Build it' }).click()
 
   expect((await (await response).json()).purpose).toBe('Work')
-  await expect(hybrid).toHaveCount(2) // button + result badge
+  await expect(work).toHaveCount(2) // button + result chip
 })
