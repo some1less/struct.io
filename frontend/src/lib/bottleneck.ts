@@ -1,4 +1,4 @@
-import type { Purpose, RecommendationResult } from './types'
+import type { AppConfig, Purpose, RecommendationResult } from './types'
 
 // Reproduces the engine's CPU<->GPU bottleneck term (BuildObjective / ObjectiveSettings):
 //   gap = |cpuScore - gpuScore|, penalty applies once gap exceeds the configured threshold.
@@ -40,8 +40,11 @@ export function readBottleneck(
 }
 
 // The engine leaves some purposes (Office) out of the penalty, so the meter would judge what it ignores.
-export function bottleneckApplies(purposes: Purpose[], purpose: Purpose): boolean {
-  return purposes.includes(purpose)
+export function shouldShowBottleneck(
+  config: AppConfig | null,
+  result: RecommendationResult | null,
+): boolean {
+  return !!config && !!result && config.bottleneckPurposes.includes(result.purpose as Purpose)
 }
 
 export const STATUS_LABEL: Record<BottleneckStatus, string> = {
