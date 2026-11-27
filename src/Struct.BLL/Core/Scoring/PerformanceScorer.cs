@@ -34,7 +34,7 @@ public class PerformanceScorer : IPerformanceScorer
         };
     }
 
-    private double ScoreCpu(Dictionary<string, string> specs, string name, bool isWork)
+    private static double ScoreCpu(Dictionary<string, string> specs, string name, bool isWork)
     {
         // Games and office apps lean on per-core speed, Work (render/compile) on all cores.
         if (TryBenchmarkScore(specs, isWork ? Spec.BenchmarkScore : Spec.SingleThreadScore, out var benchmark)) return benchmark;
@@ -75,7 +75,7 @@ public class PerformanceScorer : IPerformanceScorer
         return Normalize(rawScore, 100, maxScore);
     }
 
-    private double ScoreGpu(Dictionary<string, string> specs, string name, bool isWork)
+    private static double ScoreGpu(Dictionary<string, string> specs, string name, bool isWork)
     {
         if (TryBenchmarkScore(specs, Spec.BenchmarkScore, out var benchmark)) return benchmark;
 
@@ -116,7 +116,7 @@ public class PerformanceScorer : IPerformanceScorer
         return Normalize(rawScore, 200, 2400);
     }
 
-    private double ScoreMotherboard(Dictionary<string, string> specs, string name)
+    private static double ScoreMotherboard(Dictionary<string, string> specs, string name)
     {
         double ramSlots = SpecReader.GetNumber(specs, Spec.RamSlots, 2);
         double maxRam = SpecReader.GetNumber(specs, Spec.MaxRam, 32);
@@ -131,7 +131,7 @@ public class PerformanceScorer : IPerformanceScorer
         return Normalize(rawScore, 50, 600);
     }
 
-    private double ScoreRam(Dictionary<string, string> specs, string name, bool isWork)
+    private static double ScoreRam(Dictionary<string, string> specs, string name, bool isWork)
     {
         double capacity = SpecReader.GetNumber(specs, Spec.Capacity, 8);
         double speed = SpecReader.GetNumber(specs, Spec.Speed, 2400);
@@ -154,7 +154,7 @@ public class PerformanceScorer : IPerformanceScorer
         return Normalize(rawScore, 100, 2000);
     }
 
-    private double ScorePsu(Dictionary<string, string> specs, string name)
+    private static double ScorePsu(Dictionary<string, string> specs, string name)
     {
         double wattage = SpecReader.GetNumber(specs, Spec.Wattage, 500);
         
@@ -175,7 +175,7 @@ public class PerformanceScorer : IPerformanceScorer
         return Normalize(rawScore, 300, 1600);
     }
 
-    private double ScoreStorage(Dictionary<string, string> specs, bool isSsd)
+    private static double ScoreStorage(Dictionary<string, string> specs, bool isSsd)
     {
         double capacity = SpecReader.GetNumber(specs, Spec.Capacity, 500);
         if (specs.TryGetValue(Spec.Capacity, out var rawCap) && rawCap.ToUpperInvariant().Contains("TB")) 
@@ -191,7 +191,7 @@ public class PerformanceScorer : IPerformanceScorer
         return Normalize(rawScore, 50, 1000);
     }
 
-    private double ScoreCase(Dictionary<string, string> specs, string name)
+    private static double ScoreCase(Dictionary<string, string> specs, string name)
     {
         double maxGpu = SpecReader.GetNumber(specs, Spec.MaxGpuLength, 300);
         // Cap MaxGpu contribution to 350 so massive server cases don't auto-win
@@ -201,7 +201,7 @@ public class PerformanceScorer : IPerformanceScorer
         return Normalize(rawScore, 200, 600);
     }
 
-    private double ScoreCooler(Dictionary<string, string> specs, string name)
+    private static double ScoreCooler(Dictionary<string, string> specs, string name)
     {
         bool isWater = specs.TryGetValue(Spec.WaterCooled, out var w) && w.Equals("True", StringComparison.OrdinalIgnoreCase);
         double radSize = SpecReader.GetNumber(specs, Spec.RadiatorSize, 0);
