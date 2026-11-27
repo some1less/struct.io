@@ -22,13 +22,13 @@ public class EngineSettingsTests
     }
 
     [Fact]
-    public async Task SlotBudgetTolerance_ComesFromSettings()
+    public void SlotBudgetTolerance_ComesFromSettings()
     {
-        var engine = Engines.Recommendation(CatalogFactory.FullCoherentCatalog(),
-            TestConfig.Recommendation with { SlotBudgetTolerance = 0m });
+        // Greedy alone: local search fills what the slot caps leave empty.
+        var greedy = Engines.Greedy(TestConfig.Recommendation with { SlotBudgetTolerance = 0m });
 
-        var result = await engine.GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000 });
+        var solution = greedy.Solve(Engines.Problem(CatalogFactory.FullCoherentCatalog(), 12000m));
 
-        Assert.Equal(8, result.FailedSlots.Count);
+        Assert.Equal(8, solution.FailedSlots.Count);
     }
 }
