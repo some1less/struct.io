@@ -84,7 +84,7 @@ public class EvaluationHarnessTests
 
         var live = harness.Grid([5000m, 9000m, 12000m]).Where(r => r.Solver == "multistart").ToList();
 
-        Assert.NotEmpty(live);
+        Assert.Equal(3 * 3, live.Count);
         Assert.All(live, r => Assert.True(r.Complete, $"{r.Purpose} @ {r.Budget}: {r.Filled} slots"));
     }
 

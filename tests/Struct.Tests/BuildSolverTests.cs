@@ -148,6 +148,21 @@ public class BuildSolverTests
     }
 
     [Fact]
+    public void LocalSearch_TellsPartsApart_WhenEveryCatalogIdIsZero()
+    {
+        // As in the harness: rows parsed from the catalog file never get a database Id.
+        var catalog = CatalogFactory.UpgradableCatalog();
+        var profile = TestConfig.Recommendation.Profiles[Purpose.Gaming];
+        var problem = new BuildProblem(profile.Sequence.ToDictionary(c => c,
+            c => (IReadOnlyList<Component>)catalog.Where(p => p.Category == c).ToList()), profile, Purpose.Gaming, 9000m);
+
+        var build = Engines.GreedyLocalSearch().Solve(problem).Build;
+
+        Assert.All(catalog, c => Assert.Equal(0, c.Id));
+        Assert.Contains("4090", build.Gpu!.Name);
+    }
+
+    [Fact]
     public void LocalSearch_SpendsTheLeftoverWhereItBuysMostPerZloty_NotOnAnExpensiveSsd()
     {
         // Greedy leaves 2750 unspent. A 4 TB SSD for all of it gains 0.010; RAM (+1300) and board (+1200)
