@@ -5,9 +5,12 @@ using Struct.DAL.Models;
 namespace Struct.BLL.Core.Recommendation;
 
 /// <summary>
-/// Greedy construction, then an upgrade pass: repeatedly applies the slot swap that raises <see cref="BuildObjective"/>
-/// most per extra złoty while the build stays within budget and compatible. A swap that costs nothing extra is a pure
-/// win and goes first. Spends what greedy left over where it buys the most, not on one pricey part with a tiny gain.
+/// Greedy construction, then local search on (filled slots, <see cref="BuildObjective"/>) in two phases.
+/// Completion fills an empty slot, alone or together with a change to one filled slot that frees the money or makes
+/// it fit (repair, e.g. a cheaper GPU so the CPU fits); the fill with the best Δobjective goes first. It runs first
+/// because a missing slot outweighs any score (as in the exact solver) and upgrades would spend what a repair needs.
+/// Improvement then changes one slot at a time: a free move with a gain first, then the most Δobjective per extra
+/// złoty, so leftover money goes where it buys the most, not on one pricey part.
 /// </summary>
 public class GreedyLocalSearchSolver : IBuildSolver
 {
@@ -26,53 +29,59 @@ public class GreedyLocalSearchSolver : IBuildSolver
     {
         var solution = _greedy.Solve(problem);
         var build = solution.Build;
+
+        // (filled, objective) rises with every move and no move empties a slot ⇒ both loops terminate
+        while (BestMove(problem, build, FillMoves(problem, build)) is { } fill)
+            foreach (var part in fill) build.Assign(part);
+        while (BestMove(problem, build, SingleMoves(problem)) is { } move)
+            foreach (var part in move) build.Assign(part);
+
+        solution.FailedSlots.RemoveAll(f => build[Enum.Parse<Category>(f.Category)] != null);
+        return solution;
+    }
+
+    private static IEnumerable<Component[]> SingleMoves(BuildProblem problem) =>
+        problem.Profile.Sequence.SelectMany(category => problem.Candidates[category]).Select(part => new[] { part });
+
+    private static IEnumerable<Component[]> FillMoves(BuildProblem problem, BuildContext build)
+    {
+        var fills = problem.Profile.Sequence.Where(c => build[c] == null).SelectMany(c => problem.Candidates[c]).ToList();
+        var swaps = problem.Profile.Sequence.Where(c => build[c] != null).SelectMany(c => problem.Candidates[c]);
+        return fills.Select(fill => new[] { fill })
+            .Concat(from swap in swaps from fill in fills select new[] { swap, fill });
+    }
+
+    private Component[]? BestMove(BuildProblem problem, BuildContext build, IEnumerable<Component[]> moves)
+    {
         var weights = problem.Profile.Weights;
-        decimal total = solution.TotalPrice;
+        double current = _objective.Evaluate(build, weights, problem.Purpose);
+        decimal total = build.Components.Sum(c => c.Price);
+        (int Filled, int Free, double Gain) bestRank = default;
+        Component[]? best = null;
 
-        bool improved = true;
-        while (improved)
+        foreach (var move in moves)
         {
-            improved = false;
-            double currentObjective = _objective.Evaluate(build, weights, problem.Purpose);
-            (int Free, double Gain) bestRank = default;
-            Component? bestSwap = null;
+            if (move.Any(part => part.Id == build[part.Category]?.Id)) continue;
+            decimal extra = move.Sum(part => part.Price - (build[part.Category]?.Price ?? 0));
+            if (total + extra > problem.Budget) continue;
 
-            foreach (var category in problem.Profile.Sequence)
-            {
-                var chosen = build[category];
-                if (chosen == null) continue; // failed slot — nothing to upgrade
+            var trial = build.Clone();
+            foreach (var part in move) trial.Assign(part);
+            int filled = move.Count(part => build[part.Category] == null);
+            double delta = _objective.Evaluate(trial, weights, problem.Purpose) - current;
+            if (filled == 0 && delta <= 0) continue;
 
-                foreach (var candidate in problem.Candidates[category])
-                {
-                    if (candidate.Id == chosen.Id) continue;
-                    if (total - chosen.Price + candidate.Price > problem.Budget) continue;
+            // A fill is judged by what it does to the objective: "free" would favour the repair that saves the most money.
+            var rank = filled > 0 ? (filled, 0, delta) : (0, extra <= 0 ? 1 : 0, extra <= 0 ? delta : delta / (double)extra);
+            if (rank.CompareTo(bestRank) <= 0) continue;
 
-                    // CheckCompatibility clones the build and overwrites this slot, so the rest stays fixed.
-                    if (!_compatibilityEngine.CheckCompatibility(build, candidate).IsCompatible) continue;
+            // CheckCompatibility re-assigns the last part onto a clone of the trial, so it validates the whole new build.
+            if (!_compatibilityEngine.CheckCompatibility(trial, move[^1]).IsCompatible) continue;
 
-                    var trial = build.Clone();
-                    trial.Assign(candidate);
-                    double delta = _objective.Evaluate(trial, weights, problem.Purpose) - currentObjective;
-                    if (delta <= 0) continue;
-
-                    decimal extra = candidate.Price - chosen.Price;
-                    var rank = extra <= 0 ? (1, delta) : (0, delta / (double)extra);
-                    if (rank.CompareTo(bestRank) > 0)
-                    {
-                        bestRank = rank;
-                        bestSwap = candidate;
-                    }
-                }
-            }
-
-            if (bestSwap != null)
-            {
-                total = total - build[bestSwap.Category]!.Price + bestSwap.Price;
-                build.Assign(bestSwap);
-                improved = true; // objective strictly increased; loop is bounded ⇒ terminates
-            }
+            bestRank = rank;
+            best = move;
         }
 
-        return solution;
+        return best;
     }
 }

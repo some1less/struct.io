@@ -1,5 +1,7 @@
+using Struct.BLL.Core;
 using Struct.BLL.Core.Recommendation.Models;
 using Struct.DAL.Models;
+using Struct.Evaluation;
 using Struct.Tests.TestSupport;
 
 namespace Struct.Tests;
@@ -116,6 +118,78 @@ public class BuildSolverTests
 
         Assert.Equal("NVIDIA RTX 4060", solution.Build.Gpu!.Name);
         Assert.Equal(7250m - 1400m, solution.TotalPrice);
+    }
+
+    [Fact]
+    public void Greedy_ReservesTheCheapestPart_ForEveryLaterSlot()
+    {
+        // With slot caps out of the way, GPU-first greedy would buy the 4090 (4000) and leave 3000 for parts costing 4900.
+        var settings = TestConfig.Recommendation with { SlotBudgetTolerance = 10m };
+
+        var solution = Engines.Greedy(settings).Solve(Engines.Problem(CatalogFactory.UpgradableCatalog(), 7000m));
+
+        Assert.Empty(solution.FailedSlots);
+        Assert.Contains("4060", solution.Build.Gpu!.Name);
+    }
+
+    [Fact]
+    public void Greedy_KeepsTheMoney_ForASlotItSkipped_AndLocalSearchFillsIt()
+    {
+        // The catalog costs 7250; at 7300 the CPU slot cap (~1750) skips the only CPU (1800). The SSD slot cap could
+        // afford the 2 TB drive (650), but then the skipped CPU would no longer fit.
+        var catalog = CatalogFactory.FullCoherentCatalog();
+        catalog.Add(ComponentBuilder.New(Category.Ssd, "Samsung 990 Pro 2TB").Price(650)
+            .Spec("Capacity", "2 TB").Spec("Interface", "NVMe"));
+        var problem = Engines.Problem(catalog, 7300m);
+
+        var greedy = Engines.Greedy().Solve(problem);
+        var local = Engines.GreedyLocalSearch().Solve(problem);
+
+        Assert.Equal("Cpu", Assert.Single(greedy.FailedSlots).Category);
+        Assert.Contains("1TB", greedy.Build[Category.Ssd]!.Name);
+        Assert.Empty(local.FailedSlots);
+        Assert.Equal(7250m, local.TotalPrice);
+    }
+
+    [Fact]
+    public void LocalSearch_RepairsTheBuild_ByChangingAPart_SoTheEmptySlotFits()
+    {
+        // No case fits the 4090 (304 mm > 280 mm), so the reserve has no case to price and greedy buys the 4090.
+        // The case cannot go in alone; together with the 4060 (200 mm) it can.
+        var catalog = CatalogFactory.UpgradableCatalog().Where(c => c.Category != Category.Case).ToList();
+        catalog.Add(ComponentBuilder.New(Category.Case, "Compact mid-tower").Price(400)
+            .Spec("SupportedMotherboards", "ATX, Micro-ATX, Mini-ITX").Spec("MaxGpuLength", "280").Spec("MaxCoolerHeight", "170"));
+        var problem = Engines.Problem(catalog, 9000m);
+        var settings = TestConfig.Recommendation with { SlotBudgetTolerance = 10m };
+
+        var greedy = Engines.Greedy(settings).Solve(problem);
+        var local = Engines.GreedyLocalSearch(settings).Solve(problem);
+
+        Assert.Equal("Case", Assert.Single(greedy.FailedSlots).Category);
+        Assert.Contains("4090", greedy.Build.Gpu!.Name);
+        Assert.Empty(local.FailedSlots);
+        Assert.Contains("4060", local.Build.Gpu!.Name);
+    }
+
+    [LocalCatalogFact]
+    public void LocalSearch_CompletesTheBuild_WhereExactDid()
+    {
+        // Harness v3 cells where exact filled more slots than greedy+LS.
+        var catalog = EvaluationSetup.FromRepo(BenchmarkValidationTests.RepoRoot(), EvaluationSetup.DefaultCatalog).Catalog;
+        (decimal Budget, Purpose Purpose, int Slots)[] cells =
+        [
+            (3000m, Purpose.Gaming, 8), (4000m, Purpose.Gaming, 8), (5000m, Purpose.Gaming, 8), (6000m, Purpose.Gaming, 8),
+            (3000m, Purpose.Work, 8), (4000m, Purpose.Work, 8), (3000m, Purpose.Office, 7),
+        ];
+
+        var misses = cells
+            .Select(c => (Cell: c, Solution: Engines.GreedyLocalSearch().Solve(Engines.Problem(catalog, c.Budget, c.Purpose))))
+            .Where(r => r.Solution.Build.Components.Count() < r.Cell.Slots)
+            .Select(r => $"{r.Cell.Purpose} @ {r.Cell.Budget}: missing {string.Join(", ", r.Solution.FailedSlots.Select(f => f.Category))}" +
+                         $" at {r.Solution.TotalPrice} zł — {string.Join(" | ", r.Solution.Build.Components.Select(p => $"{p.Category} {p.Name} {p.Price}"))}")
+            .ToList();
+
+        Assert.True(misses.Count == 0, string.Join("\n", misses));
     }
 
     [Fact]
