@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Boxes, AlertCircle, Sparkles, Radio } from 'lucide-react'
 import type { AppConfig, Purpose, RecommendationResult } from '@/lib/types'
 import { getConfig, getRecommendation, IS_LIVE, PURPOSE_DEFAULT_BUDGET, PURPOSE_LABEL } from '@/lib/api'
-import { readBottleneck } from '@/lib/bottleneck'
+import { readBottleneck, shouldShowBottleneck } from '@/lib/bottleneck'
 import { sortByCategory } from '@/lib/format'
 import { ControlPanel } from '@/components/ControlPanel'
 import { BudgetMeter } from '@/components/BudgetMeter'
@@ -61,6 +61,7 @@ export default function App() {
   const sortedSlots = result
     ? [...result.slots].sort((a, b) => sortByCategory(a.category) - sortByCategory(b.category))
     : []
+  const showBottleneck = shouldShowBottleneck(config, result)
 
   return (
     <div data-purpose={purpose} className="min-h-dvh">
@@ -146,7 +147,7 @@ export default function App() {
                         actualTotalPrice={result.actualTotalPrice}
                       />
                     </div>
-                    <div className="md:col-span-3">
+                    <div className="md:col-span-3" hidden={!showBottleneck}>
                       <BottleneckMeter
                         reading={readBottleneck(result, config.bottleneckThreshold)}
                         threshold={config.bottleneckThreshold}

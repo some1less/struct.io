@@ -14,7 +14,7 @@ public static class Engines
 
     private static CompatibilityEngine Compat() => new(TestConfig.Compatibility);
 
-    public static BuildObjective Objective() => new(Scorer, TestConfig.Objective);
+    public static BuildObjective Objective(ObjectiveSettings? settings = null) => new(Scorer, settings ?? TestConfig.Objective);
 
     public static GreedySolver Greedy(RecommendationSettings? settings = null) =>
         new(Compat(), Scorer, settings ?? TestConfig.Recommendation);
@@ -31,8 +31,9 @@ public static class Engines
     public static MultiStartSolver MultiStart(IPerformanceScorer scorer) =>
         new(GreedyLocalSearch(scorer), new BuildObjective(scorer, TestConfig.Objective));
 
-    public static ExactBuildSolver Exact(ExactSolverSettings? settings = null, IBuildSolver? seed = null) =>
-        new(Compat(), Objective(), Scorer, settings ?? TestConfig.ExactSolver, seed);
+    public static ExactBuildSolver Exact(ExactSolverSettings? settings = null, IBuildSolver? seed = null,
+        ObjectiveSettings? objective = null) =>
+        new(Compat(), Objective(objective), Scorer, settings ?? TestConfig.ExactSolver, seed);
 
     public static RecommendationEngine Recommendation(IEnumerable<Component> catalog, RecommendationSettings? settings = null) =>
         new(new StubComponentRepository(catalog), MultiStart(settings), Scorer, settings ?? TestConfig.Recommendation);

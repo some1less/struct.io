@@ -24,8 +24,9 @@ public class BenchmarkScores
     /// <param name="cpuMarks">Raw CPU name → CPU Mark.</param>
     /// <param name="gpuMarks">Raw GPU chip name → G3D Mark.</param>
     /// <param name="cpuSingleThreadMarks">Raw CPU name → single-thread rating.</param>
+    /// <param name="fixedReferences">Divide by the <see cref="References"/> parts instead of the best matched part.</param>
     public BenchmarkScores(IReadOnlyDictionary<string, double> cpuMarks, IReadOnlyDictionary<string, double> gpuMarks,
-        IReadOnlyDictionary<string, double>? cpuSingleThreadMarks = null)
+        IReadOnlyDictionary<string, double>? cpuSingleThreadMarks = null, bool fixedReferences = false)
     {
         _cpu = BuildMap(cpuMarks);
         _cpuSingle = BuildMap(cpuSingleThreadMarks ?? new Dictionary<string, double>());
@@ -33,7 +34,27 @@ public class BenchmarkScores
         _cpuKeys = _cpu.Keys.OrderByDescending(k => k.Length).ToArray();
         _cpuSingleKeys = _cpuSingle.Keys.OrderByDescending(k => k.Length).ToArray();
         _gpuKeys = _gpu.Keys.OrderByDescending(k => k.Length).ToArray();
+        if (!fixedReferences) return;
+        _cpuReference = ReferenceMark(_cpu, References.CpuMark);
+        _cpuSingleReference = ReferenceMark(_cpuSingle, References.ThreadMark);
+        _gpuReference = ReferenceMark(_gpu, References.G3dMark);
     }
+
+    /// <summary>
+    /// The part each PassMark column is divided by: the best catalog part on 26.11.2026, frozen so that a score
+    /// does not move when the catalog gains or loses its top part.
+    /// </summary>
+    public static readonly (string CpuMark, string ThreadMark, string G3dMark) References =
+        ("AMD Ryzen Threadripper PRO 9995WX", "Intel Core Ultra 9 285K", "GeForce RTX 5090");
+
+    private readonly double? _cpuReference;
+    private readonly double? _cpuSingleReference;
+    private readonly double? _gpuReference;
+
+    private static double ReferenceMark(Dictionary<string, double> map, string name) =>
+        map.TryGetValue(Normalize(name), out var mark) && mark > 0
+            ? mark
+            : throw new InvalidOperationException($"Benchmark reference part '{name}' is missing from the PassMark snapshot.");
 
     private static Dictionary<string, double> BuildMap(IReadOnlyDictionary<string, double> raw)
     {
@@ -62,14 +83,15 @@ public class BenchmarkScores
     }
 
     /// <summary>
-    /// Writes a per-category 0..1 <see cref="Spec.BenchmarkScore"/> (raw mark ÷ best matched mark in that category)
+    /// Writes a per-category 0..1 <see cref="Spec.BenchmarkScore"/> (raw mark ÷ the reference part's mark, or ÷ the best
+    /// matched mark in that category when no references are fixed)
     /// onto every matched CPU/GPU component. Components with no match are left unchanged.
     /// </summary>
     public void Enrich(IReadOnlyList<Component> components)
     {
-        EnrichCategory(components, Category.Cpu, Spec.BenchmarkScore, c => MatchMark(_cpu, _cpuKeys, c.Name));
-        EnrichCategory(components, Category.Cpu, Spec.SingleThreadScore, c => MatchMark(_cpuSingle, _cpuSingleKeys, c.Name));
-        EnrichCategory(components, Category.Gpu, Spec.BenchmarkScore, c =>
+        EnrichCategory(components, Category.Cpu, Spec.BenchmarkScore, _cpuReference, c => MatchMark(_cpu, _cpuKeys, c.Name));
+        EnrichCategory(components, Category.Cpu, Spec.SingleThreadScore, _cpuSingleReference, c => MatchMark(_cpuSingle, _cpuSingleKeys, c.Name));
+        EnrichCategory(components, Category.Gpu, Spec.BenchmarkScore, _gpuReference, c =>
         {
             // New catalogs carry the chip in the Chipset spec (names are full board-partner strings
             // with no parentheses); older catalogs put it in parentheses in the name. Prefer the spec.
@@ -101,7 +123,7 @@ public class BenchmarkScores
     }
 
     private static void EnrichCategory(IReadOnlyList<Component> components, Category category, string spec,
-        Func<Component, double?> lookup)
+        double? reference, Func<Component, double?> lookup)
     {
         var matched = new List<(Component component, double mark)>();
         foreach (var c in components.Where(c => c.Category == category))
@@ -111,11 +133,12 @@ public class BenchmarkScores
         }
         if (matched.Count == 0) return;
 
-        double max = matched.Max(m => m.mark);
+        double max = reference ?? matched.Max(m => m.mark);
         if (max <= 0) return;
 
+        // A part above the reference caps at 1: the scale stays fixed until the reference is moved on purpose.
         foreach (var (component, mark) in matched)
-            component.TechnicalSpecs[spec] = (mark / max).ToString(CultureInfo.InvariantCulture);
+            component.TechnicalSpecs[spec] = Math.Min(mark / max, 1.0).ToString(CultureInfo.InvariantCulture);
     }
 
     /// <summary>Loads the two PassMark CSVs (cpuName,cpuMark,threadMark / gpuName,G3Dmark).</summary>
@@ -124,7 +147,8 @@ public class BenchmarkScores
         return new BenchmarkScores(
             ReadCsv(cpuCsvPath, "cpuName", "cpuMark"),
             ReadCsv(gpuCsvPath, "gpuName", "G3Dmark"),
-            ReadCsv(cpuCsvPath, "cpuName", "threadMark"));
+            ReadCsv(cpuCsvPath, "cpuName", "threadMark"),
+            fixedReferences: true);
     }
 
     private static Dictionary<string, double> ReadCsv(string path, string nameColumn, string markColumn)

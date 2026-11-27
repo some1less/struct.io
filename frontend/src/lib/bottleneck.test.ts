@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { readBottleneck } from './bottleneck'
-import type { RecommendationResult } from './types'
+import { readBottleneck, shouldShowBottleneck } from './bottleneck'
+import type { AppConfig, RecommendationResult } from './types'
 
 function resultWith(scores: Record<string, number>): RecommendationResult {
   const slots = Object.entries(scores).map(([category, performanceScore]) => ({
@@ -32,5 +32,20 @@ describe('readBottleneck', () => {
 
   it('is unknown without both a CPU and a GPU', () => {
     expect(readBottleneck(resultWith({ Cpu: 0.8 }), 0.15).status).toBe('unknown')
+  })
+})
+
+describe('shouldShowBottleneck', () => {
+  const config = { bottleneckPurposes: ['Gaming', 'Work'] } as AppConfig
+  const result = (purpose: string) => ({ purpose }) as unknown as RecommendationResult
+
+  it('follows the purposes the engine penalises', () => {
+    expect(shouldShowBottleneck(config, result('Gaming'))).toBe(true)
+    expect(shouldShowBottleneck(config, result('Office'))).toBe(false)
+  })
+
+  it('stays hidden until both the config and a result are loaded', () => {
+    expect(shouldShowBottleneck(null, result('Gaming'))).toBe(false)
+    expect(shouldShowBottleneck(config, null)).toBe(false)
   })
 })

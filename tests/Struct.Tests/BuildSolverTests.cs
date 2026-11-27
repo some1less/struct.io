@@ -86,20 +86,24 @@ public class BuildSolverTests
         return catalog;
     }
 
-    // Office fills the GPU last, so it is where searching CPU and GPU first changes the bound.
+    // Office ships without the bottleneck penalty; turning it on everywhere keeps Office, which fills the GPU last,
+    // exercising the search order and the penalty-aware bound.
+    private static readonly ObjectiveSettings PenaltyEverywhere = TestConfig.Objective with { BottleneckPurposes = null };
+
     [Theory]
     [MemberData(nameof(BruteForceCases))]
     public void Exact_WithOrWithoutASeed_FindsTheBruteForceOptimum(int budget, Purpose purpose)
     {
         var problem = Engines.Problem(BruteForceCatalog(), budget, purpose);
-        var best = BruteForce(problem);
+        var objective = Engines.Objective(PenaltyEverywhere);
+        var best = BruteForce(problem, objective);
 
-        foreach (var exact in new[] { Engines.Exact(), Engines.Exact(seed: Engines.MultiStart()) })
+        foreach (var exact in new[] { Engines.Exact(objective: PenaltyEverywhere), Engines.Exact(seed: Engines.MultiStart(), objective: PenaltyEverywhere) })
         {
             var solution = exact.Solve(problem);
             Assert.False(solution.TimedOut);
             Assert.Equal(best.Filled, solution.Build.Components.Count());
-            Assert.Equal(best.Objective, Objective(problem, solution), precision: 9);
+            Assert.Equal(best.Objective, objective.Evaluate(solution.Build, problem.Profile.Weights, purpose), precision: 9);
         }
     }
 
@@ -107,21 +111,22 @@ public class BuildSolverTests
     public void BruteForceCatalog_HasOfficeOptimaTheBottleneckPenaltyShapes()
     {
         // Without a binding penalty the theory above would never exercise the penalty-aware bound.
-        var noPenalty = new BuildObjective(new PerformanceScorer(), TestConfig.Objective with { BottleneckWeight = 0 });
+        var noPenalty = new BuildObjective(new PerformanceScorer(), PenaltyEverywhere with { BottleneckWeight = 0 });
+        var withPenalty = Engines.Objective(PenaltyEverywhere);
 
         var penalised = BruteForceCases().Select(c => Engines.Problem(BruteForceCatalog(), (int)c[0], (Purpose)c[1]))
             .Where(p => p.Purpose == Purpose.Office)
             .Count(p =>
             {
-                var build = BruteForce(p).Build;
-                return noPenalty.Evaluate(build, p.Profile.Weights, p.Purpose) - Engines.Objective().Evaluate(build, p.Profile.Weights, p.Purpose) > 1e-9;
+                var build = BruteForce(p, withPenalty).Build;
+                return noPenalty.Evaluate(build, p.Profile.Weights, p.Purpose) - withPenalty.Evaluate(build, p.Profile.Weights, p.Purpose) > 1e-9;
             });
 
         Assert.True(penalised > 0, "no Office optimum pays a bottleneck penalty");
     }
 
     // Every combination, each slot filled with any affordable compatible part or left empty; best by (filled, objective).
-    private static (int Filled, double Objective, BuildContext Build) BruteForce(BuildProblem problem)
+    private static (int Filled, double Objective, BuildContext Build) BruteForce(BuildProblem problem, BuildObjective objective)
     {
         var compat = new CompatibilityEngine(TestConfig.Compatibility);
         var sequence = problem.Profile.Sequence;
@@ -131,7 +136,7 @@ public class BuildSolverTests
         {
             if (i == sequence.Count)
             {
-                var score = (build.Components.Count(), Engines.Objective().Evaluate(build, problem.Profile.Weights, problem.Purpose));
+                var score = (build.Components.Count(), objective.Evaluate(build, problem.Profile.Weights, problem.Purpose));
                 if (score.CompareTo(best) > 0) (best, bestBuild) = (score, build);
                 return;
             }
@@ -220,15 +225,15 @@ public class BuildSolverTests
     [Fact]
     public void LocalSearch_TakesACheaperPartThatImprovesTheObjective()
     {
-        // The 4070 outscores the CPU by far more than the threshold; the cheaper 4060 loses some GPU score
-        // but cuts the bottleneck penalty by more, at a negative Δprice.
+        // The 4070 outscores the CPU by far more than the threshold; the cheaper 4060 loses 0.35·0.39 of GPU score
+        // but cuts the penalty by 0.5·(√0.64 − √0.25) = 0.15, at a negative Δprice.
         var catalog = CatalogFactory.FullCoherentCatalog();
         catalog.Add(ComponentBuilder.New(Category.Gpu, "NVIDIA RTX 4060").Price(1200)
             .Spec("VRAM", "8").Spec("TDP", "115").Spec("Length", "200"));
         var scores = catalog.ToDictionary(c => c.Name, _ => 0.5);
-        scores["AMD Ryzen 7 7800X3D"] = 0.3;
-        scores["NVIDIA RTX 4070"] = 0.9;
-        scores["NVIDIA RTX 4060"] = 0.6;
+        scores["AMD Ryzen 7 7800X3D"] = 0.01;
+        scores["NVIDIA RTX 4070"] = 0.64;
+        scores["NVIDIA RTX 4060"] = 0.25;
 
         var solution = Engines.GreedyLocalSearch(new FixedScorer(scores)).Solve(Engines.Problem(catalog, 7500m));
 

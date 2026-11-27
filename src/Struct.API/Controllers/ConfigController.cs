@@ -22,6 +22,7 @@ public class ConfigController : ControllerBase
     {
         _recommendation.MinBudget,
         Purposes = Enum.GetValues<Purpose>(),
-        _objective.BottleneckThreshold
+        _objective.BottleneckThreshold,
+        BottleneckPurposes = _objective.BottleneckPurposes ?? Enum.GetValues<Purpose>()
     });
 }

@@ -49,6 +49,27 @@ public class BenchmarkScoresTests
     }
 
     [Fact]
+    public void FixedReferences_CapAPartAboveTheReferenceAtOne()
+    {
+        var cpu = new Dictionary<string, double> { [BenchmarkScores.References.CpuMark] = 1000, ["Future CPU"] = 1500 };
+        var single = new Dictionary<string, double> { [BenchmarkScores.References.ThreadMark] = 10 };
+        var gpu = new Dictionary<string, double> { [BenchmarkScores.References.G3dMark] = 100 };
+        var part = ComponentBuilder.New(Category.Cpu, "Future CPU").Build();
+
+        new BenchmarkScores(cpu, gpu, single, fixedReferences: true).Enrich(new[] { part });
+
+        Assert.Equal("1", part.TechnicalSpecs["BenchmarkScore"]);
+    }
+
+    [Fact]
+    public void FixedReferences_FailLoudly_WhenTheSnapshotLacksAReferencePart()
+    {
+        var cpu = new Dictionary<string, double> { ["Some CPU"] = 1000 };
+
+        Assert.Throws<InvalidOperationException>(() => new BenchmarkScores(cpu, cpu, cpu, fixedReferences: true));
+    }
+
+    [Fact]
     public void FromCsvFiles_ReadsThreadMark_AndEnrichWritesSingleThreadScore()
     {
         var dir = Directory.CreateTempSubdirectory().FullName;
@@ -56,8 +77,10 @@ public class BenchmarkScoresTests
         {
             var cpuCsv = Path.Combine(dir, "cpu.csv");
             var gpuCsv = Path.Combine(dir, "gpu.csv");
-            File.WriteAllText(cpuCsv, "cpuName,cpuMark,threadMark\nAMD Ryzen 9 5950X,46000,3000\nIntel Core i5-10400,12000,4000\n");
-            File.WriteAllText(gpuCsv, "gpuName,G3Dmark\n");
+            // The reference parts are in the snapshot but not in the catalog: scores divide by them, not by the catalog best.
+            File.WriteAllText(cpuCsv, "cpuName,cpuMark,threadMark\nAMD Ryzen 9 5950X,46000,3000\nIntel Core i5-10400,12000,4000\n" +
+                "AMD Ryzen Threadripper PRO 9995WX,92000,2500\nIntel Core Ultra 9 285K,60000,5000\n");
+            File.WriteAllText(gpuCsv, "gpuName,G3Dmark\nGeForce RTX 5090,40000\n");
             var manyCores = ComponentBuilder.New(Category.Cpu, "AMD Ryzen 9 5950X").Build();
             var fastCore = ComponentBuilder.New(Category.Cpu, "Intel Core i5-10400").Build();
 
@@ -65,9 +88,9 @@ public class BenchmarkScoresTests
 
             double Score(Component c, string spec) =>
                 double.Parse(c.TechnicalSpecs[spec], System.Globalization.CultureInfo.InvariantCulture);
-            Assert.Equal(1.0, Score(manyCores, "BenchmarkScore"), 6);
-            Assert.Equal(3000.0 / 4000.0, Score(manyCores, "SingleThreadScore"), 6);
-            Assert.Equal(1.0, Score(fastCore, "SingleThreadScore"), 6);
+            Assert.Equal(46000.0 / 92000.0, Score(manyCores, "BenchmarkScore"), 6);
+            Assert.Equal(3000.0 / 5000.0, Score(manyCores, "SingleThreadScore"), 6);
+            Assert.Equal(4000.0 / 5000.0, Score(fastCore, "SingleThreadScore"), 6);
         }
         finally
         {
