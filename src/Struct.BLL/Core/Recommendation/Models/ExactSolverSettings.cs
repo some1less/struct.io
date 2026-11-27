@@ -7,4 +7,9 @@ public record ExactSolverSettings
 
     /// <summary>Past this the search stops and returns its incumbent, flagged <see cref="BuildSolution.TimedOut"/>.</summary>
     public TimeSpan TimeLimit { get; init; }
+
+    /// <summary>Fails at startup on a time limit the search could not run with.</summary>
+    public ExactSolverSettings Validated() => TimeLimit > TimeSpan.Zero
+        ? this
+        : throw new InvalidOperationException($"Engine:ExactSolver:TimeLimit must be positive, got {TimeLimit}.");
 }

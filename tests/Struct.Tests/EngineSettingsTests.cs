@@ -22,6 +22,15 @@ public class EngineSettingsTests
     }
 
     [Fact]
+    public void ExactSolver_RejectsANonPositiveTimeLimit()
+    {
+        var shipped = TestConfig.ExactSolver;
+
+        Assert.Same(shipped, shipped.Validated());
+        Assert.Throws<InvalidOperationException>(() => (shipped with { TimeLimit = TimeSpan.Zero }).Validated());
+    }
+
+    [Fact]
     public void SlotBudgetTolerance_ComesFromSettings()
     {
         // Greedy alone: local search fills what the slot caps leave empty.

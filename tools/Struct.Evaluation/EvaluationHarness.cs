@@ -31,8 +31,6 @@ public sealed class EvaluationHarness
     public EvaluationHarness(IReadOnlyList<Component> catalog, RecommendationSettings recommendation,
         ObjectiveSettings objective, CompatibilitySettings compatibility, ExactSolverSettings exact)
     {
-        // The upgrade pass skips a candidate with the chosen part's Id, and catalog rows all carry Id 0.
-        for (int i = 0; i < catalog.Count; i++) catalog[i].Id = i + 1;
         Catalog = catalog;
         _recommendation = recommendation;
         _objective = objective;

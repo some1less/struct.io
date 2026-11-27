@@ -20,7 +20,7 @@ public class EvaluationHarnessTests
         var gaming = rows.Where(r => r.Purpose == Purpose.Gaming).ToDictionary(r => r.Solver);
         Assert.Equal(100, gaming["exact"].PctOfOptimal!.Value, precision: 9);
         Assert.Contains("4060", gaming["greedy"].Gpu);
-        // Catalog parts come with Id 0; the harness must number them or the upgrade pass skips every candidate.
+        // Catalog parts all come with Id 0; the upgrade pass must still tell them apart.
         Assert.Contains("4090", gaming["greedy+ls"].Gpu);
         Assert.True(gaming["greedy"].PctOfOptimal < gaming["greedy+ls"].PctOfOptimal);
         Assert.True(gaming["greedy+ls"].PctOfOptimal <= gaming["multistart"].PctOfOptimal);
@@ -78,10 +78,10 @@ public class EvaluationHarnessTests
     [Fact]
     public void CiFixture_GivesTheLiveSolverAFullBuild_AtTheSmokeAndE2eBudgets()
     {
-        // smoke.sh asks for 12000 zł per purpose; the e2e test opens Gaming at 9000 zł
+        // smoke.sh asks for 5000 and 12000 zł per purpose; the e2e test opens Gaming at 9000 zł
         var harness = EvaluationSetup.FromRepo(BenchmarkValidationTests.RepoRoot(), CiFixture);
 
-        var live = harness.Grid([9000m, 12000m]).Where(r => r.Solver == "multistart").ToList();
+        var live = harness.Grid([5000m, 9000m, 12000m]).Where(r => r.Solver == "multistart").ToList();
 
         Assert.NotEmpty(live);
         Assert.All(live, r => Assert.True(r.Complete, $"{r.Purpose} @ {r.Budget}: {r.Filled} slots"));
@@ -95,7 +95,6 @@ public class EvaluationHarnessTests
         var catalog = EvaluationSetup.FromRepo(BenchmarkValidationTests.RepoRoot(), CiFixture).Catalog;
 
         Assert.Equal(Enum.GetValues<Category>().Length, catalog.Select(c => c.Category).Distinct().Count());
-        Assert.Equal(catalog.Count, catalog.Select(c => c.Id).Distinct().Count());
         Assert.Contains(catalog, c => c.TechnicalSpecs.ContainsKey(Spec.BenchmarkScore));
     }
 

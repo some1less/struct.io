@@ -61,7 +61,8 @@ public class GreedyLocalSearchSolver : IBuildSolver
 
         foreach (var move in moves)
         {
-            if (move.Any(part => part.Id == build[part.Category]?.Id)) continue;
+            // By reference: catalog rows outside the database (harness, tests) all carry Id 0.
+            if (move.Any(part => ReferenceEquals(part, build[part.Category]))) continue;
             decimal extra = move.Sum(part => part.Price - (build[part.Category]?.Price ?? 0));
             if (total + extra > problem.Budget) continue;
 

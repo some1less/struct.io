@@ -37,6 +37,6 @@ public static class EvaluationSetup
 
         return new EvaluationHarness(catalog, Bind<RecommendationSettings>("Engine:Recommendation"),
             Bind<ObjectiveSettings>("Engine:Objective"), Bind<CompatibilitySettings>("Engine:Compatibility"),
-            Bind<ExactSolverSettings>("Engine:ExactSolver"));
+            Bind<ExactSolverSettings>("Engine:ExactSolver").Validated());
     }
 }

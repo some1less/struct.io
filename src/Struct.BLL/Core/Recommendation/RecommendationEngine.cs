@@ -53,7 +53,7 @@ public class RecommendationEngine : IRecommendationEngine
             {
                 Category = category.ToString(),
                 AllocatedBudget = Math.Round(solution.AllocatedBudgets[category], 2, MidpointRounding.AwayFromZero),
-                PriceShare = Math.Round(chosen.Price / solution.TotalPrice, 3, MidpointRounding.AwayFromZero),
+                PriceShare = solution.TotalPrice == 0 ? 0 : Math.Round(chosen.Price / solution.TotalPrice, 3, MidpointRounding.AwayFromZero),
                 Recommendations = new List<RankedComponent>
                 {
                     new RankedComponent
