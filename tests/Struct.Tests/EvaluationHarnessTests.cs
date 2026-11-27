@@ -19,6 +19,7 @@ public class EvaluationHarnessTests
         Assert.Equal(12, rows.Count);
         var gaming = rows.Where(r => r.Purpose == Purpose.Gaming).ToDictionary(r => r.Solver);
         Assert.Equal(100, gaming["exact"].PctOfOptimal!.Value, precision: 9);
+        Assert.All(gaming.Values, r => Assert.True(r.RefProven));
         Assert.Contains("4060", gaming["greedy"].Gpu);
         // Catalog parts all come with Id 0; the upgrade pass must still tell them apart.
         Assert.Contains("4090", gaming["greedy+ls"].Gpu);
@@ -69,9 +70,9 @@ public class EvaluationHarnessTests
     public void Csv_QuotesNames_AndLabelsTheUnboundedTopK()
     {
         var row = new EvaluationRow(5000m, Purpose.Work, "exact", EvaluationHarness.AllCandidates, 0.5,
-            1.23456, 99.5, 4500m, true, 8, false, 1.5, "Ryzen \"X\", 8C", "");
+            1.23456, 99.5, 4500m, true, 8, false, 1.5, "Ryzen \"X\", 8C", "", true);
 
-        Assert.Equal("5000,Work,exact,all,0.5,1.2346,99.50,4500,90.00,true,8,false,1.50,\"Ryzen \"\"X\"\", 8C\",\"\"",
+        Assert.Equal("5000,Work,exact,all,0.5,1.2346,99.50,4500,90.00,true,8,false,1.50,\"Ryzen \"\"X\"\", 8C\",\"\",true",
             row.ToCsv());
     }
 

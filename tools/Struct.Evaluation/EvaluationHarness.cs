@@ -10,7 +10,8 @@ namespace Struct.Evaluation;
 
 /// <summary>
 /// Runs greedy, greedy + local search, multi-start over it and exact (over all candidates) on budget × purpose scenarios and reports
-/// each build against the best one found; plus TopK and λ sweeps. The best is the exact build unless exact timed out.
+/// each build against the best one found; plus TopK and λ sweeps. Exact starts from the multi-start build, so the best
+/// is the exact build; it is a proven optimum only when exact finished within its time limit (ref_proven).
 /// </summary>
 public sealed class EvaluationHarness
 {
@@ -52,10 +53,11 @@ public sealed class EvaluationHarness
     public IEnumerable<EvaluationRow> TopKSweep(IEnumerable<decimal> budgets)
     {
         var objective = new BuildObjective(_scorer, _objective);
+        var seed = Solvers(objective, AllCandidates).OfType<MultiStartSolver>().Single();
         foreach (var (budget, purpose) in Scenarios(budgets))
         {
             var problem = Problem(budget, purpose);
-            var runs = TopKs.Select(k => Measure(k, Exact(objective, k), problem, objective)).ToList();
+            var runs = TopKs.Select(k => Measure(k, Exact(objective, k, seed), problem, objective)).ToList();
             foreach (var row in Rows(runs, problem, _objective.BottleneckWeight)) yield return row;
         }
     }
@@ -100,11 +102,13 @@ public sealed class EvaluationHarness
     {
         var greedy = new GreedySolver(_compatibility, _scorer, _recommendation);
         var localSearch = new GreedyLocalSearchSolver(greedy, _compatibility, objective);
-        return [greedy, localSearch, new MultiStartSolver(localSearch, objective), Exact(objective, topK)];
+        var multiStart = new MultiStartSolver(localSearch, objective);
+        return [greedy, localSearch, multiStart, Exact(objective, topK, multiStart)];
     }
 
-    private ExactBuildSolver Exact(BuildObjective objective, int topK) =>
-        new(_compatibility, objective, _scorer, _exact with { TopKPerCategory = topK });
+    // Seeded with the live solver's build: exact then only has to prove it optimal or beat it.
+    private ExactBuildSolver Exact(BuildObjective objective, int topK, MultiStartSolver seed) =>
+        new(_compatibility, objective, _scorer, _exact with { TopKPerCategory = topK }, seed);
 
     private BuildProblem Problem(decimal budget, Purpose purpose)
     {
@@ -116,9 +120,16 @@ public sealed class EvaluationHarness
 
     private static Run Measure(int? topK, IBuildSolver solver, BuildProblem problem, BuildObjective objective)
     {
-        var clock = Stopwatch.StartNew();
-        var solution = solver.Solve(problem);
-        double ms = clock.Elapsed.TotalMilliseconds;
+        // Heuristics take milliseconds, so one run is noise: their time is the median of 5. Exact runs once.
+        var times = new double[solver is ExactBuildSolver ? 1 : 5];
+        BuildSolution solution = null!;
+        for (int i = 0; i < times.Length; i++)
+        {
+            var clock = Stopwatch.StartNew();
+            solution = solver.Solve(problem);
+            times[i] = clock.Elapsed.TotalMilliseconds;
+        }
+        double ms = times.Order().ElementAt(times.Length / 2);
         string name = solver switch
         {
             GreedySolver => "greedy", GreedyLocalSearchSolver => "greedy+ls", MultiStartSolver => "multistart",
@@ -130,15 +141,18 @@ public sealed class EvaluationHarness
     private static IEnumerable<EvaluationRow> Rows(List<Run> runs, BuildProblem problem, double lambda)
     {
         var best = runs.MaxBy(r => (r.Filled, r.Objective))!;
+        // Seeded exact is never below another solver, so a full search that finished proves the best build optimal.
+        bool proven = runs.Any(r => r.Solver == "exact" && r.TopK == AllCandidates && !r.Solution.TimedOut);
         return runs.Select(run => new EvaluationRow(
             problem.Budget, problem.Purpose, run.Solver, run.TopK, lambda, run.Objective,
-            run.Filled == best.Filled && best.Objective > 0 ? run.Objective / best.Objective * 100 : null,
+            run.Slots.SetEquals(best.Slots) && best.Objective > 0 ? run.Objective / best.Objective * 100 : null,
             run.Solution.TotalPrice, run.Solution.FailedSlots.Count == 0, run.Filled, run.Solution.TimedOut, run.Ms,
-            run.Solution.Build.Cpu?.Name ?? "", run.Solution.Build.Gpu?.Name ?? ""));
+            run.Solution.Build.Cpu?.Name ?? "", run.Solution.Build.Gpu?.Name ?? "", proven));
     }
 
     private sealed record Run(string Solver, int? TopK, BuildSolution Solution, double Objective, double Ms)
     {
         public int Filled => Solution.Build.Components.Count();
+        public IReadOnlySet<Category> Slots { get; } = Solution.Build.Components.Select(c => c.Category).ToHashSet();
     }
 }

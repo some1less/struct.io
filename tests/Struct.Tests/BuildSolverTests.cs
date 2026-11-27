@@ -1,4 +1,5 @@
 using Struct.BLL.Core;
+using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation;
 using Struct.BLL.Core.Recommendation.Models;
 using Struct.DAL.Models;
@@ -46,6 +47,76 @@ public class BuildSolverTests
 
         Assert.True(solution.TimedOut);
         Assert.Empty(solution.Build.Components);
+        Assert.All(solution.FailedSlots, f => Assert.Contains("time limit", f.Reason));
+    }
+
+    [Fact]
+    public void Exact_PastItsTimeLimit_KeepsTheSeedBuild()
+    {
+        var problem = Engines.Problem(CatalogFactory.UpgradableCatalog(), 9000m);
+        var seed = Engines.MultiStart().Solve(problem);
+
+        var solution = Engines.Exact(TestConfig.ExactSolver with { TimeLimit = TimeSpan.Zero }, Engines.MultiStart()).Solve(problem);
+
+        Assert.True(solution.TimedOut);
+        Assert.Empty(solution.FailedSlots);
+        Assert.Equal(seed.Build.Components.Select(c => c.Id), solution.Build.Components.Select(c => c.Id));
+    }
+
+    [Theory]
+    [InlineData(5000)]
+    [InlineData(7000)]
+    [InlineData(8000)]
+    [InlineData(9000)]
+    [InlineData(10500)]
+    [InlineData(13000)]
+    public void Exact_WithOrWithoutASeed_FindsTheBruteForceOptimum(int budget)
+    {
+        // Several parts per slot at different prices, so the budget-aware bound cuts real branches.
+        var catalog = CatalogFactory.GreedyTrapCatalog();
+        catalog.AddRange([
+            ComponentBuilder.New(Category.Gpu, "NVIDIA RTX 4060").Price(1200).Spec("TDP", "115").Spec("Length", "200"),
+            ComponentBuilder.New(Category.Ram, "Corsair Vengeance 64GB DDR5").Price(1800)
+                .Spec("Type", "DDR5").Spec("Capacity", "64").Spec("Speed", "6000").Spec("Modules", "2"),
+            ComponentBuilder.New(Category.Ssd, "Samsung 990 Pro 2TB").Price(650).Spec("Capacity", "2 TB").Spec("Interface", "NVMe")
+        ]);
+        var problem = Engines.Problem(catalog, budget);
+        var best = BruteForce(problem);
+
+        foreach (var exact in new[] { Engines.Exact(), Engines.Exact(seed: Engines.MultiStart()) })
+        {
+            var solution = exact.Solve(problem);
+            Assert.False(solution.TimedOut);
+            Assert.Equal(best.Filled, solution.Build.Components.Count());
+            Assert.Equal(best.Objective, Objective(problem, solution), precision: 9);
+        }
+    }
+
+    // Every combination, each slot filled with any affordable compatible part or left empty; best by (filled, objective).
+    private static (int Filled, double Objective) BruteForce(BuildProblem problem)
+    {
+        var compat = new CompatibilityEngine(TestConfig.Compatibility);
+        var sequence = problem.Profile.Sequence;
+        (int, double) best = (-1, double.NegativeInfinity);
+        void Walk(int i, BuildContext build, decimal spent)
+        {
+            if (i == sequence.Count)
+            {
+                var score = (build.Components.Count(), Engines.Objective().Evaluate(build, problem.Profile.Weights, problem.Purpose));
+                if (score.CompareTo(best) > 0) best = score;
+                return;
+            }
+            foreach (var part in problem.Candidates[sequence[i]])
+            {
+                if (spent + part.Price > problem.Budget || !compat.CheckCompatibility(build, part).IsCompatible) continue;
+                var next = build.Clone();
+                next.Assign(part);
+                Walk(i + 1, next, spent + part.Price);
+            }
+            Walk(i + 1, build, spent);
+        }
+        Walk(0, new BuildContext(), 0m);
+        return best;
     }
 
     [Fact]
