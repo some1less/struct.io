@@ -223,27 +223,26 @@ public class PerformanceScorer : IPerformanceScorer
     }
     
 
-    // Benchmark-backed score: a pre-normalized 0..1 PassMark ratio stored at seed time. The √ curve
-    // matches the heuristic's Normalize so matched and (rare) unmatched parts stay roughly comparable.
+    /// <summary>
+    /// The score as shown to people: √ lifts mid-tier parts (0.25 shows as 0.50). It is only for display and for the
+    /// CPU↔GPU balance check, which compares the tiers people see; the objective sums the linear score.
+    /// </summary>
+    public static double Display(double score) => Math.Sqrt(score);
+
+    // Benchmark-backed score: a pre-normalized 0..1 PassMark ratio stored at seed time.
     private static bool TryBenchmarkScore(Dictionary<string, string> specs, string spec, out double score)
     {
         score = 0;
         if (specs.TryGetValue(spec, out var raw) &&
             double.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, out var ratio))
         {
-            score = Math.Sqrt(Math.Clamp(ratio, 0.0, 1.0));
+            score = Math.Clamp(ratio, 0.0, 1.0);
             return true;
         }
         return false;
     }
 
-    // takes input value and transforms to from 0.0 to 1.0 using a curve
-    private double Normalize(double value, double min, double max)
-    {
-        double normalized = (value - min) / (max - min);
-        normalized = Math.Clamp(normalized, 0.0, 1.0);
-        // Apply square root curve to inflate mid-tier scores for better UX 
-        // e.g. 0.36 becomes 0.60, 0.81 becomes 0.90
-        return Math.Sqrt(normalized);
-    }
+    // Linear 0..1 position between the heuristic's floor and ceiling.
+    private static double Normalize(double value, double min, double max) =>
+        Math.Clamp((value - min) / (max - min), 0.0, 1.0);
 }

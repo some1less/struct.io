@@ -220,15 +220,15 @@ public class BuildSolverTests
     [Fact]
     public void LocalSearch_TakesACheaperPartThatImprovesTheObjective()
     {
-        // The 4070 outscores the CPU by far more than the threshold; the cheaper 4060 loses some GPU score
-        // but cuts the bottleneck penalty by more, at a negative Δprice.
+        // The 4070 outscores the CPU by far more than the threshold; the cheaper 4060 loses 0.35·0.39 of GPU score
+        // but cuts the penalty by 0.5·(√0.64 − √0.25) = 0.15, at a negative Δprice.
         var catalog = CatalogFactory.FullCoherentCatalog();
         catalog.Add(ComponentBuilder.New(Category.Gpu, "NVIDIA RTX 4060").Price(1200)
             .Spec("VRAM", "8").Spec("TDP", "115").Spec("Length", "200"));
         var scores = catalog.ToDictionary(c => c.Name, _ => 0.5);
-        scores["AMD Ryzen 7 7800X3D"] = 0.3;
-        scores["NVIDIA RTX 4070"] = 0.9;
-        scores["NVIDIA RTX 4060"] = 0.6;
+        scores["AMD Ryzen 7 7800X3D"] = 0.01;
+        scores["NVIDIA RTX 4070"] = 0.64;
+        scores["NVIDIA RTX 4060"] = 0.25;
 
         var solution = Engines.GreedyLocalSearch(new FixedScorer(scores)).Solve(Engines.Problem(catalog, 7500m));
 

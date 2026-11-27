@@ -6,7 +6,7 @@ using Struct.DAL.Models;
 namespace Struct.BLL.Core.Recommendation;
 
 /// <summary>
-/// Scalar quality of a whole build: Σ(weightᵢ × scoreᵢ) minus a CPU↔GPU imbalance penalty.
+/// Scalar quality of a whole build: Σ(weightᵢ × scoreᵢ) over linear scores, minus a CPU↔GPU imbalance penalty.
 /// Maximized by the local-search upgrade pass (and, later, the exact solver).
 /// </summary>
 public class BuildObjective
@@ -35,8 +35,9 @@ public class BuildObjective
     private double BottleneckPenalty(BuildContext build, Purpose purpose)
     {
         if (build.Cpu == null || build.Gpu == null) return 0;
-        double cpu = _scorer.CalculateScore(build.Cpu, purpose);
-        double gpu = _scorer.CalculateScore(build.Gpu, purpose);
+        // On the displayed (√) scale, the one the UI meter and θ are expressed in.
+        double cpu = PerformanceScorer.Display(_scorer.CalculateScore(build.Cpu, purpose));
+        double gpu = PerformanceScorer.Display(_scorer.CalculateScore(build.Gpu, purpose));
         double gap = Math.Abs(cpu - gpu);
         return Math.Max(0, gap - _settings.BottleneckThreshold);
     }

@@ -60,7 +60,7 @@ public class RecommendationEngine : IRecommendationEngine
                     {
                         Rank = 1,
                         Component = chosen.Adapt<ComponentDto>(),
-                        PerformanceScore = Math.Round(_scorer.CalculateScore(chosen, purpose), 3)
+                        PerformanceScore = Math.Round(PerformanceScorer.Display(_scorer.CalculateScore(chosen, purpose)), 3)
                     }
                 }
             });

@@ -102,12 +102,13 @@ public class PerformanceScorerTests
     [Fact]
     public void Cpu_WithBenchmarkScores_Work_UsesMultiThread_GamingAndOffice_UseSingleThread()
     {
-        // Both are pre-normalized 0..1 ratios; the scorer applies the √ curve for UX parity.
+        // Both are pre-normalized 0..1 ratios, scored as they are; √ is applied only for display.
         Component c = ComponentBuilder.New(Category.Cpu, "anything")
             .Spec("BenchmarkScore", "0.25").Spec("SingleThreadScore", "0.81");
-        Assert.Equal(0.5, _scorer.CalculateScore(c, Purpose.Work), precision: 6);   // sqrt(0.25)
-        Assert.Equal(0.9, _scorer.CalculateScore(c, Purpose.Gaming), precision: 6); // sqrt(0.81)
-        Assert.Equal(0.9, _scorer.CalculateScore(c, Purpose.Office), precision: 6);
+        Assert.Equal(0.25, _scorer.CalculateScore(c, Purpose.Work), precision: 6);
+        Assert.Equal(0.81, _scorer.CalculateScore(c, Purpose.Gaming), precision: 6);
+        Assert.Equal(0.81, _scorer.CalculateScore(c, Purpose.Office), precision: 6);
+        Assert.Equal(0.9, PerformanceScorer.Display(0.81), precision: 6);
     }
 
     [Fact]
