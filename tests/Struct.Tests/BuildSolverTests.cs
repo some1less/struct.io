@@ -2,6 +2,7 @@ using Struct.BLL.Core;
 using Struct.BLL.Core.Compatibility;
 using Struct.BLL.Core.Recommendation;
 using Struct.BLL.Core.Recommendation.Models;
+using Struct.BLL.Core.Scoring;
 using Struct.DAL.Models;
 using Struct.Evaluation;
 using Struct.Tests.TestSupport;
@@ -63,16 +64,18 @@ public class BuildSolverTests
         Assert.Equal(seed.Build.Components.Select(c => c.Id), solution.Build.Components.Select(c => c.Id));
     }
 
-    [Theory]
-    [InlineData(5000)]
-    [InlineData(7000)]
-    [InlineData(8000)]
-    [InlineData(9000)]
-    [InlineData(10500)]
-    [InlineData(13000)]
-    public void Exact_WithOrWithoutASeed_FindsTheBruteForceOptimum(int budget)
+    public static TheoryData<int, Purpose> BruteForceCases()
     {
-        // Several parts per slot at different prices, so the budget-aware bound cuts real branches.
+        var cases = new TheoryData<int, Purpose>();
+        foreach (var purpose in Enum.GetValues<Purpose>())
+        foreach (var budget in new[] { 5000, 7000, 8000, 9000, 10500, 13000 })
+            cases.Add(budget, purpose);
+        return cases;
+    }
+
+    // Several parts per slot at different prices, so the budget-aware bound cuts real branches.
+    private static List<Component> BruteForceCatalog()
+    {
         var catalog = CatalogFactory.GreedyTrapCatalog();
         catalog.AddRange([
             ComponentBuilder.New(Category.Gpu, "NVIDIA RTX 4060").Price(1200).Spec("TDP", "115").Spec("Length", "200"),
@@ -80,7 +83,15 @@ public class BuildSolverTests
                 .Spec("Type", "DDR5").Spec("Capacity", "64").Spec("Speed", "6000").Spec("Modules", "2"),
             ComponentBuilder.New(Category.Ssd, "Samsung 990 Pro 2TB").Price(650).Spec("Capacity", "2 TB").Spec("Interface", "NVMe")
         ]);
-        var problem = Engines.Problem(catalog, budget);
+        return catalog;
+    }
+
+    // Office fills the GPU last, so it is where searching CPU and GPU first changes the bound.
+    [Theory]
+    [MemberData(nameof(BruteForceCases))]
+    public void Exact_WithOrWithoutASeed_FindsTheBruteForceOptimum(int budget, Purpose purpose)
+    {
+        var problem = Engines.Problem(BruteForceCatalog(), budget, purpose);
         var best = BruteForce(problem);
 
         foreach (var exact in new[] { Engines.Exact(), Engines.Exact(seed: Engines.MultiStart()) })
@@ -92,18 +103,36 @@ public class BuildSolverTests
         }
     }
 
+    [Fact]
+    public void BruteForceCatalog_HasOfficeOptimaTheBottleneckPenaltyShapes()
+    {
+        // Without a binding penalty the theory above would never exercise the penalty-aware bound.
+        var noPenalty = new BuildObjective(new PerformanceScorer(), TestConfig.Objective with { BottleneckWeight = 0 });
+
+        var penalised = BruteForceCases().Select(c => Engines.Problem(BruteForceCatalog(), (int)c[0], (Purpose)c[1]))
+            .Where(p => p.Purpose == Purpose.Office)
+            .Count(p =>
+            {
+                var build = BruteForce(p).Build;
+                return noPenalty.Evaluate(build, p.Profile.Weights, p.Purpose) - Engines.Objective().Evaluate(build, p.Profile.Weights, p.Purpose) > 1e-9;
+            });
+
+        Assert.True(penalised > 0, "no Office optimum pays a bottleneck penalty");
+    }
+
     // Every combination, each slot filled with any affordable compatible part or left empty; best by (filled, objective).
-    private static (int Filled, double Objective) BruteForce(BuildProblem problem)
+    private static (int Filled, double Objective, BuildContext Build) BruteForce(BuildProblem problem)
     {
         var compat = new CompatibilityEngine(TestConfig.Compatibility);
         var sequence = problem.Profile.Sequence;
         (int, double) best = (-1, double.NegativeInfinity);
+        var bestBuild = new BuildContext();
         void Walk(int i, BuildContext build, decimal spent)
         {
             if (i == sequence.Count)
             {
                 var score = (build.Components.Count(), Engines.Objective().Evaluate(build, problem.Profile.Weights, problem.Purpose));
-                if (score.CompareTo(best) > 0) best = score;
+                if (score.CompareTo(best) > 0) (best, bestBuild) = (score, build);
                 return;
             }
             foreach (var part in problem.Candidates[sequence[i]])
@@ -116,7 +145,7 @@ public class BuildSolverTests
             Walk(i + 1, build, spent);
         }
         Walk(0, new BuildContext(), 0m);
-        return best;
+        return (best.Item1, best.Item2, bestBuild);
     }
 
     [Fact]

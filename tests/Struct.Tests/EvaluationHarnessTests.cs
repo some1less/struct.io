@@ -52,6 +52,18 @@ public class EvaluationHarnessTests
     }
 
     [Fact]
+    public void Grid_ExactPastItsTimeLimit_LeavesTheReferenceUnproven()
+    {
+        var harness = new EvaluationHarness(CatalogFactory.UpgradableCatalog(), TestConfig.Recommendation,
+            TestConfig.Objective, TestConfig.Compatibility, TestConfig.ExactSolver with { TimeLimit = TimeSpan.Zero });
+
+        var rows = harness.Grid([9000m]).ToList();
+
+        Assert.All(rows.Where(r => r.Solver == "exact"), r => Assert.True(r.TimedOut));
+        Assert.All(rows, r => Assert.False(r.RefProven));
+    }
+
+    [Fact]
     public void Sweeps_CoverEveryTopKAndLambda()
     {
         var harness = Harness(CatalogFactory.GreedyTrapCatalog());

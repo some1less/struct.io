@@ -53,11 +53,11 @@ public sealed class EvaluationHarness
     public IEnumerable<EvaluationRow> TopKSweep(IEnumerable<decimal> budgets)
     {
         var objective = new BuildObjective(_scorer, _objective);
-        var seed = Solvers(objective, AllCandidates).OfType<MultiStartSolver>().Single();
         foreach (var (budget, purpose) in Scenarios(budgets))
         {
             var problem = Problem(budget, purpose);
-            var runs = TopKs.Select(k => Measure(k, Exact(objective, k, seed), problem, objective)).ToList();
+            // No seed: a full-catalog seed would lift every K to the multi-start build and hide what pruning to K loses.
+            var runs = TopKs.Select(k => Measure(k, Exact(objective, k, seed: null), problem, objective)).ToList();
             foreach (var row in Rows(runs, problem, _objective.BottleneckWeight)) yield return row;
         }
     }
@@ -107,7 +107,7 @@ public sealed class EvaluationHarness
     }
 
     // Seeded with the live solver's build: exact then only has to prove it optimal or beat it.
-    private ExactBuildSolver Exact(BuildObjective objective, int topK, MultiStartSolver seed) =>
+    private ExactBuildSolver Exact(BuildObjective objective, int topK, MultiStartSolver? seed) =>
         new(_compatibility, objective, _scorer, _exact with { TopKPerCategory = topK }, seed);
 
     private BuildProblem Problem(decimal budget, Purpose purpose)

@@ -142,7 +142,7 @@ public class ExactBuildSolver : IBuildSolver
                 .Select(c => new FailedSlot
                 {
                     Category = c.ToString(),
-                    Reason = timedOut
+                    Reason = timedOut && candidatesByCategory.GetValueOrDefault(c)?.Count > 0
                         ? $"The search stopped at its time limit before it found a {c} that fits."
                         : $"No compatible {c} fits within {budget:F2} PLN alongside the rest of the build."
                 })
