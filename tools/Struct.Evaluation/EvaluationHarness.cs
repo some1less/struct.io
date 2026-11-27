@@ -153,6 +153,6 @@ public sealed class EvaluationHarness
     private sealed record Run(string Solver, int? TopK, BuildSolution Solution, double Objective, double Ms)
     {
         public int Filled => Solution.Build.Components.Count();
-        public IReadOnlySet<Category> Slots { get; } = Solution.Build.Components.Select(c => c.Category).ToHashSet();
+        public HashSet<Category> Slots { get; } = Solution.Build.Components.Select(c => c.Category).ToHashSet();
     }
 }
