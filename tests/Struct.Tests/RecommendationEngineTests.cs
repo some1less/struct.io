@@ -43,6 +43,18 @@ public class RecommendationEngineTests
     }
 
     [Fact]
+    public async Task FreeParts_GiveAZeroShare_InsteadOfDividingByZero()
+    {
+        var catalog = CatalogFactory.FullCoherentCatalog();
+        catalog.ForEach(c => c.Price = 0);
+
+        var result = await EngineFor(catalog).GenerateRecommendationAsync(new RecommendationRequest { Budget = 12000 });
+
+        Assert.Equal(8, result.Slots.Count);
+        Assert.All(result.Slots, s => Assert.Equal(0m, s.PriceShare));
+    }
+
+    [Fact]
     public async Task BudgetIsNeverExceeded_AcrossRangeOfBudgets()
     {
         var engine = EngineFor(CatalogFactory.FullCoherentCatalog());

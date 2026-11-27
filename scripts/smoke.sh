@@ -14,9 +14,11 @@ check() { # name, expected status, curl args...
 }
 
 check "GET /api/config" 200 "$BASE/api/config"
-for p in Gaming Work Office; do
-  check "recommend $p 12000" 200 -X POST "$BASE/api/algorithms/recommend" \
-    -H 'Content-Type: application/json' -d "{\"budget\":12000,\"purpose\":\"$p\"}"
+for b in 5000 12000; do
+  for p in Gaming Work Office; do
+    check "recommend $p $b" 200 -X POST "$BASE/api/algorithms/recommend" \
+      -H 'Content-Type: application/json' -d "{\"budget\":$b,\"purpose\":\"$p\"}"
+  done
 done
 check "unknown purpose" 400 -X POST "$BASE/api/algorithms/recommend" \
   -H 'Content-Type: application/json' -d '{"budget":12000,"purpose":"banana"}'
