@@ -16,13 +16,14 @@ public class EvaluationHarnessTests
     {
         var rows = Harness(CatalogFactory.UpgradableCatalog()).Grid([9000m]).ToList();
 
-        Assert.Equal(9, rows.Count);
+        Assert.Equal(12, rows.Count);
         var gaming = rows.Where(r => r.Purpose == Purpose.Gaming).ToDictionary(r => r.Solver);
         Assert.Equal(100, gaming["exact"].PctOfOptimal!.Value, precision: 9);
         Assert.Contains("4060", gaming["greedy"].Gpu);
         // Catalog parts come with Id 0; the harness must number them or the upgrade pass skips every candidate.
         Assert.Contains("4090", gaming["greedy+ls"].Gpu);
         Assert.True(gaming["greedy"].PctOfOptimal < gaming["greedy+ls"].PctOfOptimal);
+        Assert.True(gaming["greedy+ls"].PctOfOptimal <= gaming["multistart"].PctOfOptimal);
         Assert.All(gaming.Values, r => Assert.True(r.Complete && r.Price <= 9000m && r.Ms >= 0));
     }
 
@@ -60,7 +61,7 @@ public class EvaluationHarnessTests
         Assert.Equal(EvaluationHarness.TopKs.Length * 3, topK.Count);
         Assert.All(topK, r => Assert.Equal("exact", r.Solver));
         Assert.Equal(EvaluationHarness.TopKs, topK.Where(r => r.Purpose == Purpose.Gaming).Select(r => r.TopK!.Value));
-        Assert.Equal(EvaluationHarness.Lambdas.Length * 3 * 3, lambda.Count);
+        Assert.Equal(EvaluationHarness.Lambdas.Length * 3 * 4, lambda.Count);
         Assert.Equal(EvaluationHarness.Lambdas, lambda.Select(r => r.Lambda).Distinct());
     }
 
@@ -80,7 +81,7 @@ public class EvaluationHarnessTests
         // smoke.sh asks for 12000 zł per purpose; the e2e test opens Gaming at 9000 zł
         var harness = EvaluationSetup.FromRepo(BenchmarkValidationTests.RepoRoot(), CiFixture);
 
-        var live = harness.Grid([9000m, 12000m]).Where(r => r.Solver == "greedy+ls").ToList();
+        var live = harness.Grid([9000m, 12000m]).Where(r => r.Solver == "multistart").ToList();
 
         Assert.NotEmpty(live);
         Assert.All(live, r => Assert.True(r.Complete, $"{r.Purpose} @ {r.Budget}: {r.Filled} slots"));

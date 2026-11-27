@@ -9,13 +9,15 @@ using Struct.DAL.Models;
 namespace Struct.Evaluation;
 
 /// <summary>
-/// Runs greedy, greedy + local search and exact (over all candidates) on budget × purpose scenarios and reports
+/// Runs greedy, greedy + local search, multi-start over it and exact (over all candidates) on budget × purpose scenarios and reports
 /// each build against the best one found; plus TopK and λ sweeps. The best is the exact build unless exact timed out.
 /// </summary>
 public sealed class EvaluationHarness
 {
     public const int AllCandidates = int.MaxValue;
     public static readonly decimal[] Budgets = [3000, 4000, 5000, 6000, 8000, 10000, 15000];
+    // Named before any solver ran on them, so the grid has cells no design choice was tuned on.
+    public static readonly decimal[] HeldOutBudgets = [3500, 6500, 11000];
     public static readonly int[] TopKs = [10, 20, 40, AllCandidates];
     public static readonly double[] Lambdas = [0, 0.25, 0.5, 1.0];
 
@@ -64,7 +66,7 @@ public sealed class EvaluationHarness
     {
         WarmUp();
         Directory.CreateDirectory(outputDir);
-        Write(Path.Combine(outputDir, "grid.csv"), Grid(Budgets));
+        Write(Path.Combine(outputDir, "grid.csv"), Grid(Budgets.Concat(HeldOutBudgets).Order()));
         Write(Path.Combine(outputDir, "topk.csv"), TopKSweep(Budgets));
         Write(Path.Combine(outputDir, "lambda.csv"), LambdaSweep(Budgets));
     }
@@ -99,7 +101,8 @@ public sealed class EvaluationHarness
     private IBuildSolver[] Solvers(BuildObjective objective, int topK)
     {
         var greedy = new GreedySolver(_compatibility, _scorer, _recommendation);
-        return [greedy, new GreedyLocalSearchSolver(greedy, _compatibility, objective), Exact(objective, topK)];
+        var localSearch = new GreedyLocalSearchSolver(greedy, _compatibility, objective);
+        return [greedy, localSearch, new MultiStartSolver(localSearch, objective), Exact(objective, topK)];
     }
 
     private ExactBuildSolver Exact(BuildObjective objective, int topK) =>
@@ -118,7 +121,11 @@ public sealed class EvaluationHarness
         var clock = Stopwatch.StartNew();
         var solution = solver.Solve(problem);
         double ms = clock.Elapsed.TotalMilliseconds;
-        string name = solver switch { GreedySolver => "greedy", GreedyLocalSearchSolver => "greedy+ls", _ => "exact" };
+        string name = solver switch
+        {
+            GreedySolver => "greedy", GreedyLocalSearchSolver => "greedy+ls", MultiStartSolver => "multistart",
+            ExactBuildSolver => "exact", _ => throw new ArgumentException($"Unlabelled solver {solver.GetType().Name}")
+        };
         return new Run(name, topK, solution, objective.Evaluate(solution.Build, problem.Profile.Weights, problem.Purpose), ms);
     }
 

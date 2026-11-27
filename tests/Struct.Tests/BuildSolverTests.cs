@@ -1,4 +1,5 @@
 using Struct.BLL.Core;
+using Struct.BLL.Core.Recommendation;
 using Struct.BLL.Core.Recommendation.Models;
 using Struct.DAL.Models;
 using Struct.Evaluation;
@@ -190,6 +191,95 @@ public class BuildSolverTests
             .ToList();
 
         Assert.True(misses.Count == 0, string.Join("\n", misses));
+    }
+
+    [Fact]
+    public void MultiStart_RunsInnerOncePerPlatform_EachRestrictedToOnePlatform()
+    {
+        // Spec strings differ in spaces and case, as in scraped data; a part without the spec joins no platform.
+        var catalog = CatalogFactory.FullCoherentCatalog();
+        catalog.AddRange([
+            ComponentBuilder.New(Category.Cpu, "Intel Core i5-12400F").Price(600)
+                .Spec("Socket", "LGA 1700").Spec("MemoryType", "DDR4, DDR5").Spec("TDP", "65"),
+            ComponentBuilder.New(Category.Cpu, "CPU without socket").Price(500),
+            ComponentBuilder.New(Category.Motherboard, "Gigabyte B760 DDR4").Price(450)
+                .Spec("Socket", "LGA1700").Spec("RamType", "ddr4").Spec("FormFactor", "ATX"),
+            ComponentBuilder.New(Category.Motherboard, "Board without RamType").Price(400).Spec("Socket", "AM5"),
+            ComponentBuilder.New(Category.Ram, "Kingston DDR4 16GB").Price(200).Spec("Type", "DDR4")
+        ]);
+        var problem = Engines.Problem(catalog, 12000m);
+        var recorder = new RecordingSolver();
+
+        new MultiStartSolver(recorder, Engines.Objective()).Solve(problem);
+
+        Assert.Same(problem, recorder.Calls[0]);
+        var starts = recorder.Calls.Skip(1).ToList();
+        Assert.Equal(2, starts.Count);
+        var lga = Assert.Single(starts, p => p.Candidates[Category.Motherboard].Any(b => b.Name == "Gigabyte B760 DDR4"));
+        var am5 = Assert.Single(starts, p => p != lga);
+        Assert.Equal(["Intel Core i5-12400F"], lga.Candidates[Category.Cpu].Select(c => c.Name));
+        Assert.Equal(["Gigabyte B760 DDR4"], lga.Candidates[Category.Motherboard].Select(c => c.Name));
+        Assert.Equal(["Kingston DDR4 16GB"], lga.Candidates[Category.Ram].Select(c => c.Name));
+        Assert.Equal(["AMD Ryzen 7 7800X3D"], am5.Candidates[Category.Cpu].Select(c => c.Name));
+        Assert.Equal(["MSI B650 Tomahawk"], am5.Candidates[Category.Motherboard].Select(c => c.Name));
+        Assert.Equal(["Corsair Vengeance 32GB DDR5"], am5.Candidates[Category.Ram].Select(c => c.Name));
+        foreach (var start in starts)
+        foreach (var slot in problem.Candidates.Keys.Except([Category.Cpu, Category.Motherboard, Category.Ram]))
+            Assert.Same(problem.Candidates[slot], start.Candidates[slot]);
+    }
+
+    [Fact]
+    public void MultiStart_FindsTheBuildOnAnotherPlatform_ThatGreedyLocalSearchMisses()
+    {
+        // Work fills the CPU first: the stronger AM5 CPU still leaves room for its DDR5 kit and the weak GPU, so greedy
+        // takes it, and the DDR5 money is what the strong GPU needs. Moving to AM4 changes CPU, board and RAM at once.
+        var catalog = CatalogFactory.FullCoherentCatalog()
+            .Where(c => c.Category is not (Category.Cpu or Category.Gpu or Category.Motherboard or Category.Ram)).ToList();
+        catalog.AddRange([
+            ComponentBuilder.New(Category.Cpu, "AM5 CPU").Price(1000).Spec("Socket", "AM5").Spec("MemoryType", "DDR5").Spec("TDP", "105"),
+            ComponentBuilder.New(Category.Cpu, "AM4 CPU").Price(600).Spec("Socket", "AM4").Spec("MemoryType", "DDR4").Spec("TDP", "65"),
+            ComponentBuilder.New(Category.Motherboard, "AM5 board").Price(500).Spec("Socket", "AM5").Spec("RamType", "DDR5").Spec("FormFactor", "ATX"),
+            ComponentBuilder.New(Category.Motherboard, "AM4 board").Price(400).Spec("Socket", "AM4").Spec("RamType", "DDR4").Spec("FormFactor", "ATX"),
+            ComponentBuilder.New(Category.Ram, "DDR5 kit").Price(900).Spec("Type", "DDR5"),
+            ComponentBuilder.New(Category.Ram, "DDR4 kit").Price(200).Spec("Type", "DDR4"),
+            ComponentBuilder.New(Category.Gpu, "Weak GPU").Price(800).Spec("TDP", "100").Spec("Length", "200"),
+            ComponentBuilder.New(Category.Gpu, "Strong GPU").Price(2000).Spec("TDP", "200").Spec("Length", "240")
+        ]);
+        var scores = catalog.ToDictionary(c => c.Name, _ => 0.5);
+        (scores["AM5 CPU"], scores["AM4 CPU"], scores["Weak GPU"], scores["Strong GPU"]) = (0.9, 0.8, 0.4, 0.9);
+        var scorer = new FixedScorer(scores);
+        var problem = Engines.Problem(catalog, 4800m, Purpose.Work);
+        double Objective(BuildSolution s) => new BuildObjective(scorer, TestConfig.Objective).Evaluate(s.Build, problem.Profile.Weights, Purpose.Work);
+
+        var local = Engines.GreedyLocalSearch(scorer).Solve(problem);
+        var multi = Engines.MultiStart(scorer).Solve(problem);
+
+        Assert.Equal(("AM5 CPU", "Weak GPU"), (local.Build.Cpu!.Name, local.Build.Gpu!.Name));
+        Assert.Equal(("AM4 CPU", "Strong GPU"), (multi.Build.Cpu!.Name, multi.Build.Gpu!.Name));
+        Assert.Equal(8, multi.Build.Components.Count());
+        Assert.True(Objective(multi) > Objective(local), $"multi {Objective(multi)} <= local {Objective(local)}");
+    }
+
+    [Fact]
+    public void MultiStart_OnOnePlatform_ReturnsTheInnerBuild()
+    {
+        var problem = Engines.Problem(CatalogFactory.UpgradableCatalog(), 9000m);
+
+        var local = Engines.GreedyLocalSearch().Solve(problem);
+        var multi = Engines.MultiStart().Solve(problem);
+
+        Assert.Equal(local.Build.Components.Select(c => c.Id), multi.Build.Components.Select(c => c.Id));
+    }
+
+    private sealed class RecordingSolver : IBuildSolver
+    {
+        public List<BuildProblem> Calls { get; } = [];
+
+        public BuildSolution Solve(BuildProblem problem)
+        {
+            Calls.Add(problem);
+            return new BuildSolution();
+        }
     }
 
     [Fact]
