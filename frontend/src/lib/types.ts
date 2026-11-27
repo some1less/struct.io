@@ -7,6 +7,7 @@ export interface AppConfig {
   minBudget: number
   purposes: Purpose[]
   bottleneckThreshold: number
+  bottleneckPurposes: Purpose[]
 }
 
 export interface RecommendationRequest {

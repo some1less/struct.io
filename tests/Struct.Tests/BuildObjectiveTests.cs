@@ -46,6 +46,16 @@ public class BuildObjectiveTests
     }
 
     [Fact]
+    public void Office_PaysNoBottleneckPenalty_WithTheShippedSettings()
+    {
+        var build = Build(0.64, 0.25, out var scorer);
+        var objective = new BuildObjective(scorer, TestConfig.Objective);
+
+        Assert.Equal(0.445, objective.Evaluate(build, EqualWeights, Purpose.Office), precision: 6);
+        Assert.Equal(0.370, objective.Evaluate(build, EqualWeights, Purpose.Work), precision: 6);
+    }
+
+    [Fact]
     public void MissingCpuOrGpu_AppliesNoBottleneckPenalty()
     {
         var scorer = new FixedScorer(new() { ["CPU"] = 0.9 });

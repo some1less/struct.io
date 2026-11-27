@@ -389,6 +389,7 @@ export const MOCK_CONFIG: AppConfig = {
   minBudget: 2400,
   purposes: ['Gaming', 'Work', 'Office'],
   bottleneckThreshold: 0.15,
+  bottleneckPurposes: ['Gaming', 'Work'],
 }
 
 export const MOCK_RESULTS: Record<Purpose, RecommendationResult> = {

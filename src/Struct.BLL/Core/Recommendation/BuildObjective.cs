@@ -29,6 +29,8 @@ public class BuildObjective
             if (component != null)
                 sum += weight * _scorer.CalculateScore(component, purpose);
         }
+        // An office PC does not need a GPU in the CPU's class, so the shipped config leaves Office out.
+        if (_settings.BottleneckPurposes is { } only && !only.Contains(purpose)) return sum;
         return sum - _settings.BottleneckWeight * BottleneckPenalty(build, purpose);
     }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readBottleneck } from './bottleneck'
+import { bottleneckApplies, readBottleneck } from './bottleneck'
 import type { RecommendationResult } from './types'
 
 function resultWith(scores: Record<string, number>): RecommendationResult {
@@ -32,5 +32,12 @@ describe('readBottleneck', () => {
 
   it('is unknown without both a CPU and a GPU', () => {
     expect(readBottleneck(resultWith({ Cpu: 0.8 }), 0.15).status).toBe('unknown')
+  })
+})
+
+describe('bottleneckApplies', () => {
+  it('follows the purposes the engine penalises', () => {
+    expect(bottleneckApplies(['Gaming', 'Work'], 'Gaming')).toBe(true)
+    expect(bottleneckApplies(['Gaming', 'Work'], 'Office')).toBe(false)
   })
 })
