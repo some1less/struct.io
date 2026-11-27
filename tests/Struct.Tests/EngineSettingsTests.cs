@@ -22,12 +22,22 @@ public class EngineSettingsTests
     }
 
     [Fact]
-    public void ExactSolver_RejectsANonPositiveTimeLimit()
+    public void ExactSolver_ShippedSettings_PassValidation()
     {
         var shipped = TestConfig.ExactSolver;
 
         Assert.Same(shipped, shipped.Validated());
-        Assert.Throws<InvalidOperationException>(() => (shipped with { TimeLimit = TimeSpan.Zero }).Validated());
+    }
+
+    [Theory]
+    [InlineData(0, 20)]
+    [InlineData(-1, 20)]
+    [InlineData(10, 0)]
+    public void ExactSolver_RejectsANonPositiveTimeLimitOrTopK(int seconds, int topK)
+    {
+        var settings = TestConfig.ExactSolver with { TimeLimit = TimeSpan.FromSeconds(seconds), TopKPerCategory = topK };
+
+        Assert.Throws<InvalidOperationException>(() => settings.Validated());
     }
 
     [Fact]
