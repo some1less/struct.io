@@ -11,10 +11,9 @@ const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080'
 // Exposed so the UI can label its data source.
 export const IS_LIVE = USE_LIVE
 
-// Display names. The API value stays the Purpose key; 'Work' is surfaced as 'Hybrid'.
 export const PURPOSE_LABEL: Record<Purpose, string> = {
   Gaming: 'Gaming',
-  Work: 'Hybrid',
+  Work: 'Work',
   Office: 'Office',
 }
 
